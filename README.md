@@ -1,44 +1,119 @@
-# IRIS: Intermediate Resource Integration System
+# IRIS<sup>2</sup>: Intermediate Resource Integration System V2
 IRIS is a framework to implement communication between PC and embedded peripherals.
-It's designed to support multiple interfaces such as
-* USB Serial Port
-* REST API over HTTP[S] (nyi)
+It's designed to be able to easily implement new devices,
+protocols and communication interfaces.
 
-**Warning: Framework is still WIP (even tho it should work fine)**
+## Important
+* Warning: Framework is still WIP (even tho it should 
+work fine)
+* Version 2 is a complete rewrite of the original IRIS 
+framework and is not compatible with it.
+* Version 2 was not yet tested in production environment, 
+
+
+At this moment only interfaces mentioned below are 
+implemented, but more are planned.
+* USB Serial Port
+
+## Requirements
+* .NET 8.0+
+* C# 12+
+
+Why? Because I like new stuff... C# 12 makes it way 
+easier to make code more readable and maintainable.
 
 # Concepts
-API consists of several abstraction levels
-## IDevice
-`IDevice` is an abstraction representation of physical device and it's functions. 
+API consists of several abstraction levels.
 
-It's used to send commands and define supported protocols or detect / connect to the device.
+## Device (`DeviceBase`)
+Device is a representation of a physical device. 
+It consists of protocol and interface used to communicate with it.
 
-## IProtocol
-Represents communication protocol parameters for specific protocol. Two example protocols have been implemented.
+## Protocol (`IProtocol`)
+Protocol is a representation of a communication protocol used to communicate with device.
+It is used to convert data from objects to bytes and vice versa.
 
-* RUSTIC - simple command communication protocol like `PARAMETER=VALUE` or `PARAMETER=?`, useful for implementation of simple devices / toys
-* FOCUS - more complicated constant response-sized (by default) binary data protocol useful for simple diagnostic devices or more advanced toys
+## Interface (`ICommunicationInterface`)
+Interface is a representation of a communication 
+interface used to communicate with device for example Serial Port, REST API, etc.
 
-IProtocol should be used to abstract interface-based parameters eg. if interface allows HTTP access or it requires to use secure HTTPS connection.
+This interface is responsible for handling all low-level communication with device
+like opening, closing, reading and writing data.
 
-## IDataExchanger
-Represents communication method between device and PC. Can be for example `ReliableSerialPort` or HTTP Client. Is different than protocol, as protocol can support multiple DataExchangers - eg. device can use same protocol over TCP/IP or over USB CDC.
+## Address (`IDeviceAddress`)
+Address is a representation of a device address - for example COM port, IP address, etc.
 
-## IDeviceRecognizer
-Device recognition object - used to detect all available devices on current machine (eg. scans all USB connections and detects COM Ports on Windows (see `USBSerialPortRecognizer`).
+This is used to identify device on a specific interface.
 
-Also can be used to check if specific `DeviceAddress` is a proper address of device.
+# Implemented devices
+## SerialPortInterface
+Serial Port Interface is a communication interface used to communicate with devices over serial port.
+It can be any COM port device (either USB or RS232).
 
-## DeviceAddress
-`DeviceAddress` is an abstraction of device address point eg. COM Port name or HTTP endpoint (or IP address)
+This interface uses improved implementation of 
+`SerialPort` class from `System.IO.Ports` namespace, 
+which reduces chances of deadlocks, missed data and other issues.
 
-Is used to determine all available devices and connect to them using `IDeviceRecognizer` implementation.
+For reference see `SerialPortInterface` class.
+You can also base your own implementation on it.
 
-## InvokableCommand
-Command that can be executed on device. Simple as that.
+# Implemented protocols
+## FOCUS
+FOCUS is a protocol used to communicate with devices via 
+command-response style communication. All commands are 
+arrays of bytes, and all responses are fixed length (per 
+command type) arrays of bytes with an exception that 
+error status can change the length of response to 4 bytes.
 
-## IReceivedDataObject
-Represents data received from command and is used to decode data into C# object, as command can return data in multiple formats - string, byte array, JSON etc.
+Response length includes first status byte and last end 
+of line byte (nobody knows why it's there, but it's kept 
+for backward compatibility).
+
+For reference see `FocusProtocol` class.
+
+Example command is:
+```
+0x02 0x00 0x0D 0x0A
+``` 
+This example comes from an experimental device, where 
+0x02 command reads value from ADC port 0x00.
+
+Which then responds with:
+```
+0x01 0x32 0x00 0x0A
+```
+Where 0x01 is status byte (in this case OK), 0x32 0x00 is 
+value read from ADC (0x3200 = 12800) and 0x0A is end of line.
+
+## RUSTIC
+RUSTIC is a simple protocol used to communicate with 
+devices via ASCII commands. All commands are 
+assignment-like strings.
+
+For example:
+```
+ADC0=?
+```
+can be used to read value from ADC0 port and response 
+would be:
+
+```
+ADC0=12800
+```
+
+Alternatively, you can set value of GPIO0 port with:
+```
+GPIO0=1
+```
+
+And response would be either:
+```
+GPIO0=1
+GPIO0=OK
+```
+depending on device implementation.
+
+For reference see `RusticProtocol` class.
 
 # Exceptions
 Some exceptions may appear if you implement this API.
@@ -51,6 +126,3 @@ Thrown when you try to execute command when device is not configured properly.
 
 ## HardwareException
 Thrown when hardware returns error (eg. non-existing command), to be implemented on command level.
-
-## InvalidException
-Thrown when device configuration is not valid (eg. using HTTP Address on SerialPort device)
