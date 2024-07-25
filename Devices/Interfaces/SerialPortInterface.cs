@@ -152,6 +152,9 @@ namespace IRIS.Devices.Interfaces
         /// <returns>Array of data, if byte is not found, empty array is returned</returns>
         public byte[] ReadDataUntil(byte receivedByte)
         {
+            // Check if device is open
+            if (!IsOpen) throw new CommunicationException("Port is not open!");
+            
             int dataIndex = _dataReceived.IndexOf(receivedByte);
             if (dataIndex < 0 || dataIndex > _dataReceived.Count)
                 return [];

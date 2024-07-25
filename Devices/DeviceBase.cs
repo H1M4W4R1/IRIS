@@ -20,12 +20,12 @@ namespace IRIS.Devices
         /// Beware: this is not initialized in constructor, as it is not known at this point
         /// You must have a constructor in derived class that initializes this property
         /// </summary>
-        protected TCommunicationInterface Interface { get; set; } = default!;
+        protected TCommunicationInterface Interface { get; init; } = default!;
 
         /// <summary>
         /// Communication interface between device and computer
         /// </summary>
-        protected TProtocol CommunicationProtocol { get; } = new TProtocol();
+        protected TProtocol CommunicationProtocol { get; init; } = new TProtocol();
         
         
     }

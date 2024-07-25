@@ -27,7 +27,7 @@ namespace IRIS.Devices
         /// </summary>
         public void SendData<TData>(TData data) where TData : unmanaged
         {
-            byte[] encodedData = CommunicationProtocol.EncodeData<TData>(data);
+            byte[] encodedData = CommunicationProtocol.EncodeData(data);
             Interface.TransmitData(encodedData);
         }
         
