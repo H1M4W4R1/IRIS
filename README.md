@@ -45,7 +45,7 @@ Address is a representation of a device address - for example COM port, IP addre
 
 This is used to identify device on a specific interface.
 
-# Implemented devices
+# Implemented interfaces
 ## SerialPortInterface
 Serial Port Interface is a communication interface used to communicate with devices over serial port.
 It can be any COM port device (either USB or RS232).
@@ -56,6 +56,15 @@ which reduces chances of deadlocks, missed data and other issues.
 
 For reference see `SerialPortInterface` class.
 You can also base your own implementation on it.
+
+## VirtualInterface
+Virtual Interface is a communication interface used to 
+simulate communication with devices. It's useful for 
+testing purposes, emulation of devices, etc.
+
+Most of the methods are compatible with `SerialPortInterface`.
+
+For reference see `VirtualInterface` class.
 
 # Implemented protocols
 ## FOCUS
