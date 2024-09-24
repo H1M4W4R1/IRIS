@@ -1,5 +1,6 @@
 ﻿using IRIS.Communication;
 using IRIS.Communication.Transactions.Abstract;
+using IRIS.Communication.Transactions.ReadTypes;
 using IRIS.Protocols;
 
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
@@ -45,7 +46,8 @@ namespace IRIS.Devices.Interfaces
             IsOpen = false;
         }
 
-        public async Task SendDataAsync<TProtocol, TTransactionType, TWriteDataType>(TWriteDataType data,
+        public async Task SendDataAsync<TProtocol, TTransactionType, TWriteDataType>(TTransactionType transaction,
+            TWriteDataType data,
             CancellationToken cancellationToken = default) where TProtocol : IProtocol
             where TTransactionType : ITransactionWithRequest<TTransactionType, TWriteDataType>
             where TWriteDataType : struct
@@ -54,11 +56,12 @@ namespace IRIS.Devices.Interfaces
             ICommunicationInterface coreInterface = this;
 
             // Encode data
-            byte[] encodedData = TTransactionType.Encode<TProtocol>(data);
+            byte[] encodedData = transaction.Encode<TProtocol>(data);
             coreInterface.TransmitData(encodedData);
         }
 
         public async Task<TResponseDataType> ReceiveDataAsync<TProtocol, TTransactionType, TResponseDataType>(
+            TTransactionType transaction,
             CancellationToken cancellationToken = default) where TProtocol : IProtocol
             where TTransactionType : ITransactionWithResponse<TTransactionType, TResponseDataType>
             where TResponseDataType : struct
@@ -67,22 +70,22 @@ namespace IRIS.Devices.Interfaces
             ICommunicationInterface coreInterface = this;
 
             // If transaction is based on response length, read data until it's length
-            if (TTransactionType.IsByLength)
+            if (transaction is ITransactionReadByLength byLength)
             {
-                byte[] data = await coreInterface.ReadData(TTransactionType.ResponseLength, cancellationToken);
+                byte[] data = await coreInterface.ReadData(byLength.ResponseLength, cancellationToken);
 
                 // Decode data
-                TTransactionType.Decode<TProtocol>(data, out TResponseDataType responseData);
+                transaction.Decode<TProtocol>(data, out TResponseDataType responseData);
                 return responseData;
             }
 
             // If transaction is based on response terminator, read data until terminator is found
-            if (TTransactionType.IsByEndingByte)
+            if (transaction is ITransactionReadUntilByte untilByteReceived)
             {
-                byte[] data = await coreInterface.ReadDataUntil(TTransactionType.ExpectedByte, cancellationToken);
+                byte[] data = await coreInterface.ReadDataUntil(untilByteReceived.ExpectedByte, cancellationToken);
 
                 // Decode data
-                TTransactionType.Decode<TProtocol>(data, out TResponseDataType responseData);
+                transaction.Decode<TProtocol>(data, out TResponseDataType responseData);
                 return responseData;
             }
 

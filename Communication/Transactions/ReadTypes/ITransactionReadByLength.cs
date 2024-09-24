@@ -5,6 +5,10 @@
     /// </summary>
     public interface ITransactionReadByLength
     {
+        /// <summary>
+        /// Length of the response.
+        /// </summary>
+        public int ResponseLength { get; }
 
     }
 }

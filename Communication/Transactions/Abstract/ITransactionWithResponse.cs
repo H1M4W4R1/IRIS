@@ -12,7 +12,7 @@ namespace IRIS.Communication.Transactions.Abstract
         /// <summary>
         /// Decode data using protocol
         /// </summary>
-        public static virtual bool Decode<TProtocolType>(byte[] inputData, out TResponseData outputData)
+        public bool Decode<TProtocolType>(byte[] inputData, out TResponseData outputData)
             where TProtocolType : IProtocol => 
             TProtocolType.DecodeData(inputData, out outputData);
     }

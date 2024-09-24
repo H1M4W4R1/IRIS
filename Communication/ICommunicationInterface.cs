@@ -22,13 +22,15 @@ namespace IRIS.Communication
         /// <summary>
         /// Send data to device
         /// </summary>
-        Task SendDataAsync<TProtocol, TTransactionType, TWriteDataType>(TWriteDataType data,
+        Task SendDataAsync<TProtocol, TTransactionType, TWriteDataType>(TTransactionType transaction,
+            TWriteDataType data,
             CancellationToken cancellationToken = default)
             where TProtocol : IProtocol
             where TTransactionType : ITransactionWithRequest<TTransactionType, TWriteDataType>
             where TWriteDataType : struct;
         
         Task<TResponseDataType> ReceiveDataAsync<TProtocol, TTransactionType, TResponseDataType>(
+            TTransactionType transaction,
             CancellationToken cancellationToken = default)
             where TProtocol : IProtocol
             where TTransactionType : ITransactionWithResponse<TTransactionType, TResponseDataType>
@@ -42,13 +44,11 @@ namespace IRIS.Communication
         /// <summary>
         /// Read data from device
         /// </summary>
-        /// <returns></returns>
         internal Task<byte[]> ReadData(int length, CancellationToken cancellationToken);
         
         /// <summary>
         /// Read data from device until expected byte is found
         /// </summary>
-        /// <returns></returns>
         internal Task<byte[]> ReadDataUntil(byte expectedByte, CancellationToken cancellationToken);
     }
 }

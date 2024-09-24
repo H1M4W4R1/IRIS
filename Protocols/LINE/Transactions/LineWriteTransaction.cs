@@ -15,7 +15,7 @@ namespace IRIS.Protocols.LINE.Transactions
         {
             // Get the communication interface and send data
             ICommunicationInterface communicationInterface = device.GetCommunicationInterface();
-            await communicationInterface.SendDataAsync<LineProtocol, LineWriteTransaction, LineTransactionData>(requestData, cancellationToken);
+            await communicationInterface.SendDataAsync<LineProtocol, LineWriteTransaction, LineTransactionData>(this, requestData, cancellationToken);
             return true;
         }
     }

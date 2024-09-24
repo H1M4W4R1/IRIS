@@ -29,12 +29,12 @@ namespace IRIS.Protocols.RUSTIC.Transactions
             TCommunicationInterface communicationInterface = device.GetCommunicationInterface();
 
             // Send request to acquire value
-            await communicationInterface.SendDataAsync<RusticProtocol, GetValueTransaction, GetValueRequestData>(
+            await communicationInterface.SendDataAsync<RusticProtocol, GetValueTransaction, GetValueRequestData>(this,
                 requestData, cancellationToken);
-            
+
             // Read response
-            return await communicationInterface.ReceiveDataAsync<RusticProtocol, GetValueTransaction, GetValueResponseData>(
-                cancellationToken);
+            return await communicationInterface
+                .ReceiveDataAsync<RusticProtocol, GetValueTransaction, GetValueResponseData>(this, cancellationToken);
         }
     }
 }

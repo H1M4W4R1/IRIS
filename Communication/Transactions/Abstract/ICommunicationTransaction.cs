@@ -11,46 +11,7 @@ namespace IRIS.Communication.Transactions.Abstract
     public interface ICommunicationTransaction<TSelf> : ICommunicationTransaction
         where TSelf : ICommunicationTransaction<TSelf>
     {
-        // ReSharper disable once StaticMemberInGenericType
-        public static virtual int ResponseLength => 0;
 
-        // ReSharper disable once StaticMemberInGenericType
-        public static virtual byte ExpectedByte => 0x0A;
-
-        public static virtual bool IsByLength
-        {
-            get
-            {
-                Type[] interfaces = typeof(TSelf).GetInterfaces();
-                
-                // Check if implements ITransactionReadByLength
-                for (int index = 0; index < interfaces.Length; index++)
-                {
-                    Type interfaceType = interfaces[index];
-                    if (interfaceType == typeof(ITransactionReadByLength)) return true;
-                }
-
-                return false;
-            }
-        }
-
-        public static virtual bool IsByEndingByte
-        {
-            get
-            {
-                Type[] interfaces = typeof(TSelf).GetInterfaces();
-                
-                // Check if implements ITransactionReadByLength
-                for (int index = 0; index < interfaces.Length; index++)
-                {
-                    Type interfaceType = interfaces[index];
-                    if (interfaceType == typeof(ITransactionReadUntilByte)) return true;
-                }
-
-                return false;
-            }
-        }
-   
     }
 
     /// <summary>

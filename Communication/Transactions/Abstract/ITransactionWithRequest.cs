@@ -12,7 +12,7 @@ namespace IRIS.Communication.Transactions.Abstract
         /// <summary>
         /// Encode data using protocol
         /// </summary>
-        public static virtual byte[] Encode<TProtocolType>(TRequestData data)
+        public byte[] Encode<TProtocolType>(TRequestData data)
             where TProtocolType : IProtocol => 
             TProtocolType.EncodeData(data);
     }
