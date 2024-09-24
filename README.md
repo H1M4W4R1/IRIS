@@ -53,7 +53,7 @@ For more information see `ICommunicationInterface` interface.
 Protocol is a representation of a communication protocol used to
 encode and decode data sent to and received from the device.
 
-This acts as a middleman between C# unmanaged structures and
+This acts as a middleman between C# structures and
 device-specific binary data allowing for easy 
 implementation of multi-protocol devices or multiple devices
 that use the same protocol.
@@ -116,12 +116,12 @@ characters).
 ```csharp
 public struct MyCustomProtocol : IProtocol
 {
-    public static byte[] EncodeData<TData>(TData inputData) where TData : unmanaged
+    public static byte[] EncodeData<TData>(TData inputData) where TData : struct
     {
         // Implementation
     }
 
-    public static bool DecodeData<TData>(byte[]? inputData, out TData outputData) where TData : unmanaged
+    public static bool DecodeData<TData>(byte[]? inputData, out TData outputData) where TData : struct
     {
         // Implementation
     }

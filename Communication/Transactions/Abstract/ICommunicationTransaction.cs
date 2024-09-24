@@ -6,10 +6,7 @@ namespace IRIS.Communication.Transactions.Abstract
     /// Represents data transaction between device and computer.
     /// This can be for example serial port, ethernet, etc.
     /// <br/>
-    /// Communication transactions must be structs (this is intended to reduce memory allocation). <br/>
-    /// We also assume that all transactions are unmanaged, as most devices will be using C or C++ for internal
-    /// software and most types should be compatible with unmanaged C# types. <br/>
-    /// The issues may arise at arrays or similar types, however we can create custom type for handling that.
+    /// Communication transactions should be unmanaged structs (this is intended to reduce memory allocation).
     /// </summary>
     public interface ICommunicationTransaction<TSelf> : ICommunicationTransaction
         where TSelf : ICommunicationTransaction<TSelf>

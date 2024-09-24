@@ -8,8 +8,8 @@ namespace IRIS.Communication.Transactions
     /// </summary>
     public interface IDataExchangeTransaction<TSelf, in TRequestDataType, TResponseDataType> :
         ITransactionWithRequest<TSelf, TRequestDataType>, ITransactionWithResponse<TSelf, TResponseDataType>
-        where TSelf : unmanaged, IDataExchangeTransaction<TSelf, TRequestDataType, TResponseDataType>,
-        ITransactionWithRequest<TSelf, TRequestDataType>, ITransactionWithResponse<TSelf, TResponseDataType>
+        where TSelf : IDataExchangeTransaction<TSelf, TRequestDataType, TResponseDataType>,
+        ITransactionWithRequest<TSelf, TRequestDataType>, ITransactionWithResponse<TSelf, TResponseDataType>, new()
         where TResponseDataType : struct
         where TRequestDataType : struct
     {

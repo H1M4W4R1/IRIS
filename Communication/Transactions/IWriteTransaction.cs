@@ -7,7 +7,7 @@ namespace IRIS.Communication.Transactions
     /// Represents device write request transaction.
     /// </summary>
     public interface IWriteTransaction<TSelf, in TRequestDataType> : ITransactionWithRequest<TSelf, TRequestDataType>
-        where TSelf : unmanaged, IWriteTransaction<TSelf, TRequestDataType>
+        where TSelf : IWriteTransaction<TSelf, TRequestDataType>, new()
         where TRequestDataType : struct
     {
         /// <summary>

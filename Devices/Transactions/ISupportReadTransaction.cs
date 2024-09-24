@@ -10,8 +10,8 @@ namespace IRIS.Devices.Transactions
     public interface ISupportReadTransaction<
         TDevice, TCommunicationInterface,
         in TReadTransactionType, TResponseDataType>
-        where TReadTransactionType : unmanaged, IReadTransaction<TReadTransactionType, TResponseDataType>,
-        ITransactionWithResponse<TReadTransactionType, TResponseDataType>
+        where TReadTransactionType : IReadTransaction<TReadTransactionType, TResponseDataType>,
+        ITransactionWithResponse<TReadTransactionType, TResponseDataType>, new()
         where TResponseDataType : struct
         where TDevice : DeviceBase<TCommunicationInterface>
         where TCommunicationInterface : ICommunicationInterface

@@ -24,7 +24,7 @@ namespace IRIS.Examples.ArduinoEcho
             await ExchangeMessages<LineExchangeTransaction>(message);
         
         private async Task<string> ExchangeMessages<TTransaction>(string message)
-            where TTransaction : unmanaged, IDataExchangeTransaction<TTransaction, LineTransactionData, LineTransactionData>
+            where TTransaction : IDataExchangeTransaction<TTransaction, LineTransactionData, LineTransactionData>, new()
         {
             // Create data and transaction
             LineTransactionData data = new(message);
@@ -44,7 +44,7 @@ namespace IRIS.Examples.ArduinoEcho
             await SendMessage<LineWriteTransaction>(message);
 
         private async Task SendMessage<TTransaction>(string message)
-            where TTransaction : unmanaged, IWriteTransaction<TTransaction, LineTransactionData>
+            where TTransaction : IWriteTransaction<TTransaction, LineTransactionData>, new()
         {
             // Create message
             LineTransactionData data = new(message);
@@ -60,7 +60,7 @@ namespace IRIS.Examples.ArduinoEcho
             await ReadMessage<LineReadTransaction>();
 
         private async Task<string> ReadMessage<TTransaction>()
-            where TTransaction : unmanaged, IReadTransaction<TTransaction, LineTransactionData>
+            where TTransaction : IReadTransaction<TTransaction, LineTransactionData>, new()
         {
             // Read message
             LineTransactionData response =

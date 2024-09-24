@@ -1,6 +1,4 @@
-﻿using IRIS.Utility;
-
-namespace IRIS.Protocols.LINE.Data
+﻿namespace IRIS.Protocols.LINE.Data
 {
     /// <summary>
     /// Represents a read transaction for basic line communication.

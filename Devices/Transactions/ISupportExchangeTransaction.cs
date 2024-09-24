@@ -9,10 +9,9 @@ namespace IRIS.Devices.Transactions
     /// </summary>
     public interface ISupportExchangeTransaction<TDevice, TCommunicationInterface,
         in TExchangeTransactionType, in TRequestType, TResponseDataType>
-        where TExchangeTransactionType : unmanaged,
-        IDataExchangeTransaction<TExchangeTransactionType, TRequestType, TResponseDataType>,
+        where TExchangeTransactionType : IDataExchangeTransaction<TExchangeTransactionType, TRequestType, TResponseDataType>,
         ITransactionWithRequest<TExchangeTransactionType, TRequestType>,
-        ITransactionWithResponse<TExchangeTransactionType, TResponseDataType>
+        ITransactionWithResponse<TExchangeTransactionType, TResponseDataType>, new()
         where TRequestType : struct
         where TResponseDataType : struct
         where TDevice : DeviceBase<TCommunicationInterface>

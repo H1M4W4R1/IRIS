@@ -1,6 +1,4 @@
-﻿using IRIS.Utility;
-
-namespace IRIS.Protocols.RUSTIC.Data
+﻿namespace IRIS.Protocols.RUSTIC.Data
 {
     public readonly struct SetValueResponseData(string name, string value)
     {

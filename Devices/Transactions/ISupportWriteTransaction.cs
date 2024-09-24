@@ -8,8 +8,8 @@ namespace IRIS.Devices.Transactions
     /// Represents that device supports specific write transaction
     /// </summary>
     public interface ISupportWriteTransaction<TDevice, TCommunicationInterface, in TWriteTransactionType, TRequestType>
-        where TWriteTransactionType : unmanaged, IWriteTransaction<TWriteTransactionType, TRequestType>,
-        ITransactionWithRequest<TWriteTransactionType, TRequestType>
+        where TWriteTransactionType : IWriteTransaction<TWriteTransactionType, TRequestType>,
+        ITransactionWithRequest<TWriteTransactionType, TRequestType>, new()
         where TRequestType : struct
         where TDevice : DeviceBase<TCommunicationInterface>
         where TCommunicationInterface : ICommunicationInterface

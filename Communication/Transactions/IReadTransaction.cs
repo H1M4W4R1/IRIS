@@ -7,7 +7,7 @@ namespace IRIS.Communication.Transactions
     /// Represents device read request transaction.
     /// </summary>
     public interface IReadTransaction<TSelf, TResponseDataType> : ITransactionWithResponse<TSelf, TResponseDataType>
-        where TSelf : unmanaged, IReadTransaction<TSelf, TResponseDataType>
+        where TSelf : IReadTransaction<TSelf, TResponseDataType>, new()
         where TResponseDataType : struct
     {
         /// <summary>

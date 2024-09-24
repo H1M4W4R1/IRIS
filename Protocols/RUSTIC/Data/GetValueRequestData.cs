@@ -1,6 +1,4 @@
-﻿using IRIS.Utility;
-
-namespace IRIS.Protocols.RUSTIC.Data
+﻿namespace IRIS.Protocols.RUSTIC.Data
 {
     /// <summary>
     /// Used to request a value from the device using the RUSTIC protocol.
