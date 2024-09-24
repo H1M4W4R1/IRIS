@@ -1,6 +1,4 @@
-﻿using IRIS.Communication.Transactions.ReadTypes;
-
-namespace IRIS.Communication.Transactions.Abstract
+﻿namespace IRIS.Transactions.Abstract
 {
     /// <summary>
     /// Represents data transaction between device and computer.

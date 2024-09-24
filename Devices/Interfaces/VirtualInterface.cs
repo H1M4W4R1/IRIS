@@ -1,7 +1,8 @@
 ﻿using IRIS.Communication;
-using IRIS.Communication.Transactions.Abstract;
-using IRIS.Communication.Transactions.ReadTypes;
+using IRIS.Communication.Types;
 using IRIS.Protocols;
+using IRIS.Transactions.Abstract;
+using IRIS.Transactions.ReadTypes;
 
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
 
@@ -12,7 +13,7 @@ namespace IRIS.Devices.Interfaces
     /// Can be used for testing purposes.
     /// Should have methods copied from <see cref="SerialPortInterface"/> to match its behavior.
     /// </summary>
-    public abstract class VirtualInterface : ICommunicationInterface
+    public abstract class VirtualInterface : ICommunicationInterface, IRawDataCommunicationInterface
     {
         /// <summary>
         /// Storage of all data received
@@ -53,11 +54,9 @@ namespace IRIS.Devices.Interfaces
             where TWriteDataType : struct
         {
             // Get core interface
-            ICommunicationInterface coreInterface = this;
-
-            // Encode data
-            byte[] encodedData = transaction.Encode<TProtocol>(data);
-            coreInterface.TransmitData(encodedData);
+            IRawDataCommunicationInterface coreInterface = this;
+            await coreInterface.DefaultSendDataAsyncImpl<TProtocol, TTransactionType, TWriteDataType>(
+                transaction, data, cancellationToken);
         }
 
         public async Task<TResponseDataType> ReceiveDataAsync<TProtocol, TTransactionType, TResponseDataType>(
@@ -67,31 +66,12 @@ namespace IRIS.Devices.Interfaces
             where TResponseDataType : struct
         {
             // Get core interface
-            ICommunicationInterface coreInterface = this;
-
-            // If transaction is based on response length, read data until it's length
-            if (transaction is ITransactionReadByLength byLength)
-            {
-                byte[] data = await coreInterface.ReadData(byLength.ResponseLength, cancellationToken);
-
-                // Decode data
-                transaction.Decode<TProtocol>(data, out TResponseDataType responseData);
-                return responseData;
-            }
-
-            // If transaction is based on response terminator, read data until terminator is found
-            if (transaction is ITransactionReadUntilByte untilByteReceived)
-            {
-                byte[] data = await coreInterface.ReadDataUntil(untilByteReceived.ExpectedByte, cancellationToken);
-
-                // Decode data
-                transaction.Decode<TProtocol>(data, out TResponseDataType responseData);
-                return responseData;
-            }
-
-            // Throw exception if transaction is not supported
-            throw new NotSupportedException("Transaction type is not supported");
+            IRawDataCommunicationInterface coreInterface = this;
+            return await coreInterface.DefaultReceiveDataAsyncImpl<TProtocol, TTransactionType, TResponseDataType>(
+                transaction, cancellationToken);
         }
+
+#region IRawDataCommunicationInterface
 
         /// <summary>
         /// Simulates transmitting data to device. See: <see cref="SimulateTransmittedData"/>.
@@ -99,7 +79,7 @@ namespace IRIS.Devices.Interfaces
         /// <see cref="SerialPortInterface"/> which is reference for this class.
         /// </summary>
         /// <param name="data">Data to transmit</param>
-        void ICommunicationInterface.TransmitData(byte[] data)
+        void IRawDataCommunicationInterface.TransmitRawData(byte[] data)
         {
             SimulateTransmittedData(data);
         }
@@ -112,7 +92,7 @@ namespace IRIS.Devices.Interfaces
         /// <returns>Array of data</returns>
         /// <exception cref="EndOfStreamException">If data is not long enough</exception>
         /// <exception cref="CommunicationException">If device is not open</exception>
-        async Task<byte[]> ICommunicationInterface.ReadData(int length, CancellationToken cancellationToken)
+        async Task<byte[]> IRawDataCommunicationInterface.ReadRawData(int length, CancellationToken cancellationToken)
         {
             if (_dataReceived.Count < length)
                 throw new EndOfStreamException("Data is not long enough, please wait for it checking it's length");
@@ -134,7 +114,8 @@ namespace IRIS.Devices.Interfaces
         /// <param name="cancellationToken">Used to cancel read operation</param>
         /// <returns>Array of data, if byte is not found, empty array is returned</returns>
         /// <exception cref="CommunicationException">If device is not open</exception>
-        async Task<byte[]> ICommunicationInterface.ReadDataUntil(byte receivedByte, CancellationToken cancellationToken)
+        async Task<byte[]> IRawDataCommunicationInterface.ReadRawDataUntil(byte receivedByte,
+            CancellationToken cancellationToken)
         {
             // Check if device is open
             if (!IsOpen) throw new CommunicationException("Device is not open!");
@@ -150,6 +131,8 @@ namespace IRIS.Devices.Interfaces
 
             return data;
         }
+
+#endregion
 
         /// <summary>
         /// Simulates receiving data from device. 

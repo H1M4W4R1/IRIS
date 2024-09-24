@@ -1,10 +1,10 @@
 ﻿using IRIS.Addressing;
-using IRIS.Communication.Transactions;
 using IRIS.Devices.Interfaces;
 using IRIS.Devices.Interfaces.Settings;
 using IRIS.Protocols.LINE.Data;
 using IRIS.Protocols.LINE.Examples;
 using IRIS.Protocols.LINE.Transactions;
+using IRIS.Transactions;
 
 namespace IRIS.Examples.ArduinoEcho
 {

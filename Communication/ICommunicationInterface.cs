@@ -1,5 +1,5 @@
-﻿using IRIS.Communication.Transactions.Abstract;
-using IRIS.Protocols;
+﻿using IRIS.Protocols;
+using IRIS.Transactions.Abstract;
 
 namespace IRIS.Communication
 {
@@ -35,20 +35,5 @@ namespace IRIS.Communication
             where TProtocol : IProtocol
             where TTransactionType : ITransactionWithResponse<TTransactionType, TResponseDataType>
             where TResponseDataType : struct;
-
-        /// <summary>
-        /// Transmit data to device
-        /// </summary>
-        internal void TransmitData(byte[] data);
-
-        /// <summary>
-        /// Read data from device
-        /// </summary>
-        internal Task<byte[]> ReadData(int length, CancellationToken cancellationToken);
-        
-        /// <summary>
-        /// Read data from device until expected byte is found
-        /// </summary>
-        internal Task<byte[]> ReadDataUntil(byte expectedByte, CancellationToken cancellationToken);
     }
 }

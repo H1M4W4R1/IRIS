@@ -1,7 +1,8 @@
-﻿using IRIS.Communication.Transactions.Abstract;
+﻿using IRIS.Communication;
 using IRIS.Devices;
+using IRIS.Transactions.Abstract;
 
-namespace IRIS.Communication.Transactions
+namespace IRIS.Transactions
 {
     /// <summary>
     /// Represents data exchange transaction between device and computer.

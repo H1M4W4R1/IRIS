@@ -1,6 +1,6 @@
 ﻿using IRIS.Protocols;
 
-namespace IRIS.Communication.Transactions.Abstract
+namespace IRIS.Transactions.Abstract
 {
     /// <summary>
     /// Represents transaction with response.

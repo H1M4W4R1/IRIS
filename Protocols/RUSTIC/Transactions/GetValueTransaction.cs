@@ -1,8 +1,8 @@
 ﻿using IRIS.Communication;
-using IRIS.Communication.Transactions;
-using IRIS.Communication.Transactions.ReadTypes;
 using IRIS.Devices;
 using IRIS.Protocols.RUSTIC.Data;
+using IRIS.Transactions;
+using IRIS.Transactions.ReadTypes;
 
 namespace IRIS.Protocols.RUSTIC.Transactions
 {

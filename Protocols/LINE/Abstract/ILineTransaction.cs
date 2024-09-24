@@ -1,4 +1,4 @@
-﻿using IRIS.Communication.Transactions.ReadTypes;
+﻿using IRIS.Transactions.ReadTypes;
 
 namespace IRIS.Protocols.LINE.Abstract
 {

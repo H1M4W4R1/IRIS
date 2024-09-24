@@ -1,8 +1,9 @@
 ﻿using System.IO.Ports;
 using IRIS.Communication;
-using IRIS.Communication.Transactions.Abstract;
-using IRIS.Communication.Transactions.ReadTypes;
+using IRIS.Communication.Types;
 using IRIS.Protocols;
+using IRIS.Transactions.Abstract;
+using IRIS.Transactions.ReadTypes;
 
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
 
@@ -11,9 +12,8 @@ namespace IRIS.Devices.Interfaces
     /// <summary>
     /// Reliable serial port, as regular one is really unreliable in data receiving.
     /// Buffers data as unbuffered event-driven solution would bend space-time continuum (quite literally).
-    /// BUG: This sucks
     /// </summary>
-    public sealed class SerialPortInterface : SerialPort, ICommunicationInterface
+    public sealed class SerialPortInterface : SerialPort, ICommunicationInterface, IRawDataCommunicationInterface
     {
         /// <summary>
         /// Used when reading data stream by single character to prevent unnecessary allocations
@@ -64,14 +64,9 @@ namespace IRIS.Devices.Interfaces
             where TTransactionType : ITransactionWithRequest<TTransactionType, TWriteDataType>
             where TWriteDataType : struct
         {
-            // Encode data
-            byte[] encodedData = transaction.Encode<TProtocol>(data);
-            
-            // Get core interface
-            ICommunicationInterface coreInterface = this;
-            
-            // Transmit data
-            coreInterface.TransmitData(encodedData);
+            IRawDataCommunicationInterface coreInterface = this;
+            await coreInterface.DefaultSendDataAsyncImpl<TProtocol, TTransactionType, TWriteDataType>(
+                transaction, data, cancellationToken);
         }
 
         public async Task<TResponseDataType> ReceiveDataAsync<TProtocol, TTransactionType, TResponseDataType>(
@@ -80,37 +75,17 @@ namespace IRIS.Devices.Interfaces
             where TTransactionType : ITransactionWithResponse<TTransactionType, TResponseDataType>
             where TResponseDataType : struct
         {
-            // Get core interface
-            ICommunicationInterface coreInterface = this;
-            
-            // If transaction is based on response length, read data until it's length
-            if (transaction is ITransactionReadByLength byLength)
-            {
-                byte[] data = await coreInterface.ReadData(byLength.ResponseLength, cancellationToken);
-
-                // Decode data
-                transaction.Decode<TProtocol>(data, out TResponseDataType responseData);
-                return responseData;
-            }
-
-            // If transaction is based on response terminator, read data until terminator is found
-            if (transaction is ITransactionReadUntilByte untilByteReceived)
-            {
-                byte[] data = await coreInterface.ReadDataUntil(untilByteReceived.ExpectedByte, cancellationToken);
-
-                // Decode data
-                transaction.Decode<TProtocol>(data, out TResponseDataType responseData);
-                return responseData;
-            }
-
-            // Throw exception if transaction is not supported
-            throw new NotSupportedException("Transaction type is not supported");
+            IRawDataCommunicationInterface coreInterface = this;
+            return await coreInterface.DefaultReceiveDataAsyncImpl<TProtocol, TTransactionType, TResponseDataType>(
+                transaction, cancellationToken);
         }
+
+#region IRawDataCommunicationInterface
 
         /// <summary>
         /// Transmit data to device over serial port
         /// </summary>
-        void ICommunicationInterface.TransmitData(byte[] data)
+        void IRawDataCommunicationInterface.TransmitRawData(byte[] data)
         {
             if (!IsOpen) throw new CommunicationException("Port is not open!");
 
@@ -125,7 +100,7 @@ namespace IRIS.Devices.Interfaces
         /// <param name="cancellationToken">Used to cancel read operation</param>
         /// <returns></returns>
         /// <exception cref="CommunicationException">If port is not open</exception>
-        async Task<byte[]> ICommunicationInterface.ReadData(int length, CancellationToken cancellationToken)
+        async Task<byte[]> IRawDataCommunicationInterface.ReadRawData(int length, CancellationToken cancellationToken)
         {
             if (!IsOpen) throw new CommunicationException("Port is not open!");
 
@@ -151,7 +126,8 @@ namespace IRIS.Devices.Interfaces
         /// <param name="cancellationToken">Used to cancel read operation</param>
         /// <returns>Array of data, if byte is not found, empty array is returned</returns>
         /// <exception cref="CommunicationException">If port is not open</exception>
-        async Task<byte[]> ICommunicationInterface.ReadDataUntil(byte receivedByte, CancellationToken cancellationToken)
+        async Task<byte[]> IRawDataCommunicationInterface.ReadRawDataUntil(byte receivedByte,
+            CancellationToken cancellationToken)
         {
             // Check if device is open
             if (!IsOpen) throw new CommunicationException("Port is not open!");
@@ -178,5 +154,7 @@ namespace IRIS.Devices.Interfaces
             // Return data
             return data.ToArray();
         }
+
+#endregion
     }
 }

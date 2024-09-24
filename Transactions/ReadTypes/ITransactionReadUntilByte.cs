@@ -1,4 +1,4 @@
-﻿namespace IRIS.Communication.Transactions.ReadTypes
+﻿namespace IRIS.Transactions.ReadTypes
 {
     /// <summary>
     /// Supports reading transaction until byte is received.

@@ -1,11 +1,11 @@
 ﻿using IRIS.Addressing;
-using IRIS.Communication.Transactions;
 using IRIS.Devices;
 using IRIS.Devices.Interfaces;
 using IRIS.Devices.Interfaces.Settings;
 using IRIS.Devices.Transactions;
 using IRIS.Protocols.RUSTIC.Data;
 using IRIS.Protocols.RUSTIC.Transactions;
+using IRIS.Transactions;
 
 namespace IRIS.Examples.ArduinoRusticLED
 {

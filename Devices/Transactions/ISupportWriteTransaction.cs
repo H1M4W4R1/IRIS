@@ -1,6 +1,6 @@
 ﻿using IRIS.Communication;
-using IRIS.Communication.Transactions;
-using IRIS.Communication.Transactions.Abstract;
+using IRIS.Transactions;
+using IRIS.Transactions.Abstract;
 
 namespace IRIS.Devices.Transactions
 {

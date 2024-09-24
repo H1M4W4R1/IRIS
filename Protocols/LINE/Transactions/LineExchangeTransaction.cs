@@ -1,8 +1,8 @@
 ﻿using IRIS.Communication;
-using IRIS.Communication.Transactions;
 using IRIS.Devices;
 using IRIS.Protocols.LINE.Abstract;
 using IRIS.Protocols.LINE.Data;
+using IRIS.Transactions;
 
 namespace IRIS.Protocols.LINE.Transactions
 {
