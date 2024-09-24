@@ -17,10 +17,14 @@ namespace IRIS.Recognition
         List<TDeviceAddress> ScanForDevices();
     
         /// <summary>
-        /// Check if device is supported by this recognizer
+        /// Check if device is supported by this recognizer (if it exists)
         /// </summary>
         /// <param name="deviceAddress">Address of the device</param>
         /// <returns>True if device is supported, false otherwise</returns>
+        /// <remarks>
+        /// Remember to check if TDeviceAddress is supported by this recognizer (otherwise API will have
+        /// unexpected behavior)
+        /// </remarks>
         bool CheckDevice(TDeviceAddress deviceAddress);
     }
 }

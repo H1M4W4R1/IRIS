@@ -1,6 +1,4 @@
-﻿using IRIS.Utility;
-
-namespace IRIS.Addressing
+﻿namespace IRIS.Addressing
 {
     /// <summary>
     /// Struct representing serial port address

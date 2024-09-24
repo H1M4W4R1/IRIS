@@ -1,4 +1,7 @@
-﻿namespace IRIS.Communication
+﻿using IRIS.Communication.Transactions.Abstract;
+using IRIS.Protocols;
+
+namespace IRIS.Communication
 {
     /// <summary>
     /// Represents communication interface between device and computer
@@ -6,11 +9,6 @@
     /// </summary>
     public interface ICommunicationInterface
     {
-        /// <summary>
-        /// Current data length in queue
-        /// </summary>
-        int DataLength { get; }
-        
         /// <summary>
         /// Connect to physical device
         /// </summary>
@@ -22,28 +20,35 @@
         void Disconnect();
 
         /// <summary>
-        /// Transmit data to device.
+        /// Send data to device
         /// </summary>
-        void TransmitData(params byte[] data);
+        Task SendDataAsync<TProtocol, TTransactionType, TWriteDataType>(TWriteDataType data,
+            CancellationToken cancellationToken = default)
+            where TProtocol : IProtocol
+            where TTransactionType : unmanaged, ITransactionWithRequest<TTransactionType, TWriteDataType>
+            where TWriteDataType : unmanaged;
+        
+        Task<TResponseDataType> ReceiveDataAsync<TProtocol, TTransactionType, TResponseDataType>(
+            CancellationToken cancellationToken = default)
+            where TProtocol : IProtocol
+            where TTransactionType : unmanaged, ITransactionWithResponse<TTransactionType, TResponseDataType>
+            where TResponseDataType : unmanaged;
 
         /// <summary>
-        /// Read data from device 
+        /// Transmit data to device
         /// </summary>
-        byte[] ReadData(int length);
+        internal void TransmitData(byte[] data);
+
+        /// <summary>
+        /// Read data from device
+        /// </summary>
+        /// <returns></returns>
+        internal Task<byte[]> ReadData(int length, CancellationToken cancellationToken);
         
         /// <summary>
-        /// Peek data from device 
+        /// Read data from device until expected byte is found
         /// </summary>
-        byte[] PeekData(int length);
-
-        /// <summary>
-        /// Read data from device until specific byte is received
-        /// </summary>
-        byte[] ReadDataUntil(byte receivedByte);
-
-        /// <summary>
-        /// Check if byte is in data queue
-        /// </summary>
-        bool HasByte(byte character);
+        /// <returns></returns>
+        internal Task<byte[]> ReadDataUntil(byte expectedByte, CancellationToken cancellationToken);
     }
 }

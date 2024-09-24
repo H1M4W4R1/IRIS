@@ -3,135 +3,101 @@ IRIS is a framework to implement communication between PC and embedded periphera
 It's designed to be able to easily implement new devices,
 protocols and communication interfaces.
 
-## Important
-* Warning: Framework is still WIP (even tho it should 
-work fine)
-* Version 2 is a complete rewrite of the original IRIS 
-framework and is not compatible with it.
-* Version 2 was not yet tested in production environment, 
-
-
-At this moment only interfaces mentioned below are 
-implemented, but more are planned.
-* USB Serial Port
-
 ## Requirements
 * .NET 8.0+
 * C# 12+
 
-Why? Because I like new stuff... C# 12 makes it way 
-easier to make code more readable and maintainable.
-
 # Concepts
-API consists of several abstraction levels.
-
-## Device (`DeviceBase`)
+## Devices
 Device is a representation of a physical device. 
-It consists of protocol and interface used to communicate with it.
+It uses a specific communication interface to connect to 
+the device. You can consider this class a Facade for 
+lower-level communication shenanigans.
 
-## Protocol (`IProtocol`)
-Protocol is a representation of a communication protocol used to communicate with device.
-It is used to convert data from objects to bytes and vice versa.
+Device is a high abstraction level that should be 
+implemented and used by application to execute 
+transactions - even if it's possible to execute 
+transaction on the device from HAL level it is not recommended
+as it may lead to unexpected behavior in future releases and
+is not supported.
 
-## Interface (`ICommunicationInterface`)
-Interface is a representation of a communication 
-interface used to communicate with device for example Serial Port, REST API, etc.
+See `Examples` for reference implementation of device 
+abstractions that are used to execute transactions between
+physical device and application.
 
-This interface is responsible for handling all low-level communication with device
-like opening, closing, reading and writing data.
-
-## Address (`IDeviceAddress`)
+## Address
 Address is a representation of a device address - for example COM port, IP address, etc.
 
 This is used to identify device on a specific interface.
 
-# Implemented interfaces
-## SerialPortInterface
-Serial Port Interface is a communication interface used to communicate with devices over serial port.
-It can be any COM port device (either USB or RS232).
+## Communication Interface
+Communication Interface is a low-level abstraction of 
+transaction execution. It is used to send and receive data
+from the device and should contain binary-level communication
+as well as methods to open and close the connection.
 
-This interface uses improved implementation of 
-`SerialPort` class from `System.IO.Ports` namespace, 
-which reduces chances of deadlocks, missed data and other issues.
+Communication interface uses Protocol and Transaction to 
+encode and decode data sent to and received from the device
+and respective data type related to specific transaction 
+(either received data structure or data structure to be 
+sent).
 
-For reference see `SerialPortInterface` class.
-You can also base your own implementation on it.
+`SendDataAsync` and `ReceiveDataAsync` methods are
+used to send and receive data from the device and are an 
+access point for transactions to execute their commands 
+through the interface.
 
-## VirtualInterface
-Virtual Interface is a communication interface used to 
-simulate communication with devices. It's useful for 
-testing purposes, emulation of devices, etc.
+For more information see `ICommunicationInterface` interface.
 
-Most of the methods are compatible with `SerialPortInterface`.
+## Protocol
+Protocol is a representation of a communication protocol used to
+encode and decode data sent to and received from the device.
 
-For reference see `VirtualInterface` class.
+This acts as a middleman between C# unmanaged structures and
+device-specific binary data allowing for easy 
+implementation of multi-protocol devices or multiple devices
+that use the same protocol.
 
-# Implemented protocols
-## FOCUS
-FOCUS is a protocol used to communicate with devices via 
-command-response style communication. All commands are 
-arrays of bytes, and all responses are fixed length (per 
-command type) arrays of bytes with an exception that 
-error status can change the length of response to 4 bytes.
+There are several example protocols implemented. For 
+reference see `Protocols` directory / namespace.
 
-Response length includes first status byte and last end 
-of line byte (nobody knows why it's there, but it's kept 
-for backward compatibility).
+## Transaction 
+Transaction is a representation of a single communication 
+transaction with device.
 
-For reference see `FocusProtocol` class.
+It can be a command sent to device, response from device or
+data exchange (request and response). Transactions are 
+divided into three types: `Write`, `Read` and `Exchange`.
 
-Example command is:
-```
-0x02 0x00 0x0D 0x0A
-``` 
-This example comes from an experimental device, where 
-0x02 command reads value from ADC port 0x00.
+Each of transaction types has its own implementation 
+method that is used to execute the transaction.
 
-Which then responds with:
-```
-0x01 0x32 0x00 0x0A
-```
-Where 0x01 is status byte (in this case OK), 0x32 0x00 is 
-value read from ADC (0x3200 = 12800) and 0x0A is end of line.
+Also, transactions can be executed using static override.
+In such case default structure values are used to execute 
+the transaction implementation.
 
-## RUSTIC
-RUSTIC is a simple protocol used to communicate with 
-devices via ASCII commands. All commands are 
-assignment-like strings.
+All transactions are inheriting from 
+`ITransactionWithRequest` or `ITransactionWithResponse` interfaces
+which are used to determine if transaction has request or
+response data. Those interfaces provide access layer to 
+encode or decode data from the transaction via provided 
+protocol. You can also skip protocol type to make 
+protocol-independent transaction encoding/decoding, but 
+this should be insanely rare case.
 
-For example:
-```
-ADC0=?
-```
-can be used to read value from ADC0 port and response 
-would be:
-
-```
-ADC0=12800
-```
-
-Alternatively, you can set value of GPIO0 port with:
-```
-GPIO0=1
-```
-
-And response would be either:
-```
-GPIO0=1
-GPIO0=OK
-```
-depending on device implementation.
-
-For reference see `RusticProtocol` class.
+Default implementation of transaction encoding/decoding 
+is passed directly to protocol implementation.
 
 # Exceptions
-Some exceptions may appear if you implement this API.
+Some custom exceptions may appear if you implement this API.
 
 ## CommunicationException
-Thrown when device communication failed (eg. cannot open Serial Port)
+Thrown when device communication failed (e.g. cannot 
+open Serial Port)
 
 ## ExecutionException
 Thrown when you try to execute command when device is not configured properly.
 
 ## HardwareException
-Thrown when hardware returns error (eg. non-existing command), to be implemented on command level.
+Thrown when hardware returns error (e.g. non-existing 
+command), to be implemented on command level.

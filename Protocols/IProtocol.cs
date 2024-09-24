@@ -1,25 +1,19 @@
-﻿using IRIS.Communication;
-using IRIS.Implementations.FOCUS;
-using IRIS.Implementations.RUSTIC;
-
-namespace IRIS.Protocols
+﻿namespace IRIS.Protocols
 {
     /// <summary>
-    /// Represents communication protocol between device and computer
-    /// For a representation see <see cref="RusticProtocol"/> or <see cref="FocusProtocol"/>
+    /// Represents communication protocol between device and computer. Protocol is an interface used to encode or decode
+    /// transactions from/to binary data. <br/>
     /// </summary>
     public interface IProtocol
     {
         /// <summary>
-        /// Encode data to byte array for transmission
+        /// Encode provided data to binary format
         /// </summary>
-        public byte[] EncodeData<TData>(TData data) where TData : unmanaged;
+        public static abstract byte[] EncodeData<TData>(TData inputData) where TData : unmanaged;
         
         /// <summary>
-        /// Try to read data from device using specified communication interface
-        /// If data read fails return false, otherwise return true
-        /// <see cref="data"/> should be always allocated, even if no data is read (in this case it should be empty)
+        /// Decode provided binary data to type TData, where TData is unmanaged structure
         /// </summary>
-        public bool TryToReadData<TData>(ICommunicationInterface communicationInterface, out TData data) where TData : unmanaged;
+        public static abstract bool DecodeData<TData>(byte[] inputData, out TData outputData) where TData : unmanaged;
     }
 }

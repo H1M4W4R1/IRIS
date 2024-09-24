@@ -1,4 +1,4 @@
-# RUSTIC: Remote Unit Simple Transmission for Information Commands
+﻿# RUSTIC: Remote Unit Simple Transmission for Information Commands
 
 ## About
 RUSTIC is a simple protocol for sending commands to an 
@@ -31,12 +31,6 @@ with:
 ```
 temperature=OK
 ```
-or
-```
-temperature=25
-```
-depending on the implementation.
-
 
 To query the current temperature, the command would be:
 ```
@@ -96,9 +90,5 @@ temperature=ERR_OUT_OF_RANGE
 This allows the device to provide more detailed 
 information and feedback to the user / client.
 
-### Implementation
-To implement protocol in your device, you need to implement
-`IRusticCommand` interface. Then you can simply 
-implement all available methods and properties.
-
+<b>All error messages must start with `ERR_` prefix.</b>
 
