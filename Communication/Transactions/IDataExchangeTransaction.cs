@@ -10,8 +10,8 @@ namespace IRIS.Communication.Transactions
         ITransactionWithRequest<TSelf, TRequestDataType>, ITransactionWithResponse<TSelf, TResponseDataType>
         where TSelf : unmanaged, IDataExchangeTransaction<TSelf, TRequestDataType, TResponseDataType>,
         ITransactionWithRequest<TSelf, TRequestDataType>, ITransactionWithResponse<TSelf, TResponseDataType>
-        where TResponseDataType : unmanaged
-        where TRequestDataType : unmanaged
+        where TResponseDataType : struct
+        where TRequestDataType : struct
     {
         /// <summary>
         /// Implement custom data exchange transaction logic here.

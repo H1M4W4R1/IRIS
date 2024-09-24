@@ -10,7 +10,7 @@ namespace IRIS.Devices.Transactions
     public interface ISupportWriteTransaction<TDevice, TCommunicationInterface, in TWriteTransactionType, TRequestType>
         where TWriteTransactionType : unmanaged, IWriteTransaction<TWriteTransactionType, TRequestType>,
         ITransactionWithRequest<TWriteTransactionType, TRequestType>
-        where TRequestType : unmanaged
+        where TRequestType : struct
         where TDevice : DeviceBase<TCommunicationInterface>
         where TCommunicationInterface : ICommunicationInterface
     {

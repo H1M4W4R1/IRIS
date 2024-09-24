@@ -10,6 +10,6 @@ namespace IRIS.Protocols.RUSTIC.Data
         /// <summary>
         /// Name of the property to get
         /// </summary>
-        public readonly UnmanagedString128 name = UnmanagedString128.FromString(propertyName);
+        public readonly string name = propertyName;
     }
 }

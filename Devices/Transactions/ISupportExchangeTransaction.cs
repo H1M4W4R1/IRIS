@@ -13,8 +13,8 @@ namespace IRIS.Devices.Transactions
         IDataExchangeTransaction<TExchangeTransactionType, TRequestType, TResponseDataType>,
         ITransactionWithRequest<TExchangeTransactionType, TRequestType>,
         ITransactionWithResponse<TExchangeTransactionType, TResponseDataType>
-        where TRequestType : unmanaged
-        where TResponseDataType : unmanaged
+        where TRequestType : struct
+        where TResponseDataType : struct
         where TDevice : DeviceBase<TCommunicationInterface>
         where TCommunicationInterface : ICommunicationInterface
     {

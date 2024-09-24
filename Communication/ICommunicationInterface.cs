@@ -26,13 +26,13 @@ namespace IRIS.Communication
             CancellationToken cancellationToken = default)
             where TProtocol : IProtocol
             where TTransactionType : unmanaged, ITransactionWithRequest<TTransactionType, TWriteDataType>
-            where TWriteDataType : unmanaged;
+            where TWriteDataType : struct;
         
         Task<TResponseDataType> ReceiveDataAsync<TProtocol, TTransactionType, TResponseDataType>(
             CancellationToken cancellationToken = default)
             where TProtocol : IProtocol
             where TTransactionType : unmanaged, ITransactionWithResponse<TTransactionType, TResponseDataType>
-            where TResponseDataType : unmanaged;
+            where TResponseDataType : struct;
 
         /// <summary>
         /// Transmit data to device

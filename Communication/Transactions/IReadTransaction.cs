@@ -6,14 +6,14 @@ namespace IRIS.Communication.Transactions
     /// <summary>
     /// Represents device read request transaction.
     /// </summary>
-    public interface IReadTransaction<TSelf, TDataType> : ITransactionWithResponse<TSelf, TDataType>
-        where TSelf : unmanaged, IReadTransaction<TSelf, TDataType>
-        where TDataType : unmanaged
+    public interface IReadTransaction<TSelf, TResponseDataType> : ITransactionWithResponse<TSelf, TResponseDataType>
+        where TSelf : unmanaged, IReadTransaction<TSelf, TResponseDataType>
+        where TResponseDataType : struct
     {
         /// <summary>
         /// Implement device read transaction logic here.
         /// </summary>
-        public Task<TDataType> _ReadAsync<TDevice, TCommunicationInterface>(TDevice device, CancellationToken cancellationToken = default)
+        public Task<TResponseDataType> _ReadAsync<TDevice, TCommunicationInterface>(TDevice device, CancellationToken cancellationToken = default)
             where TDevice : DeviceBase<TCommunicationInterface>
             where TCommunicationInterface : ICommunicationInterface;
         
@@ -21,7 +21,7 @@ namespace IRIS.Communication.Transactions
         /// This method performs read transaction between device and computer with
         /// default <see cref="TSelf"/> value.
         /// </summary>
-        public static virtual Task<TDataType> ReadAsync<TDevice, TCommunicationInterface>(TDevice device, CancellationToken cancellationToken = default)
+        public static virtual Task<TResponseDataType> ReadAsync<TDevice, TCommunicationInterface>(TDevice device, CancellationToken cancellationToken = default)
             where TDevice : DeviceBase<TCommunicationInterface>
             where TCommunicationInterface : ICommunicationInterface
         {

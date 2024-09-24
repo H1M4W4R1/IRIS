@@ -101,3 +101,30 @@ Thrown when you try to execute command when device is not configured properly.
 ## HardwareException
 Thrown when hardware returns error (e.g. non-existing 
 command), to be implemented on command level.
+
+# Implementation and Usage
+## Creating custom protocol
+To create custom protocol you need to implement `IProtocol` interface
+on your structure and implement `Encode` and `Decode` 
+methods.
+
+A good example of protocol implementation is `LineProtocol`
+which converts `LineTransactionData` to binary data and
+vice versa (converts string to/from byte array of ASCII
+characters).
+
+```csharp
+public struct MyCustomProtocol : IProtocol
+{
+    public static byte[] EncodeData<TData>(TData inputData) where TData : unmanaged
+    {
+        // Implementation
+    }
+
+    public static bool DecodeData<TData>(byte[]? inputData, out TData outputData) where TData : unmanaged
+    {
+        // Implementation
+    }
+}
+
+```

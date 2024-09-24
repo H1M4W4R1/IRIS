@@ -7,7 +7,7 @@ namespace IRIS.Communication.Transactions.Abstract
     /// </summary>
     public interface ITransactionWithRequest<TSelf, in TRequestData> : ICommunicationTransaction<TSelf> 
         where TSelf : ICommunicationTransaction<TSelf>
-        where TRequestData : unmanaged
+        where TRequestData : struct
     {
         /// <summary>
         /// Encode data using protocol

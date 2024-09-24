@@ -12,7 +12,7 @@ namespace IRIS.Devices.Transactions
         in TReadTransactionType, TResponseDataType>
         where TReadTransactionType : unmanaged, IReadTransaction<TReadTransactionType, TResponseDataType>,
         ITransactionWithResponse<TReadTransactionType, TResponseDataType>
-        where TResponseDataType : unmanaged
+        where TResponseDataType : struct
         where TDevice : DeviceBase<TCommunicationInterface>
         where TCommunicationInterface : ICommunicationInterface
     {

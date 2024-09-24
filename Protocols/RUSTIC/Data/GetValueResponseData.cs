@@ -1,18 +1,16 @@
-﻿using IRIS.Utility;
-
-namespace IRIS.Protocols.RUSTIC.Data
+﻿namespace IRIS.Protocols.RUSTIC.Data
 {
-    public struct GetValueResponseData()
+    public readonly struct GetValueResponseData(string name, string value)
     {
         /// <summary>
         /// Name of the property to get
         /// </summary>
-        public UnmanagedString128 name = new();
-        
+        public readonly string name = name;
+
         /// <summary>
         /// Received value
         /// </summary>
-        public UnmanagedString128 value = new();
+        public readonly string value = value;
 
     }
 }

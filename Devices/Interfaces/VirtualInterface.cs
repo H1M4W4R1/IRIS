@@ -48,11 +48,11 @@ namespace IRIS.Devices.Interfaces
         public async Task SendDataAsync<TProtocol, TTransactionType, TWriteDataType>(TWriteDataType data,
             CancellationToken cancellationToken = default) where TProtocol : IProtocol
             where TTransactionType : unmanaged, ITransactionWithRequest<TTransactionType, TWriteDataType>
-            where TWriteDataType : unmanaged
+            where TWriteDataType : struct
         {
             // Get core interface
             ICommunicationInterface coreInterface = this;
-            
+
             // Encode data
             byte[] encodedData = TTransactionType.Encode<TProtocol>(data);
             coreInterface.TransmitData(encodedData);
@@ -61,11 +61,11 @@ namespace IRIS.Devices.Interfaces
         public async Task<TResponseDataType> ReceiveDataAsync<TProtocol, TTransactionType, TResponseDataType>(
             CancellationToken cancellationToken = default) where TProtocol : IProtocol
             where TTransactionType : unmanaged, ITransactionWithResponse<TTransactionType, TResponseDataType>
-            where TResponseDataType : unmanaged
+            where TResponseDataType : struct
         {
             // Get core interface
             ICommunicationInterface coreInterface = this;
-            
+
             // If transaction is based on response length, read data until it's length
             if (TTransactionType.IsByLength)
             {

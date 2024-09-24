@@ -60,7 +60,7 @@ namespace IRIS.Devices.Interfaces
         public async Task SendDataAsync<TProtocol, TTransactionType, TWriteDataType>(TWriteDataType data,
             CancellationToken cancellationToken = default) where TProtocol : IProtocol
             where TTransactionType : unmanaged, ITransactionWithRequest<TTransactionType, TWriteDataType>
-            where TWriteDataType : unmanaged
+            where TWriteDataType : struct
         {
             // Encode data
             byte[] encodedData = TTransactionType.Encode<TProtocol>(data);
@@ -76,7 +76,7 @@ namespace IRIS.Devices.Interfaces
             CancellationToken cancellationToken = default) where TProtocol : IProtocol
             where TTransactionType : unmanaged,
             ITransactionWithResponse<TTransactionType, TResponseDataType>
-            where TResponseDataType : unmanaged
+            where TResponseDataType : struct
         {
             // Get core interface
             ICommunicationInterface coreInterface = this;

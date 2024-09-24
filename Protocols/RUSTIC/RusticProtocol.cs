@@ -5,7 +5,7 @@ namespace IRIS.Protocols.RUSTIC
 {
     public struct RusticProtocol : IProtocol
     {
-        public static byte[] EncodeData<TData>(TData inputData) where TData : unmanaged
+        public static byte[] EncodeData<TData>(TData inputData) where TData : struct
         {
             // Calculate the request text based on RUSTIC specification
             string? requestText = inputData switch
@@ -18,24 +18,25 @@ namespace IRIS.Protocols.RUSTIC
 
             // If the request text is not null, return the ASCII-encoded bytes
             if (requestText != null) return System.Text.Encoding.ASCII.GetBytes(requestText);
-            
+
             // Otherwise, throw an exception
             throw new NotSupportedException("Unsupported data type");
         }
 
-        public static unsafe bool DecodeData<TData>(byte[] inputData, out TData outputData) where TData : unmanaged
+        public static bool DecodeData<TData>(byte[] inputData, out TData outputData) where TData : struct
         {
             // Decode the ASCII-encoded bytes to a string
             string responseText = Encoding.ASCII.GetString(inputData);
-            
+
             // Clear the response text from CR LF
             responseText = responseText.Replace("\r", "").Replace("\n", "");
-            
+
             // Split string via equals sign
             string[] splitResponse = responseText.Split('=');
-            
+
+            // Create temporary memory allocation for the output data
             outputData = new TData();
-            
+
             // Check if the split response is valid
             if (splitResponse.Length != 2) return false;
 
@@ -44,35 +45,19 @@ namespace IRIS.Protocols.RUSTIC
                 // Check data type and decode it
                 case GetValueResponseData:
                 {
-                    // Create pointer access to the response data
-                    fixed(TData* getResponseDataPtr = &outputData)
-                    {
-                        // Convert the obtained ptr to correct type
-                        GetValueResponseData* getResponsePtr = (GetValueResponseData*) getResponseDataPtr;
+                    GetValueResponseData response0 = new(splitResponse[0], splitResponse[1]);
                     
-                        // Copy the name and value to the response data
-                        getResponsePtr->name.CopyFrom(splitResponse[0]);
-                        getResponsePtr->value.CopyFrom(splitResponse[1]);
-                    
-                        // Return true to indicate successful decoding
-                        return true;
-                    }
+                    // Convert the obtained response to the correct type
+                    outputData = (TData) Convert.ChangeType(response0, typeof(TData));
+                    return true;
                 }
                 case SetValueResponseData:
                 {
-                    // Create pointer access to the response data
-                    fixed(TData* setResponseDataPtr = &outputData)
-                    {
-                        // Convert the obtained ptr to correct type
-                        SetValueResponseData* setResponsePtr = (SetValueResponseData*) setResponseDataPtr;
+                    SetValueResponseData response1 = new(splitResponse[0], splitResponse[1]);
                     
-                        // Copy the name and value to the response data
-                        setResponsePtr->name.CopyFrom(splitResponse[0]);
-                        setResponsePtr->value.CopyFrom(splitResponse[1]);
-                    
-                        // Return true to indicate successful decoding
-                        return true;
-                    }
+                    // Convert the obtained response to the correct type
+                    outputData = (TData) Convert.ChangeType(response1, typeof(TData));
+                    return true;
                 }
                 default:
                     // Throw an exception if the data type is not supported
