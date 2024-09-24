@@ -52,9 +52,11 @@ namespace IRIS.Utility
             return new string(_data);
         }
 
-        public UnmanagedString128(string fromString) : this()
+        public static UnmanagedString128 FromString(string source)
         {
-            CopyFrom(fromString);
+            UnmanagedString128 result = new();
+            result.CopyFrom(source);
+            return result;
         }
     }
 }

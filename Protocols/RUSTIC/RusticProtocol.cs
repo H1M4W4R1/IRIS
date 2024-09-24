@@ -28,10 +28,13 @@ namespace IRIS.Protocols.RUSTIC
             // Decode the ASCII-encoded bytes to a string
             string responseText = Encoding.ASCII.GetString(inputData);
             
+            // Clear the response text from CR LF
+            responseText = responseText.Replace("\r", "").Replace("\n", "");
+            
             // Split string via equals sign
             string[] splitResponse = responseText.Split('=');
             
-            outputData = default;
+            outputData = new TData();
             
             // Check if the split response is valid
             if (splitResponse.Length != 2) return false;
