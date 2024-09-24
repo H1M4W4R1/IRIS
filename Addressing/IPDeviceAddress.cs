@@ -6,7 +6,7 @@ namespace IRIS.Addressing
     /// Internet Protocol (IP) device address
     /// Used to store addresses of devices connected via IP (Ethernet, WiFi)
     /// </summary>
-    public readonly struct IPDeviceAddress(IPAddress ipAddress)
+    public readonly struct IPDeviceAddress(IPAddress ipAddress) : IDeviceAddress<IPAddress>
     {
         /// <summary>
         /// Address of the device
