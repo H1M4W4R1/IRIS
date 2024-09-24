@@ -42,8 +42,6 @@ namespace IRIS.Devices.Interfaces
         {
             try
             {
-                // Handshake = Handshake.None;
-
                 // Open the port
                 Open();
                 if (!IsOpen)

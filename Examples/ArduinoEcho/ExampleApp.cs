@@ -5,11 +5,11 @@ namespace IRIS.Examples.ArduinoEcho
 {
     public static class ExampleApp
     {
-        public static async void RunApp()
+        public static async void RunApp(string comPort)
         {
             // Create new Arduino echo device
             ExampleArduinoEchoDevice device =
-                new(new SerialPortDeviceAddress("COM5"), new SerialInterfaceSettings(115200));
+                new(new SerialPortDeviceAddress(comPort), new SerialInterfaceSettings(115200));
             device.Connect();
 
             // Exchange data example

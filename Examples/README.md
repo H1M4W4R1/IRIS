@@ -14,10 +14,17 @@ a key before the application exits as the library uses asynchronous operations.
 /// <summary>
 /// Entry point of the application
 /// </summary>
-private static void Main(string[] args)
+ private static void Main(string[] args)
 {
+    // Ask user to enter COM port
+    retry_com_port:
+    Console.WriteLine("Please enter a COM port: ");
+    Console.Write("> ");
+    string? comPort = Console.ReadLine();
+    if (comPort == null) goto retry_com_port;
+    
     // Run example application
-    ExampleApp.RunApp();
+    ExampleApp.RunApp(comPort);
     
     // Wait for user to press 'C' key
     while (Console.ReadKey().Key != ConsoleKey.C)
