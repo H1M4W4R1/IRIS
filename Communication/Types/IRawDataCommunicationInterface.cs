@@ -53,8 +53,8 @@ namespace IRIS.Communication.Types
             if (typeof(TResponseDataType) == typeof(byte[]))
                 return Task.FromResult((TResponseDataType) Convert.ChangeType(rawData, typeof(TResponseDataType)));
 
-            // Check if transaction supports encoder, if not throw exception
-            if (transaction is not IWithEncoder withEncoder)
+            // Check if transaction supports encoding data to raw data
+            if (transaction is not IWithEncoder<byte[]> withEncoder)
                 throw new NotSupportedException("Transaction does not support encoder. Cannot decode data.");
 
             // Decode data using encoder
@@ -70,7 +70,7 @@ namespace IRIS.Communication.Types
             byte[] encodedData;
 
             // Check if transaction supports encoder or if data is raw
-            if (transaction is IWithEncoder withEncoder)
+            if (transaction is IWithEncoder<byte[]> withEncoder)
                 encodedData = withEncoder.Encode(data);
             else if (typeof(TWriteDataType) == typeof(byte[]))
                 encodedData = (byte[]) Convert.ChangeType(data, typeof(byte[]));

@@ -6,30 +6,32 @@ namespace IRIS.Transactions.Abstract
     /// Represents object that supports specific encoder.
     /// Encoders are not used on data, but on objects that use that data.
     /// </summary>
-    public interface IWithEncoder<TEncoderType> : IWithEncoder
+    /// <typeparam name="TEncoderType">Type of encoder to use</typeparam>
+    /// <typeparam name="TEncoderTargetData">Type of data that encoder can encode/decode</typeparam>
+    public interface IWithEncoder<TEncoderType, TEncoderTargetData> : IWithEncoder<TEncoderTargetData>
         where TEncoderType : IDataEncoder
+        where TEncoderTargetData : notnull
     {
-        byte[] IWithEncoder.Encode<TRequestData>(TRequestData data)
-            where TRequestData : struct =>
-            (byte[]) TEncoderType.EncodeData(data);
+        TEncoderTargetData IWithEncoder<TEncoderTargetData>.Encode<TRequestData>(TRequestData data)
+            where TRequestData : struct => TEncoderType.EncodeData<TRequestData, TEncoderTargetData>(data);
 
-        bool IWithEncoder.Decode<TResponseData>(byte[] data, out TResponseData result)
+        bool IWithEncoder<TEncoderTargetData>.Decode<TResponseData>(TEncoderTargetData data, out TResponseData result)
             where TResponseData : struct =>
-            TEncoderType.DecodeData<TResponseData>(data, out result);
+            TEncoderType.DecodeData(data, out result);
     }
 
-    public interface IWithEncoder
+    public interface IWithEncoder<TEncoderTargetData>
     {
         /// <summary>
         /// Encode data using this encoder.
         /// </summary>
-        public byte[] Encode<TRequestData>(TRequestData data)
+        public TEncoderTargetData Encode<TRequestData>(TRequestData data)
             where TRequestData : struct;
 
         /// <summary>
         /// Decode data using this encoder.
         /// </summary>
-        public bool Decode<TResponseData>(byte[] data, out TResponseData result)
+        public bool Decode<TResponseData>(TEncoderTargetData data, out TResponseData result)
             where TResponseData : struct;
     }
 }
