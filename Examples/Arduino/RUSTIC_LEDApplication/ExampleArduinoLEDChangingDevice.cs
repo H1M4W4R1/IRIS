@@ -1,10 +1,10 @@
 ﻿using IRIS.Addressing;
+using IRIS.DataEncoders.RUSTIC.Data;
+using IRIS.DataEncoders.RUSTIC.Transactions;
 using IRIS.Devices;
 using IRIS.Devices.Interfaces;
 using IRIS.Devices.Interfaces.Settings;
 using IRIS.Devices.Transactions;
-using IRIS.Protocols.RUSTIC.Data;
-using IRIS.Protocols.RUSTIC.Transactions;
 using IRIS.Transactions;
 
 namespace IRIS.Examples.Arduino.RUSTIC_LEDApplication

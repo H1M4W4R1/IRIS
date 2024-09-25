@@ -1,4 +1,4 @@
-﻿namespace IRIS.Protocols.RUSTIC.Data
+﻿namespace IRIS.DataEncoders.RUSTIC.Data
 {
     /// <summary>
     /// Used to set value on the device using the RUSTIC protocol.

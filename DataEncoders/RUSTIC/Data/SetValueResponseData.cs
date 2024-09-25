@@ -1,4 +1,4 @@
-﻿namespace IRIS.Protocols.RUSTIC.Data
+﻿namespace IRIS.DataEncoders.RUSTIC.Data
 {
     public readonly struct SetValueResponseData(string name, string value)
     {

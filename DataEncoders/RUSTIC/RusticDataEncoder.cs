@@ -1,9 +1,9 @@
 ﻿using System.Text;
-using IRIS.Protocols.RUSTIC.Data;
+using IRIS.DataEncoders.RUSTIC.Data;
 
-namespace IRIS.Protocols.RUSTIC
+namespace IRIS.DataEncoders.RUSTIC
 {
-    public struct RusticProtocol : IProtocol
+    public struct RusticDataEncoder : IDataEncoder
     {
         public static byte[] EncodeData<TData>(TData inputData) where TData : struct
         {

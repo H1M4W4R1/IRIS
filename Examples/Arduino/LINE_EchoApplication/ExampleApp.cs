@@ -1,6 +1,5 @@
 ﻿using IRIS.Addressing;
 using IRIS.Devices.Interfaces.Settings;
-using IRIS.Examples.ArduinoEcho;
 
 namespace IRIS.Examples.Arduino.LINE_EchoApplication
 {

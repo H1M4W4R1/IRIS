@@ -1,12 +1,12 @@
 ﻿using System.Text;
-using IRIS.Protocols.LINE.Data;
+using IRIS.DataEncoders.LINE.Data;
 
-namespace IRIS.Protocols.LINE
+namespace IRIS.DataEncoders.LINE
 {
     /// <summary>
-    /// Represents a protocol for basic text communication with a line limit of 128 characters.
+    /// Represents an encoder for basic text communication with a line limit of 128 characters.
     /// </summary>
-    public struct LineProtocol : IProtocol
+    public struct LineDataEncoder : IDataEncoder
     {
         public static byte[] EncodeData<TData>(TData inputData) where TData : struct
         {

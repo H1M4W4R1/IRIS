@@ -1,4 +1,4 @@
-﻿using IRIS.Protocols;
+﻿using IRIS.DataEncoders;
 using IRIS.Transactions.Abstract;
 using IRIS.Transactions.ReadTypes;
 
@@ -29,10 +29,10 @@ namespace IRIS.Communication.Types
         /// Default implementation of receiving data for transactions
         /// </summary>
         public async Task<TResponseDataType>
-            DefaultReceiveDataAsyncImpl<TProtocol, TTransactionType, TResponseDataType>(
+            DefaultReceiveDataAsyncImpl<TDataEncoder, TTransactionType, TResponseDataType>(
                 TTransactionType transaction,
                 CancellationToken cancellationToken = default)
-            where TProtocol : IProtocol
+            where TDataEncoder : IDataEncoder
             where TTransactionType : ITransactionWithResponse<TTransactionType, TResponseDataType>
             where TResponseDataType : struct
         {
@@ -40,12 +40,12 @@ namespace IRIS.Communication.Types
             {
                 // If transaction is based on response length, read data until it's length
                 case ITransactionReadByLength:
-                    return await ProcessReceiveByLength<TProtocol, TTransactionType, TResponseDataType>(transaction,
+                    return await ProcessReceiveByLength<TDataEncoder, TTransactionType, TResponseDataType>(transaction,
                         cancellationToken);
 
                 // If transaction is based on response terminator, read data until terminator is found
                 case ITransactionReadUntilByte:
-                    return await ProcessReceiveByTerminator<TProtocol, TTransactionType, TResponseDataType>(transaction,
+                    return await ProcessReceiveByTerminator<TDataEncoder, TTransactionType, TResponseDataType>(transaction,
                         cancellationToken);
                 
                 // If transaction is not supported, throw exception
@@ -54,10 +54,10 @@ namespace IRIS.Communication.Types
             }
         }
 
-        private async Task<TResponseDataType> ProcessReceiveByLength<TProtocol, TTransactionType, TResponseDataType>(
+        private async Task<TResponseDataType> ProcessReceiveByLength<TDataEncoder, TTransactionType, TResponseDataType>(
             TTransactionType transaction,
             CancellationToken cancellationToken = default)
-            where TProtocol : IProtocol
+            where TDataEncoder : IDataEncoder
             where TTransactionType : ITransactionWithResponse<TTransactionType, TResponseDataType>
             where TResponseDataType : struct
         {
@@ -69,15 +69,15 @@ namespace IRIS.Communication.Types
             byte[] data = await ReadRawData(byLength.ResponseLength, cancellationToken);
 
             // Decode data
-            transaction.Decode<TProtocol>(data, out TResponseDataType responseData);
+            transaction.Decode<TDataEncoder>(data, out TResponseDataType responseData);
             return responseData;
         }
 
         private async Task<TResponseDataType>
-            ProcessReceiveByTerminator<TProtocol, TTransactionType, TResponseDataType>(
+            ProcessReceiveByTerminator<TDataEncoder, TTransactionType, TResponseDataType>(
                 TTransactionType transaction,
                 CancellationToken cancellationToken = default)
-            where TProtocol : IProtocol
+            where TDataEncoder : IDataEncoder
             where TTransactionType : ITransactionWithResponse<TTransactionType, TResponseDataType>
             where TResponseDataType : struct
         {
@@ -89,21 +89,21 @@ namespace IRIS.Communication.Types
             byte[] data = await ReadRawDataUntil(untilByteReceived.ExpectedByte, cancellationToken);
 
             // Decode data
-            transaction.Decode<TProtocol>(data, out TResponseDataType responseData);
+            transaction.Decode<TDataEncoder>(data, out TResponseDataType responseData);
             return responseData;
         }
 
         /// <summary>
         /// Default implementation of sending data for transactions
         /// </summary>
-        public Task DefaultSendDataAsyncImpl<TProtocol, TTransactionType, TWriteDataType>(TTransactionType transaction,
+        public Task DefaultSendDataAsyncImpl<TDataEncoder, TTransactionType, TWriteDataType>(TTransactionType transaction,
             TWriteDataType data,
-            CancellationToken cancellationToken = default) where TProtocol : IProtocol
+            CancellationToken cancellationToken = default) where TDataEncoder : IDataEncoder
             where TTransactionType : ITransactionWithRequest<TTransactionType, TWriteDataType>
             where TWriteDataType : struct
         {
             // Encode data
-            byte[] encodedData = transaction.Encode<TProtocol>(data);
+            byte[] encodedData = transaction.Encode<TDataEncoder>(data);
 
             // Get core interface
             IRawDataCommunicationInterface coreInterface = this;

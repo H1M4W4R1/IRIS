@@ -1,12 +1,12 @@
 ﻿using IRIS.Addressing;
+using IRIS.DataEncoders.LINE.Data;
+using IRIS.DataEncoders.LINE.Transactions;
 using IRIS.Devices;
 using IRIS.Devices.Interfaces;
 using IRIS.Devices.Interfaces.Settings;
 using IRIS.Devices.Transactions;
-using IRIS.Protocols.LINE.Data;
-using IRIS.Protocols.LINE.Transactions;
 
-namespace IRIS.Protocols.LINE.Examples
+namespace IRIS.DataEncoders.LINE.Examples
 {
     /// <summary>
     /// This serial device is used for simple communication with LINE protocol. <br/>

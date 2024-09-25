@@ -1,10 +1,10 @@
 ﻿using IRIS.Communication;
+using IRIS.DataEncoders.LINE.Abstract;
+using IRIS.DataEncoders.LINE.Data;
 using IRIS.Devices;
-using IRIS.Protocols.LINE.Abstract;
-using IRIS.Protocols.LINE.Data;
 using IRIS.Transactions;
 
-namespace IRIS.Protocols.LINE.Transactions
+namespace IRIS.DataEncoders.LINE.Transactions
 {
     public struct LineExchangeTransaction :
         IDataExchangeTransaction<LineExchangeTransaction, LineTransactionData, LineTransactionData>, ILineTransaction
@@ -18,11 +18,11 @@ namespace IRIS.Protocols.LINE.Transactions
             ICommunicationInterface communicationInterface = device.GetCommunicationInterface();
             
             // Send data to device
-            await communicationInterface.SendDataAsync<LineProtocol, LineExchangeTransaction, LineTransactionData>(this, requestData, cancellationToken);
+            await communicationInterface.SendDataAsync<LineDataEncoder, LineExchangeTransaction, LineTransactionData>(this, requestData, cancellationToken);
             
             // Read response from device
             return await communicationInterface
-                .ReceiveDataAsync<LineProtocol, LineExchangeTransaction, LineTransactionData>(this, cancellationToken);
+                .ReceiveDataAsync<LineDataEncoder, LineExchangeTransaction, LineTransactionData>(this, cancellationToken);
         }
     }
 }

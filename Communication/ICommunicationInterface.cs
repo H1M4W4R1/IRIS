@@ -1,4 +1,4 @@
-﻿using IRIS.Protocols;
+﻿using IRIS.DataEncoders;
 using IRIS.Transactions.Abstract;
 
 namespace IRIS.Communication
@@ -22,17 +22,17 @@ namespace IRIS.Communication
         /// <summary>
         /// Send data to device
         /// </summary>
-        Task SendDataAsync<TProtocol, TTransactionType, TWriteDataType>(TTransactionType transaction,
+        Task SendDataAsync<TDataEncoder, TTransactionType, TWriteDataType>(TTransactionType transaction,
             TWriteDataType data,
             CancellationToken cancellationToken = default)
-            where TProtocol : IProtocol
+            where TDataEncoder : IDataEncoder
             where TTransactionType : ITransactionWithRequest<TTransactionType, TWriteDataType>
             where TWriteDataType : struct;
         
-        Task<TResponseDataType> ReceiveDataAsync<TProtocol, TTransactionType, TResponseDataType>(
+        Task<TResponseDataType> ReceiveDataAsync<TDataEncoder, TTransactionType, TResponseDataType>(
             TTransactionType transaction,
             CancellationToken cancellationToken = default)
-            where TProtocol : IProtocol
+            where TDataEncoder : IDataEncoder
             where TTransactionType : ITransactionWithResponse<TTransactionType, TResponseDataType>
             where TResponseDataType : struct;
     }

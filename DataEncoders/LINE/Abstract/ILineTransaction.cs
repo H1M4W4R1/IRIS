@@ -1,6 +1,6 @@
 ﻿using IRIS.Transactions.ReadTypes;
 
-namespace IRIS.Protocols.LINE.Abstract
+namespace IRIS.DataEncoders.LINE.Abstract
 {
     public interface ILineTransaction : ITransactionReadUntilByte
     {

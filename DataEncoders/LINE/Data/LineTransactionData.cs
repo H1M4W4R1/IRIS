@@ -1,4 +1,4 @@
-﻿namespace IRIS.Protocols.LINE.Data
+﻿namespace IRIS.DataEncoders.LINE.Data
 {
     /// <summary>
     /// Represents a read transaction for basic line communication.

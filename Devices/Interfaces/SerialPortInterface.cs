@@ -1,7 +1,7 @@
 ﻿using System.IO.Ports;
 using IRIS.Communication;
 using IRIS.Communication.Types;
-using IRIS.Protocols;
+using IRIS.DataEncoders;
 using IRIS.Transactions.Abstract;
 using IRIS.Transactions.ReadTypes;
 
@@ -56,25 +56,25 @@ namespace IRIS.Devices.Interfaces
 
         public void Disconnect() => Close();
 
-        public async Task SendDataAsync<TProtocol, TTransactionType, TWriteDataType>(TTransactionType transaction,
+        public async Task SendDataAsync<TDataEncoder, TTransactionType, TWriteDataType>(TTransactionType transaction,
             TWriteDataType data,
-            CancellationToken cancellationToken = default) where TProtocol : IProtocol
+            CancellationToken cancellationToken = default) where TDataEncoder : IDataEncoder
             where TTransactionType : ITransactionWithRequest<TTransactionType, TWriteDataType>
             where TWriteDataType : struct
         {
             IRawDataCommunicationInterface coreInterface = this;
-            await coreInterface.DefaultSendDataAsyncImpl<TProtocol, TTransactionType, TWriteDataType>(
+            await coreInterface.DefaultSendDataAsyncImpl<TDataEncoder, TTransactionType, TWriteDataType>(
                 transaction, data, cancellationToken);
         }
 
-        public async Task<TResponseDataType> ReceiveDataAsync<TProtocol, TTransactionType, TResponseDataType>(
+        public async Task<TResponseDataType> ReceiveDataAsync<TDataEncoder, TTransactionType, TResponseDataType>(
             TTransactionType transaction,
-            CancellationToken cancellationToken = default) where TProtocol : IProtocol
+            CancellationToken cancellationToken = default) where TDataEncoder : IDataEncoder
             where TTransactionType : ITransactionWithResponse<TTransactionType, TResponseDataType>
             where TResponseDataType : struct
         {
             IRawDataCommunicationInterface coreInterface = this;
-            return await coreInterface.DefaultReceiveDataAsyncImpl<TProtocol, TTransactionType, TResponseDataType>(
+            return await coreInterface.DefaultReceiveDataAsyncImpl<TDataEncoder, TTransactionType, TResponseDataType>(
                 transaction, cancellationToken);
         }
 

@@ -1,10 +1,10 @@
-﻿namespace IRIS.Protocols
+﻿namespace IRIS.DataEncoders
 {
     /// <summary>
-    /// Represents communication protocol between device and computer. Protocol is an interface used to encode or decode
+    /// Represents communication interface that can encode and decode data for
     /// transactions from/to binary data. <br/>
     /// </summary>
-    public interface IProtocol
+    public interface IDataEncoder
     {
         /// <summary>
         /// Encode provided data to binary format

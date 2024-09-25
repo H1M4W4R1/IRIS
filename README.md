@@ -49,17 +49,18 @@ through the interface.
 
 For more information see `ICommunicationInterface` interface.
 
-## Protocol
-Protocol is a representation of a communication protocol used to
+## Data Encoders
+Data encoder is a representation of a data 
+serialization subsystem used to
 encode and decode data sent to and received from the device.
 
 This acts as a middleman between C# structures and
-device-specific binary data allowing for easy 
-implementation of multi-protocol devices or multiple devices
-that use the same protocol.
+device-specific raw data allowing for easy 
+implementation of multi-encoder devices or multiple devices
+that use the same encoder.
 
-There are several example protocols implemented. For 
-reference see `Protocols` directory / namespace.
+There are several example encoders implemented. For 
+reference see `Encoders` directory / namespace.
 
 ## Transaction 
 Transaction is a representation of a single communication 
@@ -81,12 +82,12 @@ All transactions are inheriting from
 which are used to determine if transaction has request or
 response data. Those interfaces provide access layer to 
 encode or decode data from the transaction via provided 
-protocol. You can also skip protocol type to make 
-protocol-independent transaction encoding/decoding, but 
+encoder. You can also skip encoder type to make 
+encoder-independent transaction encoding/decoding, but 
 this should be insanely rare case.
 
 Default implementation of transaction encoding/decoding 
-is passed directly to protocol implementation.
+is passed directly to encoder implementation.
 
 # Exceptions
 Some custom exceptions may appear if you implement this API.
@@ -103,18 +104,20 @@ Thrown when hardware returns error (e.g. non-existing
 command), to be implemented on command level.
 
 # Implementation and Usage
-## Creating custom protocol
-To create custom protocol you need to implement `IProtocol` interface
+## Creating custom encoder
+To create custom encoder you need to implement 
+`IDataEncoder` interface
 on your structure and implement `Encode` and `Decode` 
 methods.
 
-A good example of protocol implementation is `LineProtocol`
+A good example of encoder implementation is 
+`LineDataEncoder`
 which converts `LineTransactionData` to binary data and
 vice versa (converts string to/from byte array of ASCII
 characters).
 
 ```csharp
-public struct MyCustomProtocol : IProtocol
+public struct MyCustomEncoder : IDataEncoder
 {
     public static byte[] EncodeData<TData>(TData inputData) where TData : struct
     {

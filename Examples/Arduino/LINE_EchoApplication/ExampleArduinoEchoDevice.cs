@@ -1,12 +1,12 @@
 ﻿using IRIS.Addressing;
+using IRIS.DataEncoders.LINE.Data;
+using IRIS.DataEncoders.LINE.Examples;
+using IRIS.DataEncoders.LINE.Transactions;
 using IRIS.Devices.Interfaces;
 using IRIS.Devices.Interfaces.Settings;
-using IRIS.Protocols.LINE.Data;
-using IRIS.Protocols.LINE.Examples;
-using IRIS.Protocols.LINE.Transactions;
 using IRIS.Transactions;
 
-namespace IRIS.Examples.ArduinoEcho
+namespace IRIS.Examples.Arduino.LINE_EchoApplication
 {
     /// <summary>
     /// This class is an example of simple serial communication device

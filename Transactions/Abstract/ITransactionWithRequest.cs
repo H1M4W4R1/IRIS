@@ -1,4 +1,4 @@
-﻿using IRIS.Protocols;
+﻿using IRIS.DataEncoders;
 
 namespace IRIS.Transactions.Abstract
 {
@@ -10,10 +10,10 @@ namespace IRIS.Transactions.Abstract
         where TRequestData : struct
     {
         /// <summary>
-        /// Encode data using protocol
+        /// Encode data using the specified data encoder.
         /// </summary>
-        public byte[] Encode<TProtocolType>(TRequestData data)
-            where TProtocolType : IProtocol => 
-            TProtocolType.EncodeData(data);
+        public byte[] Encode<TDataEncoderType>(TRequestData data)
+            where TDataEncoderType : IDataEncoder => 
+            TDataEncoderType.EncodeData(data);
     }
 }
