@@ -1,9 +1,11 @@
-﻿namespace IRIS.Transactions.ReadTypes
+﻿using IRIS.Transactions.Readers;
+
+namespace IRIS.Transactions.ReadTypes
 {
     /// <summary>
     /// Supports reading transaction by length.
     /// </summary>
-    public interface ITransactionReadByLength
+    public interface ITransactionReadByLength : IWithDataReader<LengthRawDataReader>
     {
         /// <summary>
         /// Length of the response.

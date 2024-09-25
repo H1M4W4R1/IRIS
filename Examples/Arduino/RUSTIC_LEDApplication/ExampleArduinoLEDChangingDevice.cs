@@ -1,9 +1,9 @@
 ﻿using IRIS.Addressing;
+using IRIS.Communication.Serial;
+using IRIS.Communication.Serial.Settings;
 using IRIS.DataEncoders.RUSTIC.Data;
 using IRIS.DataEncoders.RUSTIC.Transactions;
 using IRIS.Devices;
-using IRIS.Devices.Interfaces;
-using IRIS.Devices.Interfaces.Settings;
 using IRIS.Devices.Transactions;
 using IRIS.Transactions;
 

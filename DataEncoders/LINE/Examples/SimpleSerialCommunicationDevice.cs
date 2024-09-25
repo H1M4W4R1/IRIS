@@ -1,9 +1,9 @@
 ﻿using IRIS.Addressing;
+using IRIS.Communication.Serial;
+using IRIS.Communication.Serial.Settings;
 using IRIS.DataEncoders.LINE.Data;
 using IRIS.DataEncoders.LINE.Transactions;
 using IRIS.Devices;
-using IRIS.Devices.Interfaces;
-using IRIS.Devices.Interfaces.Settings;
 using IRIS.Devices.Transactions;
 
 namespace IRIS.DataEncoders.LINE.Examples

@@ -1,6 +1,6 @@
 ﻿using IRIS.Addressing;
-using IRIS.Devices.Interfaces;
-using IRIS.Devices.Interfaces.Settings;
+using IRIS.Communication.Serial;
+using IRIS.Communication.Serial.Settings;
 
 namespace IRIS.Devices
 {

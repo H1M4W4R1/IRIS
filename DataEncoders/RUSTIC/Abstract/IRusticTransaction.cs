@@ -1,11 +1,10 @@
 ﻿using IRIS.Transactions.Abstract;
 using IRIS.Transactions.ReadTypes;
 
-namespace IRIS.DataEncoders.LINE.Abstract
+namespace IRIS.DataEncoders.RUSTIC.Abstract
 {
-    public interface ILineTransaction : ITransactionReadUntilByte, IWithEncoder<LineDataEncoder>
+    public interface IRusticTransaction : ITransactionReadUntilByte, IWithEncoder<RusticDataEncoder>
     {
         byte ITransactionReadUntilByte.ExpectedByte => 0x0A;
-
     }
 }

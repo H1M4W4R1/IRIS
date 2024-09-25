@@ -1,15 +1,15 @@
 ﻿using IRIS.Communication;
+using IRIS.DataEncoders.RUSTIC.Abstract;
 using IRIS.DataEncoders.RUSTIC.Data;
 using IRIS.Devices;
 using IRIS.Transactions;
-using IRIS.Transactions.ReadTypes;
 
 namespace IRIS.DataEncoders.RUSTIC.Transactions
 {
     /// <summary>
     /// Represents a transaction that sets a value in the device.
     /// </summary>
-    public struct SetValueTransaction : ITransactionReadUntilByte,
+    public struct SetValueTransaction : IRusticTransaction,
         IDataExchangeTransaction<SetValueTransaction, SetValueRequestData, SetValueResponseData>
     {
         /// <summary>
@@ -26,12 +26,11 @@ namespace IRIS.DataEncoders.RUSTIC.Transactions
             TCommunicationInterface communicationInterface = device.GetCommunicationInterface();
 
             // Send request to set value
-            await communicationInterface.SendDataAsync<RusticDataEncoder, SetValueTransaction, SetValueRequestData>(this,
-                requestData, cancellationToken);
+            await communicationInterface.SendDataAsync(this, requestData, cancellationToken);
 
             // Read response
             return await communicationInterface
-                .ReceiveDataAsync<RusticDataEncoder, SetValueTransaction, SetValueResponseData>(this, cancellationToken);
+                .ReceiveDataAsync<SetValueTransaction, SetValueResponseData>(this, cancellationToken);
         }
     }
 }

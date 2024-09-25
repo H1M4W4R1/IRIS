@@ -3,7 +3,7 @@ using IRIS.Communication.Types;
 
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
 
-namespace IRIS.Devices.Interfaces
+namespace IRIS.Communication.Serial
 {
     /// <summary>
     /// Reliable serial port, as regular one is really unreliable in data receiving.

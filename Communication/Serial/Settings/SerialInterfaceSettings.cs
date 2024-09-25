@@ -1,6 +1,6 @@
 ﻿using System.IO.Ports;
 
-namespace IRIS.Devices.Interfaces.Settings
+namespace IRIS.Communication.Serial.Settings
 {
     /// <summary>
     /// Configuration of serial interface

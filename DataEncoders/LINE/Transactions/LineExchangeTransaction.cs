@@ -18,11 +18,11 @@ namespace IRIS.DataEncoders.LINE.Transactions
             ICommunicationInterface communicationInterface = device.GetCommunicationInterface();
             
             // Send data to device
-            await communicationInterface.SendDataAsync<LineDataEncoder, LineExchangeTransaction, LineTransactionData>(this, requestData, cancellationToken);
+            await communicationInterface.SendDataAsync(this, requestData, cancellationToken);
             
             // Read response from device
             return await communicationInterface
-                .ReceiveDataAsync<LineDataEncoder, LineExchangeTransaction, LineTransactionData>(this, cancellationToken);
+                .ReceiveDataAsync<LineExchangeTransaction, LineTransactionData>(this, cancellationToken);
         }
     }
 }

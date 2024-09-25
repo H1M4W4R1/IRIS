@@ -1,5 +1,4 @@
-﻿using IRIS.DataEncoders;
-using IRIS.Transactions.Abstract;
+﻿using IRIS.Transactions.Abstract;
 
 namespace IRIS.Communication
 {
@@ -22,17 +21,15 @@ namespace IRIS.Communication
         /// <summary>
         /// Send data to device
         /// </summary>
-        Task SendDataAsync<TDataEncoder, TTransactionType, TWriteDataType>(TTransactionType transaction,
+        Task SendDataAsync<TTransactionType, TWriteDataType>(TTransactionType transaction,
             TWriteDataType data,
             CancellationToken cancellationToken = default)
-            where TDataEncoder : IDataEncoder
             where TTransactionType : ITransactionWithRequest<TTransactionType, TWriteDataType>
             where TWriteDataType : struct;
         
-        Task<TResponseDataType> ReceiveDataAsync<TDataEncoder, TTransactionType, TResponseDataType>(
+        Task<TResponseDataType> ReceiveDataAsync<TTransactionType, TResponseDataType>(
             TTransactionType transaction,
             CancellationToken cancellationToken = default)
-            where TDataEncoder : IDataEncoder
             where TTransactionType : ITransactionWithResponse<TTransactionType, TResponseDataType>
             where TResponseDataType : struct;
     }

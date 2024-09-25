@@ -1,6 +1,6 @@
-﻿using IRIS.DataEncoders;
-using IRIS.Transactions.Abstract;
-using IRIS.Transactions.ReadTypes;
+﻿using IRIS.Transactions.Abstract;
+using IRIS.Transactions.Readers;
+using IRIS.Transactions.Readers.Abstract;
 
 namespace IRIS.Communication.Types
 {
@@ -28,75 +28,54 @@ namespace IRIS.Communication.Types
         /// </summary>
         internal Task<byte[]> ReadRawDataUntil(byte expectedByte, CancellationToken cancellationToken);
 
-        async Task<TResponseDataType> ICommunicationInterface.ReceiveDataAsync<TDataEncoder, TTransactionType,
-            TResponseDataType>(
+        async Task<TResponseDataType> ICommunicationInterface.ReceiveDataAsync<TTransactionType, TResponseDataType>(
             TTransactionType transaction,
             CancellationToken cancellationToken)
         {
-            switch (transaction)
-            {
-                // If transaction is based on response length, read data until it's length
-                case ITransactionReadByLength:
-                    return await ProcessReceiveByLength<TDataEncoder, TTransactionType, TResponseDataType>(transaction,
-                        cancellationToken);
+            // Check if transaction supports data reader, if not throw exception
+            if (transaction is not IWithDataReader withDataReader)
+                throw new NotSupportedException("Transaction type is not supported");
+            
+            // Read data using raw data reader
+            byte[] data = await withDataReader
+                .ReadDataAsync<IRawDataCommunicationInterface, TTransactionType, IRawDataReader, byte[]>(this,
+                    transaction, cancellationToken);
 
-                // If transaction is based on response terminator, read data until terminator is found
-                case ITransactionReadUntilByte:
-                    return await ProcessReceiveByTerminator<TDataEncoder, TTransactionType, TResponseDataType>(transaction,
-                        cancellationToken);
-                
-                // If transaction is not supported, throw exception
-                default:
-                    throw new NotSupportedException("Transaction type is not supported");
-            }
+            // Decode data
+            return await DecodeData<TResponseDataType, TTransactionType>(transaction, data);
         }
 
-        private async Task<TResponseDataType> ProcessReceiveByLength<TDataEncoder, TTransactionType, TResponseDataType>(
+        private Task<TResponseDataType> DecodeData<TResponseDataType, TTransactionType>(
             TTransactionType transaction,
-            CancellationToken cancellationToken = default)
-            where TDataEncoder : IDataEncoder
-            where TTransactionType : ITransactionWithResponse<TTransactionType, TResponseDataType>
-            where TResponseDataType : struct
+            byte[] rawData) where TResponseDataType : struct
         {
-            // Validate transaction type
-            // We need to do this to prevent issues with generic types mismatch
-            if (transaction is not ITransactionReadByLength byLength)
-                throw new NotSupportedException("Transaction type is not supported");
+            // Check if user expects raw data and convert it if needed
+            if (typeof(TResponseDataType) == typeof(byte[]))
+                return Task.FromResult((TResponseDataType) Convert.ChangeType(rawData, typeof(TResponseDataType)));
 
-            byte[] data = await ReadRawData(byLength.ResponseLength, cancellationToken);
+            // Check if transaction supports encoder, if not throw exception
+            if (transaction is not IWithEncoder withEncoder)
+                throw new NotSupportedException("Transaction does not support encoder. Cannot decode data.");
 
-            // Decode data
-            transaction.Decode<TDataEncoder>(data, out TResponseDataType responseData);
-            return responseData;
+            // Decode data using encoder
+            withEncoder.Decode(rawData, out TResponseDataType responseData);
+            return Task.FromResult(responseData);
         }
 
-        private async Task<TResponseDataType>
-            ProcessReceiveByTerminator<TDataEncoder, TTransactionType, TResponseDataType>(
-                TTransactionType transaction,
-                CancellationToken cancellationToken = default)
-            where TDataEncoder : IDataEncoder
-            where TTransactionType : ITransactionWithResponse<TTransactionType, TResponseDataType>
-            where TResponseDataType : struct
-        {
-            // Validate transaction type
-            // We need to do this to prevent issues with generic types mismatch
-            if (transaction is not ITransactionReadUntilByte untilByteReceived)
-                throw new NotSupportedException("Transaction type is not supported");
-
-            byte[] data = await ReadRawDataUntil(untilByteReceived.ExpectedByte, cancellationToken);
-
-            // Decode data
-            transaction.Decode<TDataEncoder>(data, out TResponseDataType responseData);
-            return responseData;
-        }
-        
-        Task ICommunicationInterface.SendDataAsync<TDataEncoder, TTransactionType, TWriteDataType>(
+        Task ICommunicationInterface.SendDataAsync<TTransactionType, TWriteDataType>(
             TTransactionType transaction,
             TWriteDataType data,
             CancellationToken cancellationToken)
         {
-            // Encode data
-            byte[] encodedData = transaction.Encode<TDataEncoder>(data);
+            byte[] encodedData;
+
+            // Check if transaction supports encoder or if data is raw
+            if (transaction is IWithEncoder withEncoder)
+                encodedData = withEncoder.Encode(data);
+            else if (typeof(TWriteDataType) == typeof(byte[]))
+                encodedData = (byte[]) Convert.ChangeType(data, typeof(byte[]));
+            else
+                throw new NotSupportedException("Transaction type is not supported. Cannot encode data.");
 
             // Get core interface
             IRawDataCommunicationInterface coreInterface = this;
