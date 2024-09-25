@@ -6,9 +6,9 @@ namespace IRIS.DataEncoders.LINE
     /// <summary>
     /// Represents an encoder for basic text communication with a line limit of 128 characters.
     /// </summary>
-    public struct LineDataEncoder : IDataEncoder
+    public struct LineDataEncoder : IRawDataEncoder<LineDataEncoder>
     {
-        public static byte[] EncodeData<TData>(TData inputData) where TData : struct
+        public static byte[] _EncodeData<TData>(TData inputData) where TData : struct
         {
             // Check if TData is LineData
             if (inputData is not LineTransactionData lineData)
@@ -18,7 +18,7 @@ namespace IRIS.DataEncoders.LINE
             return Encoding.ASCII.GetBytes(lineData.message);
         }
 
-        public static bool DecodeData<TData>(byte[]? inputData, out TData outputData) where TData : struct
+        public static bool _DecodeData<TData>(byte[]? inputData, out TData outputData) where TData : struct
         {
             outputData = new TData();
 

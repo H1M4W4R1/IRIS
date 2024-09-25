@@ -9,11 +9,6 @@ namespace IRIS.Transactions.Abstract
         where TSelf : ICommunicationTransaction<TSelf>
         where TRequestData : struct
     {
-        /// <summary>
-        /// Encode data using the specified data encoder.
-        /// </summary>
-        public byte[] Encode<TDataEncoderType>(TRequestData data)
-            where TDataEncoderType : IDataEncoder => 
-            TDataEncoderType.EncodeData(data);
+
     }
 }

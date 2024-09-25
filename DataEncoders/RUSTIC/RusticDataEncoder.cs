@@ -3,9 +3,9 @@ using IRIS.DataEncoders.RUSTIC.Data;
 
 namespace IRIS.DataEncoders.RUSTIC
 {
-    public struct RusticDataEncoder : IDataEncoder
+    public struct RusticDataEncoder : IRawDataEncoder<RusticDataEncoder>
     {
-        public static byte[] EncodeData<TData>(TData inputData) where TData : struct
+        public static byte[] _EncodeData<TData>(TData inputData) where TData : struct
         {
             // Calculate the request text based on RUSTIC specification
             string? requestText = inputData switch
@@ -23,7 +23,7 @@ namespace IRIS.DataEncoders.RUSTIC
             throw new NotSupportedException("Unsupported data type");
         }
 
-        public static bool DecodeData<TData>(byte[] inputData, out TData outputData) where TData : struct
+        public static bool _DecodeData<TData>(byte[] inputData, out TData outputData) where TData : struct
         {
             // Decode the ASCII-encoded bytes to a string
             string responseText = Encoding.ASCII.GetString(inputData);

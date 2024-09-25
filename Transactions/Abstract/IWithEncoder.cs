@@ -11,7 +11,7 @@ namespace IRIS.Transactions.Abstract
     {
         byte[] IWithEncoder.Encode<TRequestData>(TRequestData data)
             where TRequestData : struct =>
-            TEncoderType.EncodeData(data);
+            (byte[]) TEncoderType.EncodeData(data);
 
         bool IWithEncoder.Decode<TResponseData>(byte[] data, out TResponseData result)
             where TResponseData : struct =>
