@@ -4,7 +4,6 @@ using IRIS.Communication.Serial.Settings;
 using IRIS.DataEncoders.RUSTIC.Data;
 using IRIS.DataEncoders.RUSTIC.Transactions;
 using IRIS.Devices;
-using IRIS.Devices.Transactions;
 using IRIS.Transactions;
 
 namespace IRIS.Examples.Arduino.RUSTIC_LEDApplication
@@ -15,11 +14,7 @@ namespace IRIS.Examples.Arduino.RUSTIC_LEDApplication
     /// </summary>
     public sealed class ExampleArduinoLEDChangingDevice(
         SerialPortDeviceAddress deviceAddress,
-        SerialInterfaceSettings settings) : SerialDeviceBase(deviceAddress, settings),
-        ISupportExchangeTransaction<ExampleArduinoLEDChangingDevice, SerialPortInterface,
-            GetValueTransaction, GetValueRequestData, GetValueResponseData>,
-        ISupportExchangeTransaction<ExampleArduinoLEDChangingDevice, SerialPortInterface,
-            SetValueTransaction, SetValueRequestData, SetValueResponseData>
+        SerialInterfaceSettings settings) : SerialDeviceBase(deviceAddress, settings)
     {
         /// <summary>
         /// Get LED value

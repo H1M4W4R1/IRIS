@@ -1,6 +1,4 @@
-﻿using IRIS.DataEncoders;
-
-namespace IRIS.Transactions.Abstract
+﻿namespace IRIS.Transactions.Abstract
 {
     /// <summary>
     /// Represents transaction with data.
