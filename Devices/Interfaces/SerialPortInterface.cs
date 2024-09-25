@@ -1,9 +1,5 @@
 ﻿using System.IO.Ports;
-using IRIS.Communication;
 using IRIS.Communication.Types;
-using IRIS.DataEncoders;
-using IRIS.Transactions.Abstract;
-using IRIS.Transactions.ReadTypes;
 
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
 
@@ -13,7 +9,7 @@ namespace IRIS.Devices.Interfaces
     /// Reliable serial port, as regular one is really unreliable in data receiving.
     /// Buffers data as unbuffered event-driven solution would bend space-time continuum (quite literally).
     /// </summary>
-    public sealed class SerialPortInterface : SerialPort, ICommunicationInterface, IRawDataCommunicationInterface
+    public sealed class SerialPortInterface : SerialPort, IRawDataCommunicationInterface
     {
         /// <summary>
         /// Used when reading data stream by single character to prevent unnecessary allocations
@@ -55,28 +51,6 @@ namespace IRIS.Devices.Interfaces
         }
 
         public void Disconnect() => Close();
-
-        public async Task SendDataAsync<TDataEncoder, TTransactionType, TWriteDataType>(TTransactionType transaction,
-            TWriteDataType data,
-            CancellationToken cancellationToken = default) where TDataEncoder : IDataEncoder
-            where TTransactionType : ITransactionWithRequest<TTransactionType, TWriteDataType>
-            where TWriteDataType : struct
-        {
-            IRawDataCommunicationInterface coreInterface = this;
-            await coreInterface.DefaultSendDataAsyncImpl<TDataEncoder, TTransactionType, TWriteDataType>(
-                transaction, data, cancellationToken);
-        }
-
-        public async Task<TResponseDataType> ReceiveDataAsync<TDataEncoder, TTransactionType, TResponseDataType>(
-            TTransactionType transaction,
-            CancellationToken cancellationToken = default) where TDataEncoder : IDataEncoder
-            where TTransactionType : ITransactionWithResponse<TTransactionType, TResponseDataType>
-            where TResponseDataType : struct
-        {
-            IRawDataCommunicationInterface coreInterface = this;
-            return await coreInterface.DefaultReceiveDataAsyncImpl<TDataEncoder, TTransactionType, TResponseDataType>(
-                transaction, cancellationToken);
-        }
 
 #region IRawDataCommunicationInterface
 

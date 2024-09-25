@@ -6,9 +6,12 @@ namespace IRIS.Communication.Types
 {
     /// <summary>
     /// Represents raw data communication interface, an interface that can
-    /// send or receive raw binary data.
+    /// send or receive raw binary data. <br/><br/>
+    /// This interface overrides the default communication interface to allow
+    /// easy implementation without the requirement to call any interface-based
+    /// methods.
     /// </summary>
-    public interface IRawDataCommunicationInterface
+    public interface IRawDataCommunicationInterface : ICommunicationInterface
     {
         /// <summary>
         /// Transmit data to device
@@ -25,16 +28,10 @@ namespace IRIS.Communication.Types
         /// </summary>
         internal Task<byte[]> ReadRawDataUntil(byte expectedByte, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Default implementation of receiving data for transactions
-        /// </summary>
-        public async Task<TResponseDataType>
-            DefaultReceiveDataAsyncImpl<TDataEncoder, TTransactionType, TResponseDataType>(
-                TTransactionType transaction,
-                CancellationToken cancellationToken = default)
-            where TDataEncoder : IDataEncoder
-            where TTransactionType : ITransactionWithResponse<TTransactionType, TResponseDataType>
-            where TResponseDataType : struct
+        async Task<TResponseDataType> ICommunicationInterface.ReceiveDataAsync<TDataEncoder, TTransactionType,
+            TResponseDataType>(
+            TTransactionType transaction,
+            CancellationToken cancellationToken)
         {
             switch (transaction)
             {
@@ -92,15 +89,11 @@ namespace IRIS.Communication.Types
             transaction.Decode<TDataEncoder>(data, out TResponseDataType responseData);
             return responseData;
         }
-
-        /// <summary>
-        /// Default implementation of sending data for transactions
-        /// </summary>
-        public Task DefaultSendDataAsyncImpl<TDataEncoder, TTransactionType, TWriteDataType>(TTransactionType transaction,
+        
+        Task ICommunicationInterface.SendDataAsync<TDataEncoder, TTransactionType, TWriteDataType>(
+            TTransactionType transaction,
             TWriteDataType data,
-            CancellationToken cancellationToken = default) where TDataEncoder : IDataEncoder
-            where TTransactionType : ITransactionWithRequest<TTransactionType, TWriteDataType>
-            where TWriteDataType : struct
+            CancellationToken cancellationToken)
         {
             // Encode data
             byte[] encodedData = transaction.Encode<TDataEncoder>(data);

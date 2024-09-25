@@ -3,7 +3,7 @@
 Each example is a separate directory that contains the following files:
 - `README.md` - description of the example
 - `ExampleApp.cs` - example application that demonstrates how to use the library
-- Respective device representation e.g. `ExampleArduinoEchoDevice.cs`
+- Example-specific files (e.g. device source code, configuration files, etc.)
 
 ## Running examples the fast way
 Just create a simple console app and run the example application in the `Main` method.
