@@ -1,7 +1,7 @@
 ﻿using IRIS.Addressing;
 using IRIS.Devices.Interfaces.Settings;
 
-namespace IRIS.Examples.ArduinoRusticLED
+namespace IRIS.Examples.Arduino.RUSTIC_LEDApplication
 {
     public static class ExampleApp
     {

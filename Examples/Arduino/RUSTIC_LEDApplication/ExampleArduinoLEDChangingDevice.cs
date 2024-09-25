@@ -7,7 +7,7 @@ using IRIS.Protocols.RUSTIC.Data;
 using IRIS.Protocols.RUSTIC.Transactions;
 using IRIS.Transactions;
 
-namespace IRIS.Examples.ArduinoRusticLED
+namespace IRIS.Examples.Arduino.RUSTIC_LEDApplication
 {
     /// <summary>
     /// Represents an example of a device that changes or reads the value of an LED
