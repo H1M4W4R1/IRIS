@@ -31,7 +31,7 @@ namespace IRIS.Examples.Arduino.LINE_EchoApplication
             
             // Exchange data
             LineTransactionData response =
-                await TTransaction.ExchangeAsync<ExampleArduinoEchoDevice, SerialPortInterface>(this, data);
+                await TTransaction.ExchangeAsync<ExampleArduinoEchoDevice, CachedSerialPortInterface>(this, data);
 
             // Return response
             return response.ToString();
@@ -50,7 +50,7 @@ namespace IRIS.Examples.Arduino.LINE_EchoApplication
             LineTransactionData data = new(message);
             
             // Send message
-            await TTransaction.WriteAsync<ExampleArduinoEchoDevice, SerialPortInterface>(this, data);
+            await TTransaction.WriteAsync<ExampleArduinoEchoDevice, CachedSerialPortInterface>(this, data);
         }
         
         /// <summary>
@@ -64,7 +64,7 @@ namespace IRIS.Examples.Arduino.LINE_EchoApplication
         {
             // Read message
             LineTransactionData response =
-                await TTransaction.ReadAsync<ExampleArduinoEchoDevice, SerialPortInterface>(this);
+                await TTransaction.ReadAsync<ExampleArduinoEchoDevice, CachedSerialPortInterface>(this);
 
             // Return response
             return response.ToString();

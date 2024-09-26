@@ -8,7 +8,7 @@ namespace IRIS.Devices
     /// Represents device connected to computer via serial port
     /// For example COM9 or /dev/ttyUSB0
     /// </summary>
-    public abstract class SerialDeviceBase : DeviceBase<SerialPortInterface, SerialPortDeviceAddress>
+    public abstract class SerialDeviceBase : DeviceBase<CachedSerialPortInterface, SerialPortDeviceAddress>
     {
         /// <summary>
         /// Create serial device with specific address and settings
@@ -16,7 +16,7 @@ namespace IRIS.Devices
         protected SerialDeviceBase(SerialPortDeviceAddress deviceAddress, SerialInterfaceSettings settings)
         {
             Interface = 
-                new SerialPortInterface(deviceAddress.Address, settings.baudRate, settings.parity, settings.dataBits, settings.stopBits);
+                new CachedSerialPortInterface(deviceAddress.Address, settings.baudRate, settings.parity, settings.dataBits, settings.stopBits);
         }
         
         /// <summary>

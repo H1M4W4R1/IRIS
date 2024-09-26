@@ -6,8 +6,7 @@ using IRIS.Communication.Types;
 namespace IRIS.Communication.Serial
 {
     /// <summary>
-    /// Reliable serial port, as regular one is really unreliable in data receiving.
-    /// Buffers data as unbuffered event-driven solution would bend space-time continuum (quite literally).
+    /// Serial port interface for communication with devices.
     /// </summary>
     public sealed class SerialPortInterface : SerialPort, IRawDataCommunicationInterface
     {

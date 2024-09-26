@@ -31,7 +31,7 @@ namespace IRIS.Examples.Arduino.RUSTIC_LEDApplication
 
             // Exchange data
             GetValueResponseData result = await TTransactionType
-                .ExchangeAsync<ExampleArduinoLEDChangingDevice, SerialPortInterface>(this, requestData,
+                .ExchangeAsync<ExampleArduinoLEDChangingDevice, CachedSerialPortInterface>(this, requestData,
                     cancellationToken);
             
             // Return result of the operation
@@ -53,7 +53,7 @@ namespace IRIS.Examples.Arduino.RUSTIC_LEDApplication
 
             // Exchange data
             SetValueResponseData result = await TTransactionType
-                .ExchangeAsync<ExampleArduinoLEDChangingDevice, SerialPortInterface>(this, requestData,
+                .ExchangeAsync<ExampleArduinoLEDChangingDevice, CachedSerialPortInterface>(this, requestData,
                     cancellationToken);
 
             // Return result of the operation
