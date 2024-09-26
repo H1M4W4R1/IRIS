@@ -79,7 +79,34 @@ namespace IRIS.Addressing
         /// <param name="deviceAddress">Fully-qualified device address</param>
         public SerialPortDeviceAddress(string deviceAddress) 
         {
-            Address = deviceAddress;
+            // Check if platform is Linux
+            if(RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                // Check if file name starts with /dev
+                if (deviceAddress.StartsWith("/dev"))
+                    Address = deviceAddress;
+                else if(deviceAddress.StartsWith("dev"))
+                    Address = $"/{deviceAddress}";
+                else
+                    Address = $"/dev/{deviceAddress}";
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                // Check if file name starts with COM
+                if (deviceAddress.StartsWith("COM"))
+                    Address = deviceAddress;
+                // Attempt to fix COM port name if case is wrong
+                else if(deviceAddress.StartsWith("com"))
+                    Address = $"COM{deviceAddress.Replace("com", "")}";
+                // Attempt to connect to COM port if only number is provided
+                else
+                    Address = $"COM{deviceAddress}";
+            }
+            else
+            {
+                // OSX and other platforms require full path
+                Address = deviceAddress;
+            }
         }
         
     }
