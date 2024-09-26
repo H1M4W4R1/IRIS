@@ -1,16 +1,18 @@
-﻿namespace IRIS.Addressing
+﻿using System.Runtime.InteropServices;
+
+namespace IRIS.Addressing
 {
     /// <summary>
     /// Struct representing serial port address
     /// Used to store addresses of devices connected via serial port
     /// Example: COM9 in Windows or /dev/ttyUSB0 in Linux
     /// </summary>
-    public readonly struct SerialPortDeviceAddress(string address) : IDeviceAddress<string>
+    public readonly struct SerialPortDeviceAddress : IDeviceAddress<string>
     {
         /// <summary>
         /// COM Port Name (for example COM9)
         /// </summary>
-        public string Address { get; } = address;
+        public string Address { get; }
         
         /// <summary>
         /// Get address for Linux USB port
@@ -29,6 +31,56 @@
         /// </summary>
         public static SerialPortDeviceAddress Windows(int portIndex) =>
             new SerialPortDeviceAddress($"COM{portIndex}");
+
+        /// <summary>
+        /// Create Serial Port Device Address using
+        /// </summary>
+        /// <param name="deviceAddress">Index of the device aka. port number</param>
+        /// <exception cref="PlatformNotSupportedException">When platform is not supported</exception>
+        /// <remarks>Not supported on OSX nor BSD</remarks>
+        public SerialPortDeviceAddress(int deviceAddress)
+        {
+            if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                Address = $"COM{deviceAddress}";
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                // Try to connect via USB
+                Address = $"/dev/ttyUSB{deviceAddress}";
+                
+                // Check if Linux USB port exists, if not try to connect via ACM
+                if (!File.Exists(Address))
+                    Address = $"/dev/ttyACM{deviceAddress}";
+                
+                // Check if Linux ACM port exists, if not try to connect via AMA
+                if (!File.Exists(Address))
+                    Address = $"/dev/ttyAMA{deviceAddress}";
+                
+                // Check if Linux ACM port exists, if not try to connect via SAC
+                if (!File.Exists(Address))
+                    Address = $"/dev/ttySAC{deviceAddress}";
+                
+                // Check if Linux ACM port exists, if not try regular COM/RS232 port
+                if (!File.Exists(Address))
+                    Address = $"/dev/ttyS{deviceAddress}";
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                throw new PlatformNotSupportedException("OSX port number uses weird naming for USB and thus is not supported via numeric index");
+            }
+            else
+                throw new PlatformNotSupportedException();
+        }
+        
+        /// <summary>
+        /// Create Serial Port Device Address using
+        /// fully-qualified device address, for example COM9 or /dev/ttyUSB0. <br/>
+        /// Fully supports Windows, Linux and OSX.
+        /// </summary>
+        /// <param name="deviceAddress">Fully-qualified device address</param>
+        public SerialPortDeviceAddress(string deviceAddress) 
+        {
+            Address = deviceAddress;
+        }
         
     }
 }
