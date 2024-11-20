@@ -15,7 +15,13 @@ namespace IRIS.Communication.Serial
         /// </summary>
         private readonly byte[] _singleCharReadBuffer = new byte[1];
 
-        public SerialPortInterface(string portName, int baudRate, Parity parity, int dataBits, StopBits stopBits)
+        public SerialPortInterface(string portName,
+            int baudRate,
+            Parity parity,
+            int dataBits,
+            StopBits stopBits,
+            bool dtrEnable,
+            bool rtsEnable)
         {
             PortName = portName;
             BaudRate = baudRate;
@@ -23,8 +29,8 @@ namespace IRIS.Communication.Serial
             Parity = parity;
             StopBits = stopBits;
             Handshake = Handshake.None;
-            DtrEnable = false;
-            RtsEnable = false;
+            DtrEnable = dtrEnable;
+            RtsEnable = rtsEnable;
             NewLine = Environment.NewLine;
             ReceivedBytesThreshold = 1024;
         }

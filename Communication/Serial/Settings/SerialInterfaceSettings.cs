@@ -5,7 +5,8 @@ namespace IRIS.Communication.Serial.Settings
     /// <summary>
     /// Configuration of serial interface
     /// </summary>
-    public readonly struct SerialInterfaceSettings(int baudRate = 115200, Parity parity = Parity.None, int dataBits = 8, StopBits stopBits = StopBits.One)
+    public readonly struct SerialInterfaceSettings(int baudRate = 115200, Parity parity = Parity.None, int dataBits = 8, StopBits stopBits = StopBits.One,
+        bool useDtr = false, bool useRts = false)
     {
         /// <summary>
         /// Baud rate of serial port
@@ -30,5 +31,17 @@ namespace IRIS.Communication.Serial.Settings
         /// Default: One
         /// </summary>
         public readonly StopBits stopBits = stopBits;
+        
+        /// <summary>
+        /// Determines whether the Data Terminal Ready (DTR) signal is enabled during serial communication.
+        /// Default: false
+        /// </summary>
+        public readonly bool dtrEnable = useDtr;
+
+        /// <summary>
+        /// Determines whether the Request to Send (RTS) signal is enabled during serial communication.
+        /// Default: false
+        /// </summary>
+        public readonly bool rtsEnable = useRts;
     }
 }

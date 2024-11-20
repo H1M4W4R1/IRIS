@@ -16,7 +16,8 @@ namespace IRIS.Devices
         protected SerialDeviceBase(SerialPortDeviceAddress deviceAddress, SerialInterfaceSettings settings)
         {
             Interface = 
-                new CachedSerialPortInterface(deviceAddress.Address, settings.baudRate, settings.parity, settings.dataBits, settings.stopBits);
+                new CachedSerialPortInterface(deviceAddress.Address, settings.baudRate, settings.parity, settings.dataBits, settings.stopBits,
+                    settings.dtrEnable, settings.rtsEnable);
         }
         
         /// <summary>

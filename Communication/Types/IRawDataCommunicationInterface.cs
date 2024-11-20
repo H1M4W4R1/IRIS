@@ -16,17 +16,17 @@ namespace IRIS.Communication.Types
         /// <summary>
         /// Transmit data to device
         /// </summary>
-        internal void TransmitRawData(byte[] data);
+        public void TransmitRawData(byte[] data);
 
         /// <summary>
         /// Read data from device
         /// </summary>
-        internal Task<byte[]> ReadRawData(int length, CancellationToken cancellationToken);
+        public Task<byte[]> ReadRawData(int length, CancellationToken cancellationToken);
 
         /// <summary>
         /// Read data from device until expected byte is found
         /// </summary>
-        internal Task<byte[]> ReadRawDataUntil(byte expectedByte, CancellationToken cancellationToken);
+        public Task<byte[]> ReadRawDataUntil(byte expectedByte, CancellationToken cancellationToken);
 
         async Task<TResponseDataType> ICommunicationInterface.ReceiveDataAsync<TTransactionType, TResponseDataType>(
             TTransactionType transaction,

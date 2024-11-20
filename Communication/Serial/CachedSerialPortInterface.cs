@@ -31,7 +31,8 @@ namespace IRIS.Communication.Serial
         /// </summary>
         private CancellationToken _tokenRef = CancellationToken.None;
 
-        public CachedSerialPortInterface(string portName, int baudRate, Parity parity, int dataBits, StopBits stopBits)
+        public CachedSerialPortInterface(string portName, int baudRate, Parity parity, int dataBits, StopBits stopBits,
+            bool dtrEnable, bool rtsEnable)
         {
             PortName = portName;
             BaudRate = baudRate;
@@ -39,8 +40,8 @@ namespace IRIS.Communication.Serial
             Parity = parity;
             StopBits = stopBits;
             Handshake = Handshake.None;
-            DtrEnable = false;
-            RtsEnable = false;
+            DtrEnable = dtrEnable;
+            RtsEnable = rtsEnable;
             NewLine = Environment.NewLine;
             ReceivedBytesThreshold = 1024;
         }
