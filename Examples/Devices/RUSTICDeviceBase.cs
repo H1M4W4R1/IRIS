@@ -19,7 +19,7 @@ namespace IRIS.Examples.Devices
         /// <remarks>
         /// Uses ToString() method to convert <see cref="value"/> to string
         /// </remarks>
-        public async Task SetProperty<TValueType>(string message, TValueType value)
+        protected async Task SetProperty<TValueType>(string message, TValueType value)
         {
             // Check if value is null, if so throw exception
             if (value == null) throw new ArgumentNullException(nameof(value));
@@ -37,7 +37,7 @@ namespace IRIS.Examples.Devices
         /// <summary>
         /// Sends GET message to device and returns the response <br/>
         /// </summary>
-        public async Task<string> GetProperty(string propertyName)
+        protected async Task<string> GetProperty(string propertyName)
         {
             // Send message with embedded value
             await RawHardwareAccess.TransmitRawData(Encoding.ASCII.GetBytes(propertyName));
