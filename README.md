@@ -9,4 +9,3 @@ protocols and communication interfaces.
 
 ## Documentation
 The documentation is available in the [Documentation](https://github.com/H1M4W4R1/IRIS/tree/main/_Documentation) folder.
-folder.
