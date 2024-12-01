@@ -71,9 +71,6 @@ void cmd_process(const parsed_cmd_t *cmd)
 
       // Update LED display
       digitalWrite(LED_BUILTIN, ledValue);
-
-      // Respond as success
-      Serial.print("LED=OK\r\n");
     }
     else if(cmd->type == CMD_GET)
     {
@@ -81,10 +78,6 @@ void cmd_process(const parsed_cmd_t *cmd)
       Serial.print(ledValue);
       Serial.print("\r\n");
     }
-  }
-  else
-  {
-    Serial.print("CMD=ERR_UNKNOWN_COMMAND\r\n");
   }
 }
 

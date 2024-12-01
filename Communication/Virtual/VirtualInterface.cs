@@ -52,9 +52,10 @@ namespace IRIS.Communication.Virtual
         /// <see cref="SerialPortInterface"/> which is reference for this class.
         /// </summary>
         /// <param name="data">Data to transmit</param>
-        void IRawDataCommunicationInterface.TransmitRawData(byte[] data)
+        Task IRawDataCommunicationInterface.TransmitRawData(byte[] data)
         {
             SimulateTransmittedData(data);
+            return Task.CompletedTask;
         }
 
         /// <summary>

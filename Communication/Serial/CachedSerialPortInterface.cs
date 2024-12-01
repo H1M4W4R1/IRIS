@@ -133,12 +133,14 @@ namespace IRIS.Communication.Serial
         /// <summary>
         /// Transmit data to device over serial port
         /// </summary>
-        void IRawDataCommunicationInterface.TransmitRawData(byte[] data)
+        Task IRawDataCommunicationInterface.TransmitRawData(byte[] data)
         {
             if (!IsOpen) throw new CommunicationException("Port is not open!");
 
             // Write data to device
             Write(data, 0, data.Length);
+            
+            return Task.CompletedTask;
         }
 
         /// <summary>

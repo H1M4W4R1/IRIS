@@ -15,7 +15,7 @@ namespace IRIS.Devices
         /// </summary>
         protected SerialDeviceBase(SerialPortDeviceAddress deviceAddress, SerialInterfaceSettings settings)
         {
-            Interface = 
+            HardwareAccess = 
                 new CachedSerialPortInterface(deviceAddress.Address, settings.baudRate, settings.parity, settings.dataBits, settings.stopBits,
                     settings.dtrEnable, settings.rtsEnable);
         }
@@ -26,15 +26,15 @@ namespace IRIS.Devices
         public void SetAddress(SerialPortDeviceAddress deviceAddress)
         {
             // Check if port is open
-            bool wasPortOpen = Interface.IsOpen;
+            bool wasPortOpen = HardwareAccess.IsOpen;
             if (wasPortOpen)
-                Interface.Disconnect();
+                HardwareAccess.Disconnect();
 
-            Interface.PortName = deviceAddress.ToString();
+            HardwareAccess.PortName = deviceAddress.ToString();
 
             // If port was open then connect again
             if (wasPortOpen)
-                Interface.Connect();
+                HardwareAccess.Connect();
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using IRIS.Transactions.Abstract;
+﻿using IRIS.Communication.Types;
 
 namespace IRIS.Communication
 {
@@ -19,18 +19,8 @@ namespace IRIS.Communication
         void Disconnect();
 
         /// <summary>
-        /// Send data to device
+        /// Get raw data communication interface if available
         /// </summary>
-        Task SendDataAsync<TTransactionType, TWriteDataType>(TTransactionType transaction,
-            TWriteDataType data,
-            CancellationToken cancellationToken = default)
-            where TTransactionType : ITransactionWithRequest<TTransactionType, TWriteDataType>
-            where TWriteDataType : struct;
-        
-        Task<TResponseDataType> ReceiveDataAsync<TTransactionType, TResponseDataType>(
-            TTransactionType transaction,
-            CancellationToken cancellationToken = default)
-            where TTransactionType : ITransactionWithResponse<TTransactionType, TResponseDataType>
-            where TResponseDataType : struct;
+        public IRawDataCommunicationInterface? Raw => this as IRawDataCommunicationInterface;
     }
 }
