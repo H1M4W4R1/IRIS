@@ -92,6 +92,7 @@ namespace IRIS.Communication.Serial
             while (bytesRead < length)
             {
                 bytesRead += await BaseStream.ReadAsync(data, bytesRead, length - bytesRead, cancellationToken);
+                if (cancellationToken.IsCancellationRequested) break;
             }
 
             // Return data
@@ -119,7 +120,8 @@ namespace IRIS.Communication.Serial
             while (true)
             {
                 int bytesRead = await BaseStream.ReadAsync(_singleCharReadBuffer, 0, 1, cancellationToken);
-
+                if (cancellationToken.IsCancellationRequested) break;
+                
                 // Check if data is read
                 if (bytesRead == 0) continue;
 

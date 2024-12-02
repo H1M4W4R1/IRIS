@@ -1,13 +1,14 @@
-﻿using System.Text;
-using IRIS.Addressing;
+﻿using IRIS.Addressing;
+using IRIS.Communication.Serial;
 using IRIS.Communication.Serial.Settings;
 using IRIS.Devices;
+using IRIS.Protocols.IRIS;
 
 namespace IRIS.Examples.Devices
 {
-   /// <summary>
-   /// Base class for RUSTIC devices
-   /// </summary>
+    /// <summary>
+    /// Base class for RUSTIC devices
+    /// </summary>
     public abstract class RUSTICDeviceBase(
         SerialPortDeviceAddress deviceAddress,
         SerialInterfaceSettings settings) : SerialDeviceBase(deviceAddress, settings)
@@ -19,40 +20,29 @@ namespace IRIS.Examples.Devices
         /// <remarks>
         /// Uses ToString() method to convert <see cref="value"/> to string
         /// </remarks>
-        protected async Task SetProperty<TValueType>(string message, TValueType value)
+        protected async Task<bool> SetProperty<TValueType>(string message, TValueType value)
         {
-            // Check if value is null, if so throw exception
-            if (value == null) throw new ArgumentNullException(nameof(value));
-            
-            // Send message with embedded value
-            await RawHardwareAccess.TransmitRawData(Encoding.ASCII.GetBytes(message));
-            
-            // Send request information
-            await RawHardwareAccess.TransmitRawData(Encoding.ASCII.GetBytes($"={value.ToString()}"));
-            
-            // Send new line
-            await RawHardwareAccess.TransmitRawData(Encoding.ASCII.GetBytes("\r\n"));
+            try
+            {
+                return await RUSTIC<CachedSerialPortInterface>.SetProperty(message, value?.ToString(), HardwareAccess, 100);
+            }
+            catch(TimeoutException)
+            {
+                // If the device does not respond in time, return false
+                // value may be set, but we cannot confirm it, so assume it is not
+                return false;
+            }
         }
-        
+
         /// <summary>
         /// Sends GET message to device and returns the response <br/>
         /// </summary>
         protected async Task<string> GetProperty(string propertyName)
         {
-            // Send message with embedded value
-            await RawHardwareAccess.TransmitRawData(Encoding.ASCII.GetBytes(propertyName));
-            
-            // Send request information
-            await RawHardwareAccess.TransmitRawData(Encoding.ASCII.GetBytes("=?"));
-            
-            // Send new line
-            await RawHardwareAccess.TransmitRawData(Encoding.ASCII.GetBytes("\r\n"));
-            
-            // Wait for response
-            byte[] response = await RawHardwareAccess.ReadRawDataUntil(0x0A, CancellationToken.None);
-            
-            // Return decoded response
-            return Encoding.ASCII.GetString(response);
+            (string _, string value) =
+                await RUSTIC<CachedSerialPortInterface>.GetProperty(propertyName, HardwareAccess);
+
+            return value;
         }
     }
 }

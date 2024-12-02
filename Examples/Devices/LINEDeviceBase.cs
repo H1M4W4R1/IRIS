@@ -1,7 +1,8 @@
-﻿using System.Text;
-using IRIS.Addressing;
+﻿using IRIS.Addressing;
+using IRIS.Communication.Serial;
 using IRIS.Communication.Serial.Settings;
 using IRIS.Devices;
+using IRIS.Protocols.IRIS;
 
 namespace IRIS.Examples.Devices
 {
@@ -16,35 +17,18 @@ namespace IRIS.Examples.Devices
         /// <summary>
         /// Exchange message with device
         /// </summary>
-        public async Task<string> ExchangeMessages(string message)
-        {
-            // Send message
-            await SendMessage(message);
-
-            // Read response
-            return await ReadMessage();
-        }
+        public async Task<string> ExchangeMessages(string message) =>
+            await LINE<CachedSerialPortInterface>.ExchangeMessages(HardwareAccess, message);
 
         /// <summary>
         /// Send message to device
         /// </summary>
-        public async Task SendMessage(string message)
-        {
-            // Send message with embedded value
-            await RawHardwareAccess.TransmitRawData(Encoding.ASCII.GetBytes(message));
-            
-            // Send new line
-            await RawHardwareAccess.TransmitRawData(Encoding.ASCII.GetBytes("\r\n"));
-        }
+        public async Task SendMessage(string message) =>
+            await LINE<CachedSerialPortInterface>.SendMessage(HardwareAccess, message);
 
         /// <summary>
         /// Read message from device
         /// </summary>
-        public async Task<string> ReadMessage()
-        {
-            // Read response
-            byte[] response = await RawHardwareAccess.ReadRawDataUntil(0x0A, CancellationToken.None);
-            return Encoding.ASCII.GetString(response);
-        }
+        public async Task<string> ReadMessage() => await LINE<CachedSerialPortInterface>.ReadMessage(HardwareAccess);
     }
 }
