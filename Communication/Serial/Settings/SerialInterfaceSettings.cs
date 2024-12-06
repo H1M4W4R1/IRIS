@@ -8,6 +8,9 @@ namespace IRIS.Communication.Serial.Settings
     public readonly struct SerialInterfaceSettings(int baudRate = 115200, Parity parity = Parity.None, int dataBits = 8, StopBits stopBits = StopBits.One,
         bool useDtr = false, bool useRts = false)
     {
+        // ReSharper disable once InconsistentNaming
+        public static readonly SerialInterfaceSettings Default = new(115200, Parity.None, 8, StopBits.One, false, false);
+        
         /// <summary>
         /// Baud rate of serial port
         /// Default: 115200

@@ -119,6 +119,7 @@ namespace IRIS.Communication.Serial
         /// </summary>
         private void OnDataReceived(IReadOnlyList<byte> data)
         {
+            
             // Copy data to storage
             for (int index = 0; index < data.Count; index++)
             {
@@ -159,7 +160,7 @@ namespace IRIS.Communication.Serial
             byte[] data = new byte[length];
             int bytesRead = 0;
 
-            while (data.Length < length)
+            while (bytesRead < length)
             {
                 // Check if cancellation is requested
                 if (cancellationToken.IsCancellationRequested) return [];
@@ -176,7 +177,6 @@ namespace IRIS.Communication.Serial
 
                 // Increment bytes read
                 bytesRead++;
-                
             }
 
             // Return data
