@@ -15,6 +15,8 @@ namespace IRIS.Communication.Serial
         /// </summary>
         private readonly byte[] _singleCharReadBuffer = new byte[1];
 
+        public event Delegates.DeviceConnectionLost? OnDeviceConnectionLost;
+        
         public SerialPortInterface(string portName,
             int baudRate,
             Parity parity,
@@ -41,18 +43,10 @@ namespace IRIS.Communication.Serial
         /// <exception cref="CommunicationException">If port cannot be opened</exception>
         public void Connect()
         {
-            try
-            {
-                // Open the port
-                Open();
-                if (!IsOpen)
-                    throw new CommunicationException("Cannot connect to device - port open failed.");
-            }
-            catch (UnauthorizedAccessException)
-            {
-                throw new CommunicationException(
-                    "Cannot access device. Access has been denied. Is any software accessing this port already?");
-            }
+            // Open the port
+            Open();
+            if (!IsOpen)
+                throw new CommunicationException("Cannot connect to device - port open failed.");
         }
 
         public void Disconnect() => Close();
@@ -64,7 +58,11 @@ namespace IRIS.Communication.Serial
         /// </summary>
         Task IRawDataCommunicationInterface.TransmitRawData(byte[] data)
         {
-            if (!IsOpen) throw new CommunicationException("Port is not open!");
+            if (!IsOpen)
+            {
+                OnDeviceConnectionLost?.Invoke();
+                return Task.CompletedTask;
+            }
 
             // Write data to device
             Write(data, 0, data.Length);
@@ -81,7 +79,11 @@ namespace IRIS.Communication.Serial
         /// <exception cref="CommunicationException">If port is not open</exception>
         async Task<byte[]> IRawDataCommunicationInterface.ReadRawData(int length, CancellationToken cancellationToken)
         {
-            if (!IsOpen) throw new CommunicationException("Port is not open!");
+            if (!IsOpen)
+            {
+                OnDeviceConnectionLost?.Invoke();
+                return [];
+            }
 
             // Create buffer for data
             // TODO: Get rid of this allocation
@@ -110,7 +112,11 @@ namespace IRIS.Communication.Serial
             CancellationToken cancellationToken)
         {
             // Check if device is open
-            if (!IsOpen) throw new CommunicationException("Port is not open!");
+            if (!IsOpen)
+            {
+                OnDeviceConnectionLost?.Invoke();
+                return [];
+            }
 
             // Read data until byte is found
             // TODO: Get rid of this allocation
