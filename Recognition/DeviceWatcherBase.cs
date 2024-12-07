@@ -223,6 +223,8 @@ namespace IRIS.Recognition
         /// </summary>
         public void Dispose()
         {
+            if(IsRunning) Stop();
+            
             _cancellationTokenSource.Dispose();
         }
     }

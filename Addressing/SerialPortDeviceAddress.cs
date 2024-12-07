@@ -109,5 +109,7 @@ namespace IRIS.Addressing
             }
         }
         
+        public static bool operator ==(SerialPortDeviceAddress left, SerialPortDeviceAddress right) => left.Address == right.Address;
+        public static bool operator !=(SerialPortDeviceAddress left, SerialPortDeviceAddress right) => !(left == right);
     }
 }
