@@ -21,7 +21,7 @@ namespace IRIS.Protocols.IRIS
         public static async Task<uint> SetRegister(TInterface communicationInterface, uint registerAddress, uint registerValue,
             int timeoutMs = 100)
         {
-            registerAddress &= 0x80000000; // First bit indicates write operation
+            registerAddress |= 0x80000000; // First bit indicates write operation
             
             // Create address byte data
             byte[] addressByte = new byte[]
