@@ -65,8 +65,8 @@ namespace IRIS.Recognition
 
                 // Split VID and PID
                 string[] vendorAndProductIdentifiers = parsedId[1].Split("&");
-                if (vendorAndProductIdentifiers.Length != 2)
-                    throw new InvalidDataException("Cannot parse VID/PID");
+                if (vendorAndProductIdentifiers.Length < 2) // Some devices have shitty names with more parameters
+                    continue;
 
                 // Remove trash data
                 string vid1 = vendorAndProductIdentifiers[0].Replace("VID_", "");
