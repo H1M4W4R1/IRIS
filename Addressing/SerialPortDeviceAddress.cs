@@ -7,7 +7,7 @@ namespace IRIS.Addressing
     /// Used to store addresses of devices connected via serial port
     /// Example: COM9 in Windows or /dev/ttyUSB0 in Linux
     /// </summary>
-    public readonly struct SerialPortDeviceAddress : IDeviceAddress<string>
+    public readonly struct SerialPortDeviceAddress : IDeviceAddress<string>, IEquatable<SerialPortDeviceAddress>
     {
         /// <summary>
         /// COM Port Name (for example COM9)
@@ -111,5 +111,10 @@ namespace IRIS.Addressing
         
         public static bool operator ==(SerialPortDeviceAddress left, SerialPortDeviceAddress right) => left.Address == right.Address;
         public static bool operator !=(SerialPortDeviceAddress left, SerialPortDeviceAddress right) => !(left == right);
+        
+        public bool Equals(SerialPortDeviceAddress other) => Address == other.Address;
+        public override bool Equals(object? obj) => obj is SerialPortDeviceAddress other && Equals(other);
+
+        public override int GetHashCode() => Address.GetHashCode();
     }
 }

@@ -129,7 +129,7 @@ namespace IRIS.Recognition
                     }
                     // ReSharper disable once RedundantCatchClause
                     // This code is required to catch exceptions in release builds.
-                    catch(Exception exception)
+                    catch(Exception)
                     {
                         // Ignore exceptions, just continue as
                         // we prefer to have watcher working at all times
