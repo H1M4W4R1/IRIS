@@ -41,7 +41,7 @@ namespace IRIS.Communication.Serial
         /// Connect to device - open port and start reading data
         /// </summary>
         /// <exception cref="CommunicationException">If port cannot be opened</exception>
-        public void Connect()
+        public async Task Connect()
         {
             // Open the port
             Open();
@@ -49,7 +49,7 @@ namespace IRIS.Communication.Serial
                 throw new CommunicationException("Cannot connect to device - port open failed.");
         }
 
-        public void Disconnect() => Close();
+        public async Task Disconnect() => Close();
 
 #region IRawDataCommunicationInterface
 

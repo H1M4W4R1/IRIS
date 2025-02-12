@@ -52,7 +52,7 @@ namespace IRIS.Communication.Serial
         /// Connect to device - open port and start reading data
         /// </summary>
         /// <exception cref="CommunicationException">If port cannot be opened</exception>
-        public void Connect()
+        public async Task Connect()
         {
             // Do not connect if already connected
             if (IsOpen) return;
@@ -68,13 +68,13 @@ namespace IRIS.Communication.Serial
             BeginContinuousRead(_tokenRef);
         }
 
-        public void Disconnect()
+        public async Task Disconnect()
         {
             // Check if port is open
             if (!IsOpen) return;
             
             // Cancel reading
-            _cancellationTokenSource.Cancel();
+            await _cancellationTokenSource.CancelAsync();
             
             // Close port
             Close();

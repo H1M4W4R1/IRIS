@@ -31,7 +31,7 @@ namespace IRIS.Communication.Virtual
         /// <summary>
         /// Opens communication with device
         /// </summary>
-        public void Connect()
+        public async Task Connect()
         {
             IsOpen = true;
         }
@@ -39,7 +39,7 @@ namespace IRIS.Communication.Virtual
         /// <summary>
         /// Closes communication with device
         /// </summary>
-        public void Disconnect()
+        public async Task Disconnect()
         {
             IsOpen = false;
         }

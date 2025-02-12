@@ -16,12 +16,12 @@ namespace IRIS.Devices
         /// <summary>
         /// Connect to device
         /// </summary>
-        public void Connect() => HardwareAccess.Connect();
+        public virtual Task Connect() => HardwareAccess.Connect();
         
         /// <summary>
         /// Disconnect from device
         /// </summary>
-        public void Disconnect() => HardwareAccess.Disconnect();
+        public virtual Task Disconnect() => HardwareAccess.Disconnect();
    
     }
 
