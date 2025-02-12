@@ -80,7 +80,7 @@ namespace IRIS.Implementations.BluetoothLE
             if (HeartRateEndpoint == null) return;
             
             // Read the data from the endpoint and return if it is null
-            byte[]? data = await HeartRateEndpoint.ReadByteArray();
+            byte[]? data = await HeartRateEndpoint.ReadData<byte[]>();
             if(data == null) return;
 
             // Process the data

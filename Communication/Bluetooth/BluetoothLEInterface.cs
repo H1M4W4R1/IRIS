@@ -6,9 +6,9 @@ using IRIS.Addressing.Bluetooth;
 namespace IRIS.Communication.Bluetooth
 {
     /// <summary>
-    /// Interface for Bluetooth Low Energy communication
+    /// Base Interface for Bluetooth Low Energy communication
     /// </summary>
-    public sealed class BluetoothLEInterface : ICommunicationInterface
+    public class BluetoothLEInterface : ICommunicationInterface
     {
         /// <summary>
         /// Address of current device
@@ -24,7 +24,7 @@ namespace IRIS.Communication.Bluetooth
         /// List of all known connected device addresses
         /// used to connect to multiple devices
         /// </summary>
-        private static List<ulong> ConnectedDevices { get; } = new();
+        protected static List<ulong> ConnectedDevices { get; } = new();
 
         /// <summary>
         /// Service address to connect to
@@ -34,12 +34,12 @@ namespace IRIS.Communication.Bluetooth
         /// <summary>
         /// True if connected to device, false otherwise
         /// </summary>
-        private bool IsConnected => DeviceBluetoothAddress != 0;
+        public bool IsConnected => ConnectedDevice != null; 
 
         /// <summary>
         /// Device watcher for scanning for devices
         /// </summary>
-        private BluetoothLEAdvertisementWatcher _watcher;
+        protected BluetoothLEAdvertisementWatcher _watcher;
 
         /// <summary>
         /// Get endpoint for desired service and characteristic
@@ -50,16 +50,13 @@ namespace IRIS.Communication.Bluetooth
         internal async Task<BluetoothEndpoint?> GetEndpoint(List<Guid> serviceAddresses, int endpointIndex)
         {
             // Get device from address
-            if (DeviceBluetoothAddress == 0) return null;
+            if (ConnectedDevice == null) return null;
             
             // Check if index is valid
             if (endpointIndex < 0) return null;
 
-            // Get device
-            BluetoothLEDevice device = await BluetoothLEDevice.FromBluetoothAddressAsync(DeviceBluetoothAddress);
-
             // Get all services
-            GattDeviceServicesResult services = await device.GetGattServicesAsync();
+            GattDeviceServicesResult services = await ConnectedDevice.GetGattServicesAsync();
             
             // Check if communication status is OK
             if(services.Status != GattCommunicationStatus.Success) return null;
@@ -100,14 +97,10 @@ namespace IRIS.Communication.Bluetooth
         /// </summary>
         internal async Task<BluetoothEndpoint?> GetEndpoint(Dictionary<Guid, List<Guid>> serviceAddresses)
         {
-            // Get device from address
-            if (DeviceBluetoothAddress == 0) return null;
-
-            // Get device
-            BluetoothLEDevice device = await BluetoothLEDevice.FromBluetoothAddressAsync(DeviceBluetoothAddress);
-
+            if (ConnectedDevice == null) return null;
+     
             // Get all services
-            GattDeviceServicesResult services = await device.GetGattServicesAsync();
+            GattDeviceServicesResult services = await ConnectedDevice.GetGattServicesAsync();
 
             // Check if communication status is OK
             if (services.Status != GattCommunicationStatus.Success) return null;
