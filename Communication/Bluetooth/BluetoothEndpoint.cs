@@ -8,7 +8,9 @@ namespace IRIS.Communication.Bluetooth
     /// <summary>
     /// Represents bluetooth endpoint (service) we can connect to
     /// </summary>
-    public sealed class BluetoothEndpoint(GattDeviceService service, GattCharacteristic characteristic)
+    public sealed class BluetoothEndpoint(
+        BluetoothLEInterface bluetoothInterface,
+        GattDeviceService service, GattCharacteristic characteristic)
     {
         public delegate void CommunicationFailedHandler();
 
@@ -21,6 +23,11 @@ namespace IRIS.Communication.Bluetooth
         /// </summary>
         public BluetoothLEServiceAddress ServiceAddress { get; } = new(service.Uuid);
 
+        /// <summary>
+        /// Interface to communicate with the device
+        /// </summary>
+        public BluetoothLEInterface Interface { get; } = bluetoothInterface;
+        
         /// <summary>
         /// UUID of the characteristic
         /// </summary>
@@ -40,11 +47,6 @@ namespace IRIS.Communication.Bluetooth
         /// Called when notification is received (must be set beforehand)
         /// </summary>
         public NotificationReceivedHandler? NotificationReceived { get; set; } = delegate { };
-
-        /// <summary>
-        /// Called when communication fails
-        /// </summary>
-        public CommunicationFailedHandler? CommunicationFailed { get; set; } = delegate { };
 
 #region READ_WRITE_FUNCTIONS
 
@@ -396,7 +398,7 @@ namespace IRIS.Communication.Bluetooth
             GattReadResult result = await Characteristic.ReadValueAsync();
             if (result.Status != GattCommunicationStatus.Success)
             {
-                CommunicationFailed?.Invoke();
+                await Interface.Disconnect();
                 return null;
             }
 
@@ -411,7 +413,7 @@ namespace IRIS.Communication.Bluetooth
             GattCommunicationStatus status = await Characteristic.WriteValueAsync(buffer);
             if (status != GattCommunicationStatus.Success)
             {
-                CommunicationFailed?.Invoke();
+                await Interface.Disconnect();
                 return false;
             }
 
@@ -490,7 +492,7 @@ namespace IRIS.Communication.Bluetooth
             // Check if status is OK
             if (status != GattCommunicationStatus.Success)
             {
-                CommunicationFailed?.Invoke();
+                await Interface.Disconnect();
                 return false;
             }
 

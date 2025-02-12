@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
-using Windows.Storage.Streams;
 using IRIS.Communication.Bluetooth;
 using IRIS.Devices;
 using IRIS.Implementations.BluetoothLE.Data;
@@ -27,6 +26,7 @@ namespace IRIS.Implementations.BluetoothLE
         public override async Task Connect()
         {
             await base.Connect();
+            HardwareAccess.OnDeviceDisconnected += HandleCommunicationFailed;
 
             // Open the endpoint
             HeartRateEndpoint = await HardwareAccess.GetEndpoint([GattServiceUuids.HeartRate], 0);
@@ -35,7 +35,6 @@ namespace IRIS.Implementations.BluetoothLE
             if (HeartRateEndpoint != null && await HeartRateEndpoint.SetNotify(true))
             {
                 HeartRateEndpoint.NotificationReceived += HandleHeartRateNotification;
-                HeartRateEndpoint.CommunicationFailed += HandleCommunicationFailed;
             }
             else
             {
@@ -44,7 +43,7 @@ namespace IRIS.Implementations.BluetoothLE
             }
         }
 
-        private async void HandleCommunicationFailed()
+        private async void HandleCommunicationFailed(ulong address, Windows.Devices.Bluetooth.BluetoothLEDevice device)
         {
             await Disconnect(true);
         }
@@ -53,12 +52,14 @@ namespace IRIS.Implementations.BluetoothLE
 
         private async Task Disconnect(bool failedConnection)
         {
+            HardwareAccess.OnDeviceDisconnected -= HandleCommunicationFailed;
+
+            
             // Close the endpoint if it is open
             if (HeartRateEndpoint is {AreNotificationsActive: true})
             {
                 // Remove notification handlers
                 HeartRateEndpoint.NotificationReceived -= HandleHeartRateNotification;
-                HeartRateEndpoint.CommunicationFailed -= HandleCommunicationFailed;
                 
                 // Set notify to false if connection has not yet failed
                 if(!failedConnection) await HeartRateEndpoint.SetNotify(false);

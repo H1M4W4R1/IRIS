@@ -14,7 +14,7 @@ namespace IRIS.Communication.Bluetooth
         /// Address of current device
         /// </summary>
         private ulong DeviceBluetoothAddress { get; set; }
-        
+
         /// <summary>
         /// Connected device
         /// </summary>
@@ -34,13 +34,16 @@ namespace IRIS.Communication.Bluetooth
         /// <summary>
         /// True if connected to device, false otherwise
         /// </summary>
-        public bool IsConnected => ConnectedDevice != null; 
+        public bool IsConnected => ConnectedDevice != null || DeviceBluetoothAddress != 0;
 
         /// <summary>
         /// Device watcher for scanning for devices
         /// </summary>
         protected BluetoothLEAdvertisementWatcher _watcher;
 
+        public event DeviceConnected OnDeviceConnected = delegate { };
+        public event DeviceDisconnected OnDeviceDisconnected = delegate { };
+        
         /// <summary>
         /// Get endpoint for desired service and characteristic
         /// </summary>
@@ -51,15 +54,19 @@ namespace IRIS.Communication.Bluetooth
         {
             // Get device from address
             if (ConnectedDevice == null) return null;
-            
+
             // Check if index is valid
             if (endpointIndex < 0) return null;
 
             // Get all services
             GattDeviceServicesResult services = await ConnectedDevice.GetGattServicesAsync();
-            
+
             // Check if communication status is OK
-            if(services.Status != GattCommunicationStatus.Success) return null;
+            if (services.Status != GattCommunicationStatus.Success)
+            {
+                await Disconnect();
+                return null;
+            }
 
             // Find matching service
             foreach (Guid expectedService in serviceAddresses)
@@ -72,25 +79,29 @@ namespace IRIS.Communication.Bluetooth
 
                 // Get all characteristics
                 GattCharacteristicsResult characteristics = await service.GetCharacteristicsAsync();
-                
+
                 // Check if communication status is OK
-                if(characteristics.Status != GattCommunicationStatus.Success) return null;
-                
+                if (characteristics.Status != GattCommunicationStatus.Success)
+                {
+                    await Disconnect();
+                    return null;
+                }
+
+
                 // Check if index is valid
                 if (endpointIndex >= characteristics.Characteristics.Count) return null;
-                
+
                 // Get characteristic
                 GattCharacteristic characteristic = characteristics.Characteristics[endpointIndex];
-                
+
                 // Return endpoint
-                return new BluetoothEndpoint(service, characteristic);
+                return new BluetoothEndpoint(this, service, characteristic);
             }
 
             // If no service found, return null
             return null;
-            
         }
-        
+
         /// <summary>
         /// Get endpoint for any of desired services and characteristics
         /// Maps service UUID to list of characteristic UUIDs to search for
@@ -98,13 +109,13 @@ namespace IRIS.Communication.Bluetooth
         internal async Task<BluetoothEndpoint?> GetEndpoint(Dictionary<Guid, List<Guid>> serviceAddresses)
         {
             if (ConnectedDevice == null) return null;
-     
+
             // Get all services
             GattDeviceServicesResult services = await ConnectedDevice.GetGattServicesAsync();
 
             // Check if communication status is OK
             if (services.Status != GattCommunicationStatus.Success) return null;
-            
+
             // Find matching service
             foreach (Guid expectedService in serviceAddresses.Keys)
             {
@@ -118,7 +129,11 @@ namespace IRIS.Communication.Bluetooth
                 GattCharacteristicsResult characteristics = await service.GetCharacteristicsAsync();
 
                 // Check if communication status is OK
-                if (characteristics.Status != GattCommunicationStatus.Success) return null;
+                if (characteristics.Status != GattCommunicationStatus.Success)
+                {
+                    await Disconnect();
+                    return null;
+                }
 
                 // Find matching characteristic
                 foreach (Guid expectedCharacteristic in serviceAddresses[expectedService])
@@ -129,9 +144,9 @@ namespace IRIS.Communication.Bluetooth
 
                     // Check if characteristic is found
                     if (characteristic == null) continue;
-                    
+
                     // Return endpoint
-                    return new BluetoothEndpoint(service, characteristic);
+                    return new BluetoothEndpoint(this, service, characteristic);
                 }
             }
 
@@ -162,7 +177,11 @@ namespace IRIS.Communication.Bluetooth
                 // Remove device from connected devices
                 ConnectedDevices.Remove(DeviceBluetoothAddress);
                 DeviceBluetoothAddress = 0;
-                ConnectedDevice?.Dispose();
+
+                // Disconnect from device if connected
+                if (ConnectedDevice == null) return Task.CompletedTask;
+                OnDeviceDisconnected(DeviceBluetoothAddress, ConnectedDevice);
+                ConnectedDevice.Dispose();
                 ConnectedDevice = null;
             }
 
@@ -228,11 +247,12 @@ namespace IRIS.Communication.Bluetooth
             {
                 // Additional check just in case nothing went wrong in meanwhile
                 if (IsConnected) return;
-                
+
                 // Add device to connected devices
                 ConnectedDevices.Add(args.BluetoothAddress);
                 DeviceBluetoothAddress = args.BluetoothAddress;
                 ConnectedDevice = device;
+                OnDeviceConnected(DeviceBluetoothAddress, device);
             }
         }
     }
