@@ -1,6 +1,6 @@
 ﻿using IRIS.Addressing.Abstract;
 
-namespace IRIS.Addressing
+namespace IRIS.Addressing.Ports
 {
     /// <summary>
     /// USB Device Address - used to store addresses of devices connected via USB
