@@ -50,7 +50,7 @@ namespace IRIS.Communication.Bluetooth
         /// <param name="serviceAddresses">Service address to search for</param>
         /// <param name="endpointIndex">Index of the endpoint</param>
         /// <returns>Endpoint or null if not found</returns>
-        internal async Task<BluetoothEndpoint?> GetEndpoint(List<Guid> serviceAddresses, int endpointIndex)
+        protected internal async Task<BluetoothEndpoint?> GetEndpoint(List<Guid> serviceAddresses, int endpointIndex)
         {
             // Get device from address
             if (ConnectedDevice == null) return null;
@@ -106,7 +106,7 @@ namespace IRIS.Communication.Bluetooth
         /// Get endpoint for any of desired services and characteristics
         /// Maps service UUID to list of characteristic UUIDs to search for
         /// </summary>
-        internal async Task<BluetoothEndpoint?> GetEndpoint(Dictionary<Guid, List<Guid>> serviceAddresses)
+        protected internal async Task<BluetoothEndpoint?> GetEndpoint(Dictionary<Guid, List<Guid>> serviceAddresses)
         {
             if (ConnectedDevice == null) return null;
 

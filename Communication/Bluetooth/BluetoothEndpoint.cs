@@ -8,9 +8,8 @@ namespace IRIS.Communication.Bluetooth
     /// <summary>
     /// Represents bluetooth endpoint (service) we can connect to
     /// </summary>
-    public sealed class BluetoothEndpoint(
-        BluetoothLEInterface bluetoothInterface,
-        GattDeviceService service, GattCharacteristic characteristic)
+    public sealed class BluetoothEndpoint(BluetoothLEInterface bluetoothInterface,
+        GattDeviceService service, GattCharacteristic characteristic) 
     {
         public delegate void CommunicationFailedHandler();
 
@@ -46,7 +45,7 @@ namespace IRIS.Communication.Bluetooth
         /// <summary>
         /// Called when notification is received (must be set beforehand)
         /// </summary>
-        public NotificationReceivedHandler? NotificationReceived { get; set; } = delegate { };
+        public event NotificationReceivedHandler? NotificationReceived = delegate { };
 
 #region READ_WRITE_FUNCTIONS
 
@@ -423,8 +422,8 @@ namespace IRIS.Communication.Bluetooth
         /// <summary>
         /// Write data to the characteristic
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private async Task<bool> Write<TObjectType>(TObjectType data)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] 
+        public async Task<bool> Write<TObjectType>(TObjectType data)
         {
             return data switch
             {
