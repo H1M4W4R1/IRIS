@@ -14,6 +14,11 @@ namespace IRIS.Communication.Bluetooth
         /// Address of current device
         /// </summary>
         private ulong DeviceBluetoothAddress { get; set; }
+        
+        /// <summary>
+        /// Connected device
+        /// </summary>
+        public BluetoothLEDevice? ConnectedDevice { get; private set; }
 
         /// <summary>
         /// List of all known connected device addresses
@@ -164,6 +169,8 @@ namespace IRIS.Communication.Bluetooth
                 // Remove device from connected devices
                 ConnectedDevices.Remove(DeviceBluetoothAddress);
                 DeviceBluetoothAddress = 0;
+                ConnectedDevice?.Dispose();
+                ConnectedDevice = null;
             }
 
             return Task.CompletedTask;
@@ -232,6 +239,7 @@ namespace IRIS.Communication.Bluetooth
                 // Add device to connected devices
                 ConnectedDevices.Add(args.BluetoothAddress);
                 DeviceBluetoothAddress = args.BluetoothAddress;
+                ConnectedDevice = device;
             }
         }
     }
