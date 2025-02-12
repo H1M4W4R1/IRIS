@@ -14,6 +14,12 @@ namespace IRIS.Devices
         where TCommunicationInterface : ICommunicationInterface
         where TAddressType : struct, IDeviceAddress
     {
+   
+    }
+
+    public abstract class DeviceBase<TCommunicationInterface> 
+        where TCommunicationInterface : ICommunicationInterface
+    {
         /// <summary>
         /// Connect to device
         /// </summary>
@@ -23,12 +29,7 @@ namespace IRIS.Devices
         /// Disconnect from device
         /// </summary>
         public virtual Task Disconnect() => HardwareAccess.Disconnect();
-   
-    }
-
-    public abstract class DeviceBase<TCommunicationInterface> 
-        where TCommunicationInterface : ICommunicationInterface
-    {
+        
         /// <summary>
         /// Communication interface between device and computer
         /// <b>Beware: this is not initialized in constructor, as it is not known at this point

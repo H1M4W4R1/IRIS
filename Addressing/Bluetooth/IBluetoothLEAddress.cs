@@ -1,4 +1,5 @@
-﻿using Windows.Devices.Bluetooth.Advertisement;
+﻿using Windows.Devices.Bluetooth;
+using Windows.Devices.Bluetooth.Advertisement;
 
 namespace IRIS.Addressing.Bluetooth
 {
@@ -11,5 +12,15 @@ namespace IRIS.Addressing.Bluetooth
         /// Get the advertisement filter for this address
         /// </summary>
         public BluetoothLEAdvertisementFilter GetAdvertisementFilter();
+        
+        /// <summary>
+        /// Get the signal strength filter for this address
+        /// </summary>
+        public BluetoothSignalStrengthFilter GetSignalStrengthFilter();
+
+        /// <summary>
+        /// Check if the device is valid for this address
+        /// </summary>
+        public Task<bool> IsDeviceValid(BluetoothLEDevice device);
     }
 }
