@@ -1,4 +1,5 @@
 ﻿using IRIS.Addressing;
+using IRIS.Addressing.Abstract;
 
 namespace IRIS.Recognition
 {

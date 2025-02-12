@@ -1,4 +1,5 @@
 ﻿using IRIS.Addressing;
+using IRIS.Addressing.Ports;
 using IRIS.Communication.Serial.Settings;
 
 namespace IRIS.Examples.Arduino.LINE_EchoApplication

@@ -1,6 +1,7 @@
 ﻿using System.Runtime.InteropServices;
+using IRIS.Addressing.Abstract;
 
-namespace IRIS.Addressing
+namespace IRIS.Addressing.Ports
 {
     /// <summary>
     /// Struct representing serial port address

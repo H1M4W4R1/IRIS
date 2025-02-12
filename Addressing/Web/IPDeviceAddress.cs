@@ -1,6 +1,7 @@
 ﻿using System.Net;
+using IRIS.Addressing.Abstract;
 
-namespace IRIS.Addressing
+namespace IRIS.Addressing.Web
 {
     /// <summary>
     /// Internet Protocol (IP) device address

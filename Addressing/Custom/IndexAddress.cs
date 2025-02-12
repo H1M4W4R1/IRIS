@@ -1,4 +1,6 @@
-﻿namespace IRIS.Addressing
+﻿using IRIS.Addressing.Abstract;
+
+namespace IRIS.Addressing.Custom
 {
     /// <summary>
     /// Used to access device using indexing (unsigned integer, 32 bit)

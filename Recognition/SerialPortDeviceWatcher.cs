@@ -1,5 +1,6 @@
 ﻿using System.IO.Ports;
 using IRIS.Addressing;
+using IRIS.Addressing.Ports;
 
 namespace IRIS.Recognition
 {

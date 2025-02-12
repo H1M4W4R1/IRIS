@@ -1,6 +1,7 @@
 ﻿using System.Management;
 using System.Runtime.InteropServices;
 using IRIS.Addressing;
+using IRIS.Addressing.Ports;
 using Microsoft.Win32;
 
 namespace IRIS.Recognition

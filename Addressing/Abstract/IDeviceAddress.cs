@@ -1,4 +1,4 @@
-﻿namespace IRIS.Addressing
+﻿namespace IRIS.Addressing.Abstract
 {
     /// <summary>
     /// Represents abstraction of device address - e.g. COM Port Name

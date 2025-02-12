@@ -1,4 +1,6 @@
-﻿namespace IRIS.Addressing
+﻿using IRIS.Addressing.Abstract;
+
+namespace IRIS.Addressing
 {
     /// <summary>
     /// USB Device Address - used to store addresses of devices connected via USB
