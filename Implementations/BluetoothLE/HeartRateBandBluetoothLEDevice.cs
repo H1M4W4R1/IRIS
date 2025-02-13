@@ -26,6 +26,8 @@ namespace IRIS.Implementations.BluetoothLE
         protected override async Task AttachEndpoints(CancellationToken cancellationToken = default)
         {
             // Attach the heart rate endpoint
+            // we don't need to notify interface for disconnection as
+            // it will be automatically handled in endpoint methods
             await AttachEndpoint(HEART_RATE_ENDPOINT_ID, GattServiceUuids.HeartRate,
                 HEART_RATE_CHARACTERISTIC_INDEX, HandleHeartRateNotification);
 
