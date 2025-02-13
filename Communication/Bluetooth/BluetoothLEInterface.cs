@@ -8,7 +8,7 @@ namespace IRIS.Communication.Bluetooth
     /// <summary>
     /// Base Interface for Bluetooth Low Energy communication
     /// </summary>
-    public class BluetoothLEInterface : ICommunicationInterface
+    public sealed class BluetoothLEInterface : ICommunicationInterface
     {
         /// <summary>
         /// Address of current device
@@ -24,7 +24,7 @@ namespace IRIS.Communication.Bluetooth
         /// List of all known connected device addresses
         /// used to connect to multiple devices
         /// </summary>
-        protected static List<ulong> ConnectedDevices { get; } = new();
+        private static List<ulong> ConnectedDevices { get; } = new();
 
         /// <summary>
         /// Service address to connect to
@@ -39,7 +39,7 @@ namespace IRIS.Communication.Bluetooth
         /// <summary>
         /// Device watcher for scanning for devices
         /// </summary>
-        protected BluetoothLEAdvertisementWatcher _watcher;
+        private readonly BluetoothLEAdvertisementWatcher _watcher;
 
         public event DeviceConnected OnDeviceConnected = delegate { };
         public event DeviceDisconnected OnDeviceDisconnected = delegate { };
@@ -50,7 +50,7 @@ namespace IRIS.Communication.Bluetooth
         /// <param name="serviceAddresses">Service address to search for</param>
         /// <param name="endpointIndex">Index of the endpoint</param>
         /// <returns>Endpoint or null if not found</returns>
-        protected internal async Task<BluetoothEndpoint?> GetEndpoint(List<Guid> serviceAddresses, int endpointIndex)
+        internal async Task<BluetoothEndpoint?> GetEndpoint(List<Guid> serviceAddresses, int endpointIndex)
         {
             // Get device from address
             if (ConnectedDevice == null) return null;
@@ -58,6 +58,7 @@ namespace IRIS.Communication.Bluetooth
             // Check if index is valid
             if (endpointIndex < 0) return null;
 
+            // TODO: Move GATT Discovery to connection?
             // Get all services
             GattDeviceServicesResult services = await ConnectedDevice.GetGattServicesAsync();
 
@@ -106,7 +107,7 @@ namespace IRIS.Communication.Bluetooth
         /// Get endpoint for any of desired services and characteristics
         /// Maps service UUID to list of characteristic UUIDs to search for
         /// </summary>
-        protected internal async Task<BluetoothEndpoint?> GetEndpoint(Dictionary<Guid, List<Guid>> serviceAddresses)
+        internal async Task<BluetoothEndpoint?> GetEndpoint(Dictionary<Guid, List<Guid>> serviceAddresses)
         {
             if (ConnectedDevice == null) return null;
 
@@ -117,6 +118,7 @@ namespace IRIS.Communication.Bluetooth
             if (services.Status != GattCommunicationStatus.Success) return null;
 
             // Find matching service
+            // TODO: Move GATT Discovery to connection?
             foreach (Guid expectedService in serviceAddresses.Keys)
             {
                 // Check if service is found
