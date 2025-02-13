@@ -41,15 +41,27 @@ namespace IRIS.Communication.Serial
         /// Connect to device - open port and start reading data
         /// </summary>
         /// <exception cref="CommunicationException">If port cannot be opened</exception>
-        public async Task Connect()
+        public async Task<bool> Connect(CancellationToken cancellationToken)
         {
+            // If port is already open, return
+            if(IsOpen) return true;
+            
             // Open the port
             Open();
-            if (!IsOpen)
-                throw new CommunicationException("Cannot connect to device - port open failed.");
+            
+            // Check if port is open
+            return IsOpen;
         }
 
-        public async Task Disconnect() => Close();
+        public async Task<bool> Disconnect(CancellationToken cancellationToken)
+        {
+            // If port is not open, return
+            if (!IsOpen) return true;
+            
+            Close();
+            
+            return true;
+        }
 
 #region IRawDataCommunicationInterface
 

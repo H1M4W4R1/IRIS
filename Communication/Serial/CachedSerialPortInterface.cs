@@ -52,32 +52,34 @@ namespace IRIS.Communication.Serial
         /// Connect to device - open port and start reading data
         /// </summary>
         /// <exception cref="CommunicationException">If port cannot be opened</exception>
-        public async Task Connect()
+        public async Task<bool> Connect(CancellationToken cancellationToken)
         {
             // Do not connect if already connected
-            if (IsOpen) return;
-                
+            if (IsOpen) return true;
             _tokenRef = _cancellationTokenSource.Token;
                 
             // Open the port
             Open();
-            if (!IsOpen)
-                throw new CommunicationException("Cannot connect to device - port open failed.");
+            if (!IsOpen) return false;
                 
             // Begin continuous read
             BeginContinuousRead(_tokenRef);
+            
+            return true;
         }
 
-        public async Task Disconnect()
+        public async Task<bool> Disconnect(CancellationToken cancellationToken)
         {
             // Check if port is open
-            if (!IsOpen) return;
+            if (!IsOpen) return true;
             
             // Cancel reading
             await _cancellationTokenSource.CancelAsync();
             
             // Close port
             Close();
+            
+            return true;
         }
         
         private async void BeginContinuousRead(CancellationToken cancellationToken)

@@ -11,12 +11,12 @@ namespace IRIS.Communication
         /// <summary>
         /// Connect to physical device
         /// </summary>
-        Task Connect();
+        Task<bool> Connect(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Disconnect from physical device
         /// </summary>
-        Task Disconnect();
+        Task<bool> Disconnect(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Get raw data communication interface if available

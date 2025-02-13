@@ -31,17 +31,19 @@ namespace IRIS.Communication.Virtual
         /// <summary>
         /// Opens communication with device
         /// </summary>
-        public async Task Connect()
+        public async Task<bool> Connect(CancellationToken cancellationToken)
         {
             IsOpen = true;
+            return true;
         }
 
         /// <summary>
         /// Closes communication with device
         /// </summary>
-        public async Task Disconnect()
+        public async Task<bool> Disconnect(CancellationToken cancellationToken)
         {
             IsOpen = false;
+            return true;
         }
 
 #region IRawDataCommunicationInterface

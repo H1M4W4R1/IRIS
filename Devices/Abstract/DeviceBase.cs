@@ -13,22 +13,23 @@ namespace IRIS.Devices.Abstract
         where TCommunicationInterface : ICommunicationInterface
         where TAddressType : struct, IDeviceAddress
     {
-   
     }
 
-    public abstract class DeviceBase<TCommunicationInterface> 
+    public abstract class DeviceBase<TCommunicationInterface>
         where TCommunicationInterface : ICommunicationInterface
     {
         /// <summary>
         /// Connect to device
         /// </summary>
-        public virtual Task Connect() => HardwareAccess.Connect();
-        
+        public virtual Task<bool> Connect(CancellationToken cancellationToken = default)
+            => HardwareAccess.Connect(cancellationToken);
+
         /// <summary>
         /// Disconnect from device
         /// </summary>
-        public virtual Task Disconnect() => HardwareAccess.Disconnect();
-        
+        public virtual Task<bool> Disconnect(CancellationToken cancellationToken = default)
+            => HardwareAccess.Disconnect(cancellationToken);
+
         /// <summary>
         /// Communication interface between device and computer
         /// <b>Beware: this is not initialized in constructor, as it is not known at this point
@@ -49,7 +50,7 @@ namespace IRIS.Devices.Abstract
                 throw new NotSupportedException("Communication interface does not support raw data access");
             }
         }
-        
+
         /// <summary>
         /// Used to get communication interface, should be only implemented in transactions
         /// </summary>

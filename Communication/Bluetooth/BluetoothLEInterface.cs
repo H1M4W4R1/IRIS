@@ -154,23 +154,33 @@ namespace IRIS.Communication.Bluetooth
             return null;
         }
 
-        public async Task Connect()
+        public async Task<bool> Connect(CancellationToken cancellationToken = default)
         {
+            // Check if device is already connected
+            if (IsConnected) return true;
+            
             // Start scanning for devices
             _watcher.Received += OnAdvertisementReceived;
             _watcher.Start();
 
             // Wait for connection
-            while (!IsConnected) await Task.Yield();
+            while (!IsConnected)
+            {
+                if(cancellationToken.IsCancellationRequested) return false;
+                await Task.Yield();
+            }
 
             // Stop scanning for devices
             _watcher.Stop();
             _watcher.Received -= OnAdvertisementReceived;
+            
+            return true;
         }
 
-        public Task Disconnect()
+        public Task<bool> Disconnect(CancellationToken cancellationToken = default)
         {
-            if (!IsConnected) return Task.CompletedTask;
+            // Check if device is connected, if not - return
+            if (!IsConnected) return Task.FromResult(true);
 
             lock (ConnectedDevices)
             {
@@ -179,13 +189,15 @@ namespace IRIS.Communication.Bluetooth
                 DeviceBluetoothAddress = 0;
 
                 // Disconnect from device if connected
-                if (ConnectedDevice == null) return Task.CompletedTask;
+                if (ConnectedDevice == null) return Task.FromResult(true);
+                
+                // Send events
                 OnDeviceDisconnected(DeviceBluetoothAddress, ConnectedDevice);
                 ConnectedDevice.Dispose();
                 ConnectedDevice = null;
             }
 
-            return Task.CompletedTask;
+            return Task.FromResult(true);
         }
 
         /// <summary>

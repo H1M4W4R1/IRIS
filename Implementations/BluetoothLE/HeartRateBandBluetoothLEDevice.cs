@@ -24,9 +24,10 @@ namespace IRIS.Implementations.BluetoothLE
         /// </summary>
         private BluetoothEndpoint? HeartRateEndpoint { get; set; }
 
-        public override async Task Connect()
+        public override async Task<bool> Connect(CancellationToken cancellationToken = default)
         {
-            await base.Connect();
+            // Check if device connection is successful
+            if(!await base.Connect(cancellationToken)) return false;
             HardwareAccess.OnDeviceDisconnected += HandleCommunicationFailed;
 
             // Open the endpoint
@@ -42,6 +43,13 @@ namespace IRIS.Implementations.BluetoothLE
                 Debug.WriteLine("Heart rate endpoint is null");
                 Debugger.Break();
             }
+            
+            // If endpoint was found, return true
+            if (HeartRateEndpoint != null) return true;
+            
+            // If endpoint was not found, disconnect and return false
+            await Disconnect(true, cancellationToken);
+            return false;
         }
 
         private async void HandleCommunicationFailed(ulong address, Windows.Devices.Bluetooth.BluetoothLEDevice device)
@@ -49,12 +57,14 @@ namespace IRIS.Implementations.BluetoothLE
             await Disconnect(true);
         }
 
-        public override async Task Disconnect() => await Disconnect(false);
+        public override async Task<bool> Disconnect(CancellationToken cancellationToken = default)
+        {
+            return await Disconnect(false, cancellationToken);
+        }
 
-        private async Task Disconnect(bool failedConnection)
+        private async Task<bool> Disconnect(bool failedConnection = false, CancellationToken cancellationToken = default)
         {
             HardwareAccess.OnDeviceDisconnected -= HandleCommunicationFailed;
-
             
             // Close the endpoint if it is open
             if (HeartRateEndpoint is {AreNotificationsActive: true})
@@ -70,7 +80,7 @@ namespace IRIS.Implementations.BluetoothLE
             }
 
             // Disconnect from the device
-            await base.Disconnect();
+            return await base.Disconnect(cancellationToken);
         }
 
         /// <summary>
