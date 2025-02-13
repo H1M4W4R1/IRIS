@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using IRIS.Communication.Bluetooth;
-using IRIS.Devices;
 using IRIS.Devices.Bluetooth;
 using IRIS.Implementations.BluetoothLE.Data;
 
@@ -9,6 +8,9 @@ namespace IRIS.Implementations.BluetoothLE
 {
     public sealed class HeartRateBandBluetoothLEDevice() : BluetoothLEDeviceBase(GattServiceUuids.HeartRate)
     {
+        private const int HEART_RATE_ENDPOINT_ID = 0;
+        private const int HEART_RATE_CHARACTERISTIC_INDEX = 0;
+
         /// <summary>
         /// Handler for when a heart rate is received
         /// </summary>
@@ -19,68 +21,20 @@ namespace IRIS.Implementations.BluetoothLE
         /// </summary>
         public event HeartRateReceivedHandler OnHeartRateReceived = delegate { };
 
-        /// <summary>
-        /// Endpoint to connect to heart rate sensor
-        /// </summary>
         private BluetoothEndpoint? HeartRateEndpoint { get; set; }
 
-        public override async Task<bool> Connect(CancellationToken cancellationToken = default)
+        protected override async Task AttachEndpoints(CancellationToken cancellationToken = default)
         {
-            // Check if device connection is successful
-            if(!await base.Connect(cancellationToken)) return false;
-            HardwareAccess.OnDeviceDisconnected += HandleCommunicationFailed;
-
-            // Open the endpoint
-            HeartRateEndpoint = await HardwareAccess.GetEndpoint([GattServiceUuids.HeartRate], 0);
-
-            // Set notify for the endpoint
-            if (HeartRateEndpoint != null && await HeartRateEndpoint.SetNotify(true))
+            // Attach the heart rate endpoint
+            if (!await AttachEndpoint(HEART_RATE_ENDPOINT_ID, GattServiceUuids.HeartRate,
+                    HEART_RATE_CHARACTERISTIC_INDEX, HandleHeartRateNotification))
             {
-                HeartRateEndpoint.NotificationReceived += HandleHeartRateNotification;
-            }
-            else
-            {
-                Debug.WriteLine("Heart rate endpoint is null");
-                Debugger.Break();
-            }
-            
-            // If endpoint was found, return true
-            if (HeartRateEndpoint != null) return true;
-            
-            // If endpoint was not found, disconnect and return false
-            await Disconnect(true, cancellationToken);
-            return false;
-        }
-
-        private async void HandleCommunicationFailed(ulong address, Windows.Devices.Bluetooth.BluetoothLEDevice device)
-        {
-            await Disconnect(true);
-        }
-
-        public override async Task<bool> Disconnect(CancellationToken cancellationToken = default)
-        {
-            return await Disconnect(false, cancellationToken);
-        }
-
-        private async Task<bool> Disconnect(bool failedConnection = false, CancellationToken cancellationToken = default)
-        {
-            HardwareAccess.OnDeviceDisconnected -= HandleCommunicationFailed;
-            
-            // Close the endpoint if it is open
-            if (HeartRateEndpoint is {AreNotificationsActive: true})
-            {
-                // Remove notification handlers
-                HeartRateEndpoint.NotificationReceived -= HandleHeartRateNotification;
-                
-                // Set notify to false if connection has not yet failed
-                if(!failedConnection) await HeartRateEndpoint.SetNotify(false);
-                
-                // Close the endpoint
-                HeartRateEndpoint = null;
+                await HardwareAccess.NotifyDeviceIsUnreachable();
+                return;
             }
 
-            // Disconnect from the device
-            return await base.Disconnect(cancellationToken);
+            // Get the heart rate endpoint
+            HeartRateEndpoint = GetEndpoint(HEART_RATE_ENDPOINT_ID);
         }
 
         /// <summary>
@@ -90,10 +44,10 @@ namespace IRIS.Implementations.BluetoothLE
         {
             // If endpoint failed, return
             if (HeartRateEndpoint == null) return;
-            
+
             // Read the data from the endpoint and return if it is null
             byte[]? data = await HeartRateEndpoint.ReadData<byte[]>();
-            if(data == null) return;
+            if (data == null) return;
 
             // Process the data
             HeartRateReadout heartRate = ProcessData(data);

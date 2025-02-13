@@ -479,8 +479,11 @@ namespace IRIS.Communication.Bluetooth
         /// <summary>
         /// Set notify for this characteristic
         /// </summary>
-        public async Task<bool> SetNotify(bool shallNotify)
+        public async Task<bool> SetNotify(bool shallNotify, bool notifyDeviceOnFail = true)
         {
+            // Check if service supports notify
+            if (!Characteristic.CharacteristicProperties.HasFlag(GattCharacteristicProperties.Notify)) return false;
+            
             // Set notify
             GattCommunicationStatus status =
                 await Characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(
@@ -491,7 +494,7 @@ namespace IRIS.Communication.Bluetooth
             // Check if status is OK
             if (status != GattCommunicationStatus.Success)
             {
-                await Interface.Disconnect();
+                if(notifyDeviceOnFail) await Interface.NotifyDeviceIsUnreachable();
                 return false;
             }
 

@@ -1,6 +1,5 @@
 ﻿using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Advertisement;
-using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using IRIS.Addressing.Bluetooth;
 
 namespace IRIS.Communication.Bluetooth
@@ -44,118 +43,6 @@ namespace IRIS.Communication.Bluetooth
         public event DeviceConnected OnDeviceConnected = delegate { };
         public event DeviceDisconnected OnDeviceDisconnected = delegate { };
         
-        /// <summary>
-        /// Get endpoint for desired service and characteristic
-        /// </summary>
-        /// <param name="serviceAddresses">Service address to search for</param>
-        /// <param name="endpointIndex">Index of the endpoint</param>
-        /// <returns>Endpoint or null if not found</returns>
-        internal async Task<BluetoothEndpoint?> GetEndpoint(List<Guid> serviceAddresses, int endpointIndex)
-        {
-            // Get device from address
-            if (ConnectedDevice == null) return null;
-
-            // Check if index is valid
-            if (endpointIndex < 0) return null;
-
-            // TODO: Move GATT Discovery to connection?
-            // Get all services
-            GattDeviceServicesResult services = await ConnectedDevice.GetGattServicesAsync();
-
-            // Check if communication status is OK
-            if (services.Status != GattCommunicationStatus.Success)
-            {
-                await Disconnect();
-                return null;
-            }
-
-            // Find matching service
-            foreach (Guid expectedService in serviceAddresses)
-            {
-                // Check if service is found
-                GattDeviceService? service = services.Services.FirstOrDefault(s => s.Uuid == expectedService);
-
-                // If service is not found, continue
-                if (service == null) continue;
-
-                // Get all characteristics
-                GattCharacteristicsResult characteristics = await service.GetCharacteristicsAsync();
-
-                // Check if communication status is OK
-                if (characteristics.Status != GattCommunicationStatus.Success)
-                {
-                    await Disconnect();
-                    return null;
-                }
-
-
-                // Check if index is valid
-                if (endpointIndex >= characteristics.Characteristics.Count) return null;
-
-                // Get characteristic
-                GattCharacteristic characteristic = characteristics.Characteristics[endpointIndex];
-
-                // Return endpoint
-                return new BluetoothEndpoint(this, service, characteristic);
-            }
-
-            // If no service found, return null
-            return null;
-        }
-
-        /// <summary>
-        /// Get endpoint for any of desired services and characteristics
-        /// Maps service UUID to list of characteristic UUIDs to search for
-        /// </summary>
-        internal async Task<BluetoothEndpoint?> GetEndpoint(Dictionary<Guid, List<Guid>> serviceAddresses)
-        {
-            if (ConnectedDevice == null) return null;
-
-            // Get all services
-            GattDeviceServicesResult services = await ConnectedDevice.GetGattServicesAsync();
-
-            // Check if communication status is OK
-            if (services.Status != GattCommunicationStatus.Success) return null;
-
-            // Find matching service
-            // TODO: Move GATT Discovery to connection?
-            foreach (Guid expectedService in serviceAddresses.Keys)
-            {
-                // Check if service is found
-                GattDeviceService? service = services.Services.FirstOrDefault(s => s.Uuid == expectedService);
-
-                // If service is not found, continue
-                if (service == null) continue;
-
-                // Get all characteristics
-                GattCharacteristicsResult characteristics = await service.GetCharacteristicsAsync();
-
-                // Check if communication status is OK
-                if (characteristics.Status != GattCommunicationStatus.Success)
-                {
-                    await Disconnect();
-                    return null;
-                }
-
-                // Find matching characteristic
-                foreach (Guid expectedCharacteristic in serviceAddresses[expectedService])
-                {
-                    // Check if characteristic is found
-                    GattCharacteristic? characteristic =
-                        characteristics.Characteristics.FirstOrDefault(c => c.Uuid == expectedCharacteristic);
-
-                    // Check if characteristic is found
-                    if (characteristic == null) continue;
-
-                    // Return endpoint
-                    return new BluetoothEndpoint(this, service, characteristic);
-                }
-            }
-
-            // If no service found, return null
-            return null;
-        }
-
         public async Task<bool> Connect(CancellationToken cancellationToken = default)
         {
             // Check if device is already connected
@@ -268,6 +155,15 @@ namespace IRIS.Communication.Bluetooth
                 ConnectedDevice = device;
                 OnDeviceConnected(DeviceBluetoothAddress, device);
             }
+        }
+        
+        /// <summary>
+        /// Notify that device is unreachable
+        /// </summary>
+        internal async Task NotifyDeviceIsUnreachable()
+        {
+            // If device is unreachable, disconnect
+            if (IsConnected) await Disconnect();
         }
     }
 }
