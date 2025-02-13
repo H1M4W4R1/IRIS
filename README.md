@@ -7,6 +7,15 @@ protocols and communication interfaces.
 * .NET 8.0+ (Windows 10.0.19041.0+)
 * C# 12+
 
+## Subpackages
+[IRIS.Serial](https://github.com/H1M4W4R1/IRIS.Serial) - 
+Serial communication via COM ports
+[IRIS.Bluetooth.Windows](https://github.com/H1M4W4R1/IRIS.Bluetooth.Windows) - Bluetooth 
+communication on Windows (using WinRT API)
+[IRIS.Intiface](https://github.com/H1M4W4R1/IRIS.Intiface) -
+Communication with external devices via 
+[Intiface Engine](https://github.com/intiface/intiface-engine)
+
 # Generic concepts
 ## CommunicationInterface
 Communication interface represents hardware (or software)
@@ -127,7 +136,7 @@ Those types can be either defined by you or passed from your
 device abstraction.
 
 For reference examples you can check already implemented
-devices (mentioned above).
+devices from subpackages.
 
 # Usage - interfaces
 ## VirtualInterface
@@ -141,7 +150,8 @@ Interface marking that specific communication interface
 is able to send and receive raw data (byte arrays).
 
 Already implemented in `SerialPortInterface`,
-`CachedSerialPortInterface` and`VirtualInterface`.
+`CachedSerialPortInterface` and`VirtualInterface` from
+IRIS.Serial package.
 
 ## Custom interface
 To create a custom interface you shall implement 
