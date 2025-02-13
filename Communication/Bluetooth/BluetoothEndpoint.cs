@@ -11,8 +11,6 @@ namespace IRIS.Communication.Bluetooth
     public sealed class BluetoothEndpoint(BluetoothLEInterface bluetoothInterface,
         GattDeviceService service, GattCharacteristic characteristic) 
     {
-        public delegate void CommunicationFailedHandler();
-
         public delegate void NotificationReceivedHandler(
             GattCharacteristic sender,
             GattValueChangedEventArgs args);
@@ -422,6 +420,7 @@ namespace IRIS.Communication.Bluetooth
         /// <summary>
         /// Write data to the characteristic
         /// </summary>
+        /// <returns>True if write was successful, false otherwise</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)] 
         public async Task<bool> Write<TObjectType>(TObjectType data)
         {
@@ -450,6 +449,7 @@ namespace IRIS.Communication.Bluetooth
         /// <summary>
         /// Read data from the characteristic
         /// </summary>
+        /// <returns>Value of the characteristic or null if type is not supported or read failed</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public async Task<TObjectType?> ReadData<TObjectType>()
         {
@@ -496,10 +496,8 @@ namespace IRIS.Communication.Bluetooth
             }
 
             // Set notification handler
-            if (shallNotify)
-                Characteristic.ValueChanged += OnNotificationReceivedHandler;
-            else
-                Characteristic.ValueChanged -= OnNotificationReceivedHandler;
+            if (shallNotify) Characteristic.ValueChanged += OnNotificationReceivedHandler;
+            else Characteristic.ValueChanged -= OnNotificationReceivedHandler;
 
             AreNotificationsActive = shallNotify;
             return true;
