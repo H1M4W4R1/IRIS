@@ -228,7 +228,7 @@ value from register.
 If device data is provided (it's address and value data) then device interprets command as `SET` and writes value
 to register. It returns value written if device did respond or register address if it didn't.
 
-### RUSTIC - Remote Universal Simple Transfer Interface
+### RUSTIC - Remote Universal Simple Text Interface Communication
 Protocol used to send and receive data from device. It uses simple string assignments to send and receive data.
 
 Text name is followed by assignment operator and value or question mark. Question mark indicates that device is
