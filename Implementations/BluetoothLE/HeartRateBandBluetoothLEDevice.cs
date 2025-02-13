@@ -26,13 +26,12 @@ namespace IRIS.Implementations.BluetoothLE
         protected override async Task AttachEndpoints(CancellationToken cancellationToken = default)
         {
             // Attach the heart rate endpoint
-            if (!await AttachEndpoint(HEART_RATE_ENDPOINT_ID, GattServiceUuids.HeartRate,
-                    HEART_RATE_CHARACTERISTIC_INDEX, HandleHeartRateNotification))
-            {
-                await HardwareAccess.NotifyDeviceIsUnreachable();
-                return;
-            }
+            await AttachEndpoint(HEART_RATE_ENDPOINT_ID, GattServiceUuids.HeartRate,
+                HEART_RATE_CHARACTERISTIC_INDEX, HandleHeartRateNotification);
 
+            // Check if the device is still connected
+            if (!IsConnected) return;
+            
             // Get the heart rate endpoint
             HeartRateEndpoint = GetEndpoint(HEART_RATE_ENDPOINT_ID);
         }
