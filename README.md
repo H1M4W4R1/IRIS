@@ -103,7 +103,11 @@ related to protocol. A good example of such case would be
 BLE device advertisement received event.
 
 Event related to Device should be always subscribed and
-unsubscribed in `Connect` and `Disconnect` methods.
+unsubscribed in `Connect` and `Disconnect` methods. 
+Those methods sometimes are sealed thus you should
+use device-specific methods to handle attaching and
+detaching to/from events (e.g. for BluetoothLEDeviceBase 
+you should use endpoints feature).
 
 Methods can be overriden for that exact purpose, when 
 overriding `Connect` and `Disconnect` methods always 
