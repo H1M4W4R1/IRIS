@@ -1,4 +1,4 @@
-# IRIS<sup>2</sup>: Intermediate Resource Integration System V2
+# IRIS<sup>2</sup>: Intermediate Resource Integration System
 IRIS is a framework to implement communication between PC and embedded peripherals.
 It's designed to be able to easily implement new devices,
 protocols and communication interfaces.
@@ -113,63 +113,6 @@ Methods can be overriden for that exact purpose, when
 overriding `Connect` and `Disconnect` methods always 
 return true if device is already in desired state.
 
-## Already Implemented devices
-IRIS comes with several already implemented devices:
-
-### SerialDeviceBase
-SerialDevice is used to communicate with serial devices on
-COM ports. It uses `CachedSerialPortInterface` to communicate
-with hardware - data received from port is automatically
-cached to prevent issues with lost data which may occur
-when reading from port directly.
-
-It takes two parameters in constructor:
-* `SerialPortDeviceAddress` - address of device
-* `SerialInterfaceSettings` - settings for serial port
-(baud rate, parity, etc.)
-
-Example:
-```cs
-public sealed class MySerialDevice(
-        SerialPortDeviceAddress deviceAddress,
-        SerialInterfaceSettings settings) :
-        SerialDeviceBase(deviceAddress, settings)
-{
-    // Code     
-}
-```
-
-### BluetoothLEDeviceBase
-Device used to communicate with BLE devices. Requires 
-BLE to be present on the system and uses WinRT API to
-perform operations.
-
-It takes one of two parameters in constructor:
-* `string` - RegEx pattern to match device name (e.g. 
-  using prefix - `DEVICE-.*`)
-* `Guid` - GATT service UUID to match device
-
-Note: BLE devices are still W.I.P. and many things may 
-change, especially initialization of endpoints 
-(characteristics).
-
-Examples:
-```cs
-public sealed class MyBLEDevice() :
-    BluetoothLEDeviceBase(GattServiceUuids.HeartRate)
-{
-    // Code
-}
-```
-
-```cs
-public sealed class MyBLEDevice() :
-    BluetoothLEDeviceBase("DEVICE-.*")
-{
-    // Code
-}
-```
-
 ## Extending DeviceBase
 If you want to extend DeviceBase with custom methods you 
 simply need to create a new class that inherits from
@@ -187,25 +130,7 @@ For reference examples you can check already implemented
 devices (mentioned above).
 
 # Usage - interfaces
-## Already implemented interfaces
-IRIS comes with several already implemented interfaces:
-### SerialPortInterface
-Simple SerialPort interface that uses `System.IO.Ports.
-SerialPort`. Definitely not recommended to be used in
-production as it doesn't provide any caching mechanism
-and may cause issues with lost data.
-
-### CachedSerialPortInterface
-Better version of `SerialPortInterface` that caches data
-received from port. Used to communicate with devices on
-COM ports.
-
-### BluetoothLEInterface
-Interface used to communicate with BLE devices. Uses WinRT
-API to perform operations. Handles most communication 
-and is not recommended to be used directly.
-
-### VirtualInterface
+## VirtualInterface
 Fake interface useful for testing purposes. It doesn't
 communicate with any hardware and is used to simulate
 communication with device.
@@ -229,7 +154,7 @@ the device. If device is already in desired state
 methods should return `true`.
 
 For reference examples you can check already implemented
-interfaces (mentioned above).
+interfaces from sub-packages.
 
 # Usage - protocols
 ## Already implemented protocols

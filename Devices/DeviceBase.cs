@@ -2,7 +2,7 @@
 using IRIS.Communication;
 using IRIS.Communication.Types;
 
-namespace IRIS.Devices.Abstract
+namespace IRIS.Devices
 {
     /// <summary>
     /// Represents device connected to computer

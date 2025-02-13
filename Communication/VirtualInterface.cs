@@ -1,14 +1,12 @@
-﻿using IRIS.Communication.Serial;
-using IRIS.Communication.Types;
+﻿using IRIS.Communication.Types;
 
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
 
-namespace IRIS.Communication.Virtual
+namespace IRIS.Communication
 {
     /// <summary>
     /// Represents virtual communication interface.
     /// Can be used for testing purposes.
-    /// Should have methods copied from <see cref="SerialPortInterface"/> to match its behavior.
     /// </summary>
     public abstract class VirtualInterface : IRawDataCommunicationInterface
     {
@@ -50,8 +48,6 @@ namespace IRIS.Communication.Virtual
 
         /// <summary>
         /// Simulates transmitting data to device. See: <see cref="SimulateTransmittedData"/>.
-        /// Used as proxy layer for simulating data transmission that ensures compatibility with <see cref="ICommunicationInterface"/> and
-        /// <see cref="SerialPortInterface"/> which is reference for this class.
         /// </summary>
         /// <param name="data">Data to transmit</param>
         Task IRawDataCommunicationInterface.TransmitRawData(byte[] data)
