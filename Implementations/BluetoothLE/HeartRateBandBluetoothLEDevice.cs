@@ -2,6 +2,7 @@
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using IRIS.Communication.Bluetooth;
 using IRIS.Devices;
+using IRIS.Devices.Bluetooth;
 using IRIS.Implementations.BluetoothLE.Data;
 
 namespace IRIS.Implementations.BluetoothLE

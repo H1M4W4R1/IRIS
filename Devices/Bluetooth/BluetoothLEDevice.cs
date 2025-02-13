@@ -1,7 +1,7 @@
-﻿using IRIS.Addressing.Bluetooth;
-using IRIS.Communication.Bluetooth;
+﻿using IRIS.Communication.Bluetooth;
+using IRIS.Devices.Abstract;
 
-namespace IRIS.Devices
+namespace IRIS.Devices.Bluetooth
 {
     /// <summary>
     /// Represents a Bluetooth LE device
@@ -17,6 +17,5 @@ namespace IRIS.Devices
         {
             HardwareAccess = new BluetoothLEInterface(serviceUUID);
         }
-        
     }
 }

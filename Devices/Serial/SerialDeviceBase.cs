@@ -1,9 +1,9 @@
-﻿using IRIS.Addressing;
-using IRIS.Addressing.Ports;
+﻿using IRIS.Addressing.Ports;
 using IRIS.Communication.Serial;
 using IRIS.Communication.Serial.Settings;
+using IRIS.Devices.Abstract;
 
-namespace IRIS.Devices
+namespace IRIS.Devices.Serial
 {
     /// <summary>
     /// Represents device connected to computer via serial port
@@ -24,18 +24,18 @@ namespace IRIS.Devices
         /// <summary>
         /// Change device address to new one
         /// </summary>
-        public void SetAddress(SerialPortDeviceAddress deviceAddress)
+        public async Task SetAddress(SerialPortDeviceAddress deviceAddress)
         {
             // Check if port is open
             bool wasPortOpen = HardwareAccess.IsOpen;
             if (wasPortOpen)
-                HardwareAccess.Disconnect();
+                await HardwareAccess.Disconnect();
 
             HardwareAccess.PortName = deviceAddress.ToString();
 
             // If port was open then connect again
             if (wasPortOpen)
-                HardwareAccess.Connect();
+                await HardwareAccess.Connect();
         }
     }
 }

@@ -3,6 +3,7 @@ using IRIS.Addressing.Ports;
 using IRIS.Communication.Serial;
 using IRIS.Communication.Serial.Settings;
 using IRIS.Devices;
+using IRIS.Devices.Serial;
 using IRIS.Protocols.IRIS;
 
 namespace IRIS.Examples.Devices
