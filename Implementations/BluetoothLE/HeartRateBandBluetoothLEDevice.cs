@@ -7,7 +7,7 @@ using IRIS.Implementations.BluetoothLE.Data;
 
 namespace IRIS.Implementations.BluetoothLE
 {
-    public sealed class HeartRateBandBluetoothLEDevice() : BluetoothLEDevice(GattServiceUuids.HeartRate)
+    public sealed class HeartRateBandBluetoothLEDevice() : BluetoothLEDeviceBase(GattServiceUuids.HeartRate)
     {
         /// <summary>
         /// Handler for when a heart rate is received
