@@ -1,7 +1,7 @@
 ﻿using IRIS.Addressing;
 using IRIS.Addressing.Ports;
 using IRIS.Communication.Serial.Settings;
-using IRIS.Examples.Devices;
+using IRIS.Implementations.Serial;
 
 namespace IRIS.Examples.Arduino.RUSTIC_LEDApplication
 {
