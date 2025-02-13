@@ -1,7 +1,6 @@
 # IRIS<sup>2</sup>: Intermediate Resource Integration System
 IRIS is a framework to implement communication between PC and embedded peripherals.
-It's designed to be able to easily implement new devices,
-protocols and communication interfaces.
+It's designed to be able to easily implement new devices, protocols and communication interfaces.
 
 ## Requirements
 * .NET 8.0+ (Windows 10.0.19041.0+)
@@ -18,39 +17,34 @@ Communication with external devices via
 
 # Generic concepts
 ## CommunicationInterface
-Communication interface represents hardware (or software)
-layer used to communicate with device. It can be for 
-example a serial port, BLE device but also a custom 
-application that acts as proxy between C# and hardware.
+Communication Interfaces are subsystems that are responsible for low-level communication with the device -
+it can for example read/write data to OS Serial Port. Role of the Communication Interface is to provide
+low-level communication methods that take data and pass it to the device.
 
-Interfaces are used to provide read/write commands (and 
-sometimes interface-specific commands) to be used by IRIS 
-devices.
+Most devices that are already implemented in IRIS have additional abstraction over their communication interface,
+and you should not worry about it. If you're implementing custom device you should use one of already implemented
+communication interfaces or implement your own.
 
 ## Device (DeviceBase)
-Device is a HAL representation of a physical device. 
-This is the core of framework, and it's used to implement
-specific devices e.g. Heart Rate Band that is BLE Device 
-looking for specific GATT services.
+Device is a physical (or virtual) device that is connected to the computer via USB, Bluetooth or other means.
+It is a high-abstraction access point to communicate with the device. Device uses ICommunicationInterface to
+process transactions between the device and the computer.
 
-Generally you should be most likely interested in this 
-subsystem.
+It's core framework to implement custom devices using IRIS framework and considered the highest level of abstraction
+in the framework. 
+
+**You should be most likely interested in this subsystem.**
 
 ## Address
-IRIS uses custom address structures to provide 
-addressing to communication interfaces. If you're not 
-using low-level features you most likely shall use address 
-required by device constructor (e.g. 
-`SerialPortDeviceAddress`)
+IRIS uses custom address structures to provide addressing to communication interfaces. If you're not 
+using low-level features you most likely shall use address required by device constructor (e.g. `SerialPortDeviceAddress`)
 
 ## Protocol
-Protocols are translation layer - if device requires a 
-set of commands to operate e.g. reading confirmation 
-after write then protocol is used to provide this 
-feature. 
+Protocol is a data exchange format that defines the communication rules between the
+device and C# API. It is used as low level abstraction layer that is performing
+communication with the device.
 
-You shall configure protocol with native interface
-data and add custom HAL commands to it.
+You shall configure protocol with native interface data and add custom HAL commands to it.
 
 # Usage - devices
 ## Using already implemented devices
@@ -135,6 +129,14 @@ public class MyDevice : DeviceBase<CachedSerialPortInterface, SerialPortDeviceAd
 }
 ```
 
+Devices support `HardwareAccess` and `RawHardwareAccess` properties that allow to access the communication interface
+and send/receive data from the device. The `HardwareAccess` property is used to send and receive data using direct methods
+on specified communication interface (e.g. if used for Bluetooth) and `RawHardwareAccess` is used to send and receive raw
+data from the device using `IRawDataCommunicationInterface` interface overloads.
+
+If device does not support RawHardwareAccess property then accessing it will throw <b>NotSupportedException</b>. To override this
+behavior you can check if HardwareAccess is not null and implements IRawDataCommunicationInterface using is operator.
+
 For more references you can see already implemented devices and their bases in sub-packages.
 
 ### Connection and disconnection
@@ -179,8 +181,7 @@ return true if device is already in desired state.
 
 # Usage - interfaces
 ## VirtualInterface
-Fake interface useful for testing purposes. It doesn't
-communicate with any hardware and is used to simulate
+Fake interface useful for testing purposes. It doesn't communicate with any hardware and is used to simulate
 communication with device.
 
 ## Abstract interfaces
@@ -192,6 +193,7 @@ Already implemented in `SerialPortInterface`, `CachedSerialPortInterface` and`Vi
 
 ## Custom interface
 To create a custom interface you shall implement `ICommunicationInterface` interface and implement its methods.
+Creating an interface requires low-level knowledge of device protocol used and is not recommended for beginners.
 
 Interface requires `Connect` and `Disconnect` methods to be present and handle connection and disconnection from
 the device. If device is already in desired state methods should return `true`.
@@ -202,7 +204,14 @@ For reference examples you can check already implemented interfaces from sub-pac
 ## Already implemented protocols
 IRIS comes with several already implemented protocols:
 ### LINE
-Simple protocol used to send and receive strings from device. Usually used for getting debug logs.
+LINE protocol is a simple ASCII based protocol that is commonly used for debugging
+connections as it only reads and writes lines of text from/to the device. Each line
+is separated by new line with optional carriage return.
+
+This protocol is good to be used with ESP32 UART logs.
+
+Example commands can be seen below:
+* `Hello, World!` - sends `Hello, World!` to the device
 
 ### REAP - Register Encoding Access Protocol
 Also, a simple protocol used to read and write 32-bit numbers to and from the device using 32-bit addresses.
@@ -228,27 +237,28 @@ value from register.
 If device data is provided (it's address and value data) then device interprets command as `SET` and writes value
 to register. It returns value written if device did respond or register address if it didn't.
 
-### RUSTIC - Remote Universal Simple Transmission Interface Commands
-Protocol used to send and receive data from device. It uses simple string assignments to send and receive data.
+### RUSTIC
+RUSTIC protocol is a simple ASCII based protocol that is used to communicate with
+usage of commands. It is used to send and receive data from the device. Each command
+consists of property name, equals sign and value. Commands are separated by new line with
+optional carriage return. Question mark value is used to get property value.
 
-Text name is followed by assignment operator and value or question mark. Question mark indicates that device is
-expected to return current value of the variable.
-
-Commands are required to end with newline character (optionally with carriage return).
-
-Commands look like this:
-```
-MY_VALUE=?
-MY_VALUE=123
-```
-
-Example communication:
-```
--> MY_VALUE=?
-<- MY_VALUE=123
--> MY_VALUE=456
-<- MY_VALUE=456 (some devices may use MY_VALUE=OK)
-```
+Example commands can be seen below:
+* `PROPERTY=VALUE` - sets property to desired value
+  * E.g. `LED=1`
+  * E.g. `LED=ON`
+  * E.g. `LED=BLINK`
+  * Good Response: `LED=OK`
+  * Good Response: `LED=1`
+  * Error Response: `ERR=UNKNOWN_COMMAND`
+  * Error Response: `ERR=INVALID_VALUE`
+* `PROPERTY=?` - gets property value
+  * E.g. `LED=?`
+  * Good Response: `LED=1`
+  * Good Response: `LED=ON`
+  * Good Response: `LED=BLINK`
+  * Error Response: `ERR=UNKNOWN_COMMAND`
+  * Error Response: `ERR=INVALID_VALUE`
 
 ## Custom protocol
 To create custom protocol you need to create `abstract` class that implements `IProtocol` interface and its
@@ -270,19 +280,55 @@ You can add custom methods to implement protocol-specific logic like `GetPropert
 
 For reference examples you can check already implemented protocols (mentioned above).
 
-# Usage - watchers
-Watchers are a quasi-obsolete feature used to find devices that are connected to the system.
+## Using Watchers
+To use Watchers, you need to subscribe to `OnDeviceAdded` and `OnDeviceRemoved` events.
 
-To use watcher you need to create a new instance of desired watcher and subscribe to its events 
-(`OnDeviceAdded`, `OnDeviceRemoved`), then you can `Start` or `Stop` watcher.
+```C#
+// Create new SerialPortDeviceWatcher
+SerialPortDeviceWatcher watcher = new SerialPortDeviceWatcher();
+watcher.OnDeviceAdded += OnDeviceAddedCallback;
+watcher.OnDeviceRemoved += OnDeviceRemovedCallback;
+```
 
-Watcher takes three type arguments:
-`TSelf` - type of watcher
-`TSoftwareAddress` - address structure used to address 
-device in software (e.g. COM port name)
-`THardwareAddress` - address structure used to address
-device in hardware (e.g. USB VID/PID of your device if 
-using USB CDC)
+Then you need to start the watcher to begin scanning for devices. Watchers create own task for scanning devices
+and work in the background.
+
+```C#
+// Start the watcher
+watcher.Start();
+
+// Code goes here
+
+// Stop the watcher
+watcher.Stop();
+```
+
+To get all devices currently detected by Watcher you can use `AllSoftwareDevices` or `AllHardwareDevices` properties.
+Software devices are software identifiers of the device (e.g. COM port name), hardware devices are hardware identifiers
+of the device (e.g. VID and PID). This allows to have two different types of identifiers for the same device to handle
+those rare use cases when we want to scan for all devices and know their hardware identifiers.
+
+## Adding custom Watchers
+To add custom watcher you need to extend `DeviceWatcherBase<TSelf, TSoftwareAddress, THardwareAddress>` or
+`DeviceWatcherBase<TSelf, TDeviceAddress> class and implement `ScanForDevicesAsync` method.
+
+```C#
+public class CustomDeviceWatcher : DeviceWatcherBase<CustomDeviceWatcher, string, string>
+{
+    protected override Task<(List<string>, List<string>)> ScanForDevicesAsync(
+            CancellationToken cancellationToken)
+    {
+        // Mock-up result
+        List<string> softwareDevices = new List<string> { "COM1", "COM2" };
+        List<string> hardwareDevices = new List<string> { "1234:5678", "8765:4321" };
+        
+        return Task.FromResult((softwareDevices, hardwareDevices));
+    }
+}
+```
+
+Watchers are costly feature as they constantly run scans.
+To reduce that price you can increase scan interval via ScanInterval property
 
 ## Appendix
 Generally watchers are working, but they are not
