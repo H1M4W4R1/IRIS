@@ -12,7 +12,7 @@ namespace IRIS.Protocols.IRIS
         /// <param name="communicationInterface">Communication interface to use.</param>
         /// <param name="message">Message to send.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
-        public static async Task SendMessage(TInterface communicationInterface,
+        public static async ValueTask SendMessage(TInterface communicationInterface,
             string message,
             CancellationToken cancellationToken = default)
             => await SendData(communicationInterface, message, cancellationToken);
@@ -23,7 +23,7 @@ namespace IRIS.Protocols.IRIS
         /// <param name="communicationInterface">Communication interface to use.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>Message from the device.</returns>
-        public static async Task<string> ReadMessage(TInterface communicationInterface,
+        public static async ValueTask<string> ReadMessage(TInterface communicationInterface,
             CancellationToken cancellationToken = default)
             => await ReceiveData(communicationInterface, cancellationToken);
         
@@ -34,7 +34,7 @@ namespace IRIS.Protocols.IRIS
         /// <param name="message">Message to send.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>Response from the device.</returns>
-        public static async Task<string> ExchangeMessages(TInterface communicationInterface,
+        public static async ValueTask<string> ExchangeMessages(TInterface communicationInterface,
             string message,
             CancellationToken cancellationToken = default)
         {
@@ -42,7 +42,7 @@ namespace IRIS.Protocols.IRIS
             return await ReadMessage(communicationInterface, cancellationToken);
         }
 
-        public static async Task SendData(TInterface communicationInterface,
+        public static async ValueTask SendData(TInterface communicationInterface,
             string data,
             CancellationToken cancellationToken = default)
         {
@@ -59,7 +59,7 @@ namespace IRIS.Protocols.IRIS
             await communicationInterface.TransmitRawData(dataBytes);
         }
 
-        public static async Task<string> ReceiveData(TInterface communicationInterface,
+        public static async ValueTask<string> ReceiveData(TInterface communicationInterface,
             CancellationToken cancellationToken = default)
         {
             // Check if the communication interface is not null

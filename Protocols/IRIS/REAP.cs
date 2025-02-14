@@ -18,28 +18,28 @@ namespace IRIS.Protocols.IRIS
         /// <param name="timeoutMs">Timeout in milliseconds</param>
         /// <returns>Value of register</returns>
         /// <exception cref="NotSupportedException">Response data is invalid</exception>
-        public static async Task<uint> SetRegister(TInterface communicationInterface, uint registerAddress, uint registerValue,
+        public static async ValueTask<uint> SetRegister(TInterface communicationInterface, uint registerAddress, uint registerValue,
             int timeoutMs = 100)
         {
             registerAddress |= 0x80000000; // First bit indicates write operation
             
             // Create address byte data
-            byte[] addressByte = new byte[]
-            {
+            byte[] addressByte =
+            [
                 (byte)((registerAddress >> 24) & 0xFF),
                 (byte)((registerAddress >> 16) & 0xFF),
                 (byte)((registerAddress >> 8) & 0xFF),
                 (byte)(registerAddress & 0xFF)
-            };
+            ];
             
             // Create value byte data
-            byte[] valueByte = new byte[]
-            {
+            byte[] valueByte =
+            [
                 (byte)((registerValue >> 24) & 0xFF),
                 (byte)((registerValue >> 16) & 0xFF),
                 (byte)((registerValue >> 8) & 0xFF),
                 (byte)(registerValue & 0xFF)
-            };
+            ];
             
             // Send request data
             await SendData(communicationInterface, addressByte);
@@ -72,17 +72,17 @@ namespace IRIS.Protocols.IRIS
         /// <returns>Value of register</returns>
         /// <exception cref="TimeoutException">Timeout occurred while waiting for response</exception>
         /// <exception cref="NotSupportedException">Response data is invalid</exception>
-        public static async Task<uint> GetRegister(TInterface communicationInterface, uint registerAddress,
+        public static async ValueTask<uint> GetRegister(TInterface communicationInterface, uint registerAddress,
             int timeoutMs = 100)
         {
             // Create address byte data
-            byte[] addressByte = new byte[]
-            {
+            byte[] addressByte =
+            [
                 (byte)((registerAddress >> 24) & 0xFF),
                 (byte)((registerAddress >> 16) & 0xFF),
                 (byte)((registerAddress >> 8) & 0xFF),
                 (byte)(registerAddress & 0xFF)
-            };
+            ];
             
             // Send request data
             await SendData(communicationInterface, addressByte);
@@ -104,12 +104,12 @@ namespace IRIS.Protocols.IRIS
             return responseValue;
         }
 
-        public static async Task SendData(TInterface communicationInterface, byte[] data, CancellationToken cancellationToken = default)
+        public static async ValueTask SendData(TInterface communicationInterface, byte[] data, CancellationToken cancellationToken = default)
         {
             await communicationInterface.TransmitRawData(data);
         }
 
-        public static async Task<byte[]> ReceiveData(TInterface communicationInterface, CancellationToken cancellationToken = default)
+        public static async ValueTask<byte[]> ReceiveData(TInterface communicationInterface, CancellationToken cancellationToken = default)
         {
             return await communicationInterface.ReadRawData(8, cancellationToken);
         }

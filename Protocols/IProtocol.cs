@@ -9,11 +9,11 @@ namespace IRIS.Protocols
     public interface IProtocol<in TInterface, TDataType>
         where TInterface : ICommunicationInterface
     {
-        protected static abstract Task SendData(TInterface communicationInterface,
+        protected static abstract ValueTask SendData(TInterface communicationInterface,
             TDataType data,
             CancellationToken cancellationToken = default);
 
-        protected static abstract Task<TDataType> ReceiveData(TInterface communicationInterface,
+        protected static abstract ValueTask<TDataType> ReceiveData(TInterface communicationInterface,
             CancellationToken cancellationToken = default);
     }
 }

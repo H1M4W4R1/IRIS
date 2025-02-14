@@ -153,13 +153,13 @@ access hardware.
 
 ```cs
 // Sending data to device using custom protocol
-public async Task SendMessage(string message) =>
+public async ValueTask SendMessage(string message) =>
     await LINE<CachedSerialPortInterface>.SendMessage(HardwareAccess, message);
 ```
 
 ```cs
 // Sending data to device using (made-up) hardware access
-public async Task WriteString(string message) =>
+public async ValueTask WriteString(string message) =>
     await HardwareAccess.WriteAsync(Encoding.ASCII.GetBytes(message));
 ```
 
@@ -315,14 +315,14 @@ To add custom watcher you need to extend `DeviceWatcherBase<TSelf, TSoftwareAddr
 ```C#
 public class CustomDeviceWatcher : DeviceWatcherBase<CustomDeviceWatcher, string, string>
 {
-    protected override Task<(List<string>, List<string>)> ScanForDevicesAsync(
+    protected override ValueTask<(List<string>, List<string>)> ScanForDevicesAsync(
             CancellationToken cancellationToken)
     {
         // Mock-up result
         List<string> softwareDevices = new List<string> { "COM1", "COM2" };
         List<string> hardwareDevices = new List<string> { "1234:5678", "8765:4321" };
         
-        return Task.FromResult((softwareDevices, hardwareDevices));
+        return ValueTask.FromResult((softwareDevices, hardwareDevices));
     }
 }
 ```

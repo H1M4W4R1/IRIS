@@ -29,7 +29,7 @@ namespace IRIS.Communication
         /// <summary>
         /// Opens communication with device
         /// </summary>
-        public async Task<bool> Connect(CancellationToken cancellationToken)
+        public async ValueTask<bool> Connect(CancellationToken cancellationToken)
         {
             IsOpen = true;
             return true;
@@ -38,7 +38,7 @@ namespace IRIS.Communication
         /// <summary>
         /// Closes communication with device
         /// </summary>
-        public async Task<bool> Disconnect(CancellationToken cancellationToken)
+        public async ValueTask<bool> Disconnect(CancellationToken cancellationToken)
         {
             IsOpen = false;
             return true;
@@ -50,10 +50,10 @@ namespace IRIS.Communication
         /// Simulates transmitting data to device. See: <see cref="SimulateTransmittedData"/>.
         /// </summary>
         /// <param name="data">Data to transmit</param>
-        Task IRawDataCommunicationInterface.TransmitRawData(byte[] data)
+        ValueTask IRawDataCommunicationInterface.TransmitRawData(byte[] data)
         {
             SimulateTransmittedData(data);
-            return Task.CompletedTask;
+            return ValueTask.CompletedTask;
         }
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace IRIS.Communication
         /// <returns>Array of data</returns>
         /// <exception cref="EndOfStreamException">If data is not long enough</exception>
         /// <exception cref="CommunicationException">If device is not open</exception>
-        async Task<byte[]> IRawDataCommunicationInterface.ReadRawData(int length, CancellationToken cancellationToken)
+        async ValueTask<byte[]> IRawDataCommunicationInterface.ReadRawData(int length, CancellationToken cancellationToken)
         {
             if (_dataReceived.Count < length)
                 throw new EndOfStreamException("Data is not long enough, please wait for it checking it's length");
@@ -86,7 +86,7 @@ namespace IRIS.Communication
         /// <param name="cancellationToken">Used to cancel read operation</param>
         /// <returns>Array of data, if byte is not found, empty array is returned</returns>
         /// <exception cref="CommunicationException">If device is not open</exception>
-        async Task<byte[]> IRawDataCommunicationInterface.ReadRawDataUntil(byte receivedByte,
+        async ValueTask<byte[]> IRawDataCommunicationInterface.ReadRawDataUntil(byte receivedByte,
             CancellationToken cancellationToken)
         {
             // Check if device is open

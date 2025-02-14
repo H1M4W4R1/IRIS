@@ -32,7 +32,7 @@ namespace IRIS.Protocols.IRIS
         /// <returns>True if the property was set successfully, false otherwise.</returns>
         /// <exception cref="ArgumentNullException">Thrown when the property name or value is null.</exception>
         /// <exception cref="TimeoutException">Thrown when a response timeout occurs.</exception>
-        public static async Task<bool> SetProperty<TPropertyValue>(string propertyName,
+        public static async ValueTask<bool> SetProperty<TPropertyValue>(string propertyName,
             TPropertyValue propertyValue,
             TInterface communicationInterface,
             int responseTimeout = -1)
@@ -94,7 +94,7 @@ namespace IRIS.Protocols.IRIS
         /// <returns>Property name and value as a tuple.</returns>
         /// <exception cref="ArgumentNullException">Thrown when the property name is null.</exception>
         /// <exception cref="TimeoutException">Thrown when a response timeout occurs.</exception>
-        public static async Task<(string, string)> GetProperty(string propertyName,
+        public static async ValueTask<(string, string)> GetProperty(string propertyName,
             TInterface communicationInterface,
             int responseTimeout = -1)
         {
@@ -125,7 +125,7 @@ namespace IRIS.Protocols.IRIS
             return (receivedPropertyName, propertyValue);
         }
 
-        public static async Task SendData(TInterface communicationInterface,
+        public static async ValueTask SendData(TInterface communicationInterface,
             byte[] data,
             CancellationToken cancellationToken = default)
         {
@@ -133,7 +133,7 @@ namespace IRIS.Protocols.IRIS
             await communicationInterface.TransmitRawData(data);
         }
 
-        public static Task<byte[]> ReceiveData(TInterface communicationInterface,
+        public static ValueTask<byte[]> ReceiveData(TInterface communicationInterface,
             CancellationToken cancellationToken = default)
         {
             // Receive the data from the communication interface until the command end byte

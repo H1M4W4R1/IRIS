@@ -161,7 +161,7 @@ namespace IRIS.Recognition
         /// Scan and update the list of devices. Also, should raise events for devices that were added or removed.
         /// For example, if a device was added, the event <see cref="OnDeviceAdded"/> should be raised.
         /// </summary>
-        protected async Task ScanForDeviceUpdatesAsync(CancellationToken cancellationToken)
+        protected async ValueTask ScanForDeviceUpdatesAsync(CancellationToken cancellationToken)
         {
             // Scan for devices
             (List<THardwareAddress> hardwareDevices, List<TSoftwareAddress> softwareDevices) =
@@ -216,7 +216,7 @@ namespace IRIS.Recognition
         /// <summary>
         /// Scan for currently connected devices.
         /// </summary>
-        protected abstract Task<(List<THardwareAddress>, List<TSoftwareAddress>)> ScanForDevicesAsync(
+        protected abstract ValueTask<(List<THardwareAddress>, List<TSoftwareAddress>)> ScanForDevicesAsync(
             CancellationToken cancellationToken);
 
         /// <summary>
