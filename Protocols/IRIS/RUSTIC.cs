@@ -20,7 +20,6 @@ namespace IRIS.Protocols.IRIS
         private const string RESPONSE_TIMEOUT = "TIMEOUT";
         private const byte COMMAND_END_BYTE = 0xA;
 
-
         /// <summary>
         /// Set a property using the communication interface.
         /// </summary>
@@ -36,11 +35,8 @@ namespace IRIS.Protocols.IRIS
             TPropertyValue propertyValue,
             TInterface communicationInterface,
             int responseTimeout = -1)
+            where TPropertyValue : notnull
         {
-            if (communicationInterface == null) throw new ArgumentNullException(nameof(communicationInterface));
-            if (string.IsNullOrEmpty(propertyName)) throw new ArgumentNullException(nameof(propertyName));
-            if (propertyValue == null) throw new ArgumentNullException(nameof(propertyValue));
-
             // Encode the property name and value into a byte array
             byte[] data = Encoding.ASCII.GetBytes($"{propertyName}={propertyValue}\r\n");
 
@@ -59,8 +55,11 @@ namespace IRIS.Protocols.IRIS
             // as if the property was not set. This does not guarantee that the property was not set as
             // the device may have set the property but the response was not received because device is
             // not sending a response which is compliant with the RUSTIC protocol no-response option.
-            byte[] receivedData = await ReceiveData(communicationInterface, timeout);
-            if (timeout.IsTimedOut) throw new TimeoutException("Response timeout");
+            byte[] ?receivedData = await ReceiveData(communicationInterface, timeout);
+            if (timeout.IsTimedOut) return false;
+            
+            // Check if the received data is null
+            if (receivedData == null) return false;
 
             // Decode the received data into a string
             string receivedString = Encoding.ASCII.GetString(receivedData);
@@ -98,9 +97,6 @@ namespace IRIS.Protocols.IRIS
             TInterface communicationInterface,
             int responseTimeout = -1)
         {
-            if (communicationInterface == null) throw new ArgumentNullException(nameof(communicationInterface));
-            if (string.IsNullOrEmpty(propertyName)) throw new ArgumentNullException(nameof(propertyName));
-            
             // Encode the property name into a byte array
             byte[] data = Encoding.ASCII.GetBytes($"{propertyName}=?\r\n");
 
@@ -109,9 +105,14 @@ namespace IRIS.Protocols.IRIS
 
             // Receive the data from the communication interface
             RequestTimeout timeout = new(responseTimeout);
-            byte[] receivedData = await ReceiveData(communicationInterface, timeout);
-            if (timeout.IsTimedOut) throw new TimeoutException("Response timeout");
+            byte[]? receivedData = await ReceiveData(communicationInterface, timeout);
+            
+            // Check if the response is a timeout
+            if (timeout.IsTimedOut) return (propertyName, RESPONSE_TIMEOUT);
 
+            // Check if the received data is null
+            if (receivedData == null) return (propertyName, RESPONSE_ERROR);
+            
             // Decode the received data into a string
             string receivedString = Encoding.ASCII.GetString(receivedData);
 
@@ -133,7 +134,7 @@ namespace IRIS.Protocols.IRIS
             await communicationInterface.TransmitRawData(data);
         }
 
-        public static ValueTask<byte[]> ReceiveData(TInterface communicationInterface,
+        public static ValueTask<byte[]?> ReceiveData(TInterface communicationInterface,
             CancellationToken cancellationToken = default)
         {
             // Receive the data from the communication interface until the command end byte

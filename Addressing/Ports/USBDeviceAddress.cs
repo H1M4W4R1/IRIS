@@ -27,13 +27,13 @@ namespace IRIS.Addressing.Ports
         /// <summary>
         /// Parse USB device address from string. The correct format is "VID:PID".
         /// </summary>
-        public static USBDeviceAddress Parse(string address)
+        public static USBDeviceAddress? Parse(string address)
         {
             string[] splitAddress = address.Split(':');
             
             // Check if the address is valid
             if (splitAddress.Length != 2)
-                throw new FormatException("Invalid USB device address format.");
+                return null;
             
             return new USBDeviceAddress(splitAddress[0], splitAddress[1]);
         }

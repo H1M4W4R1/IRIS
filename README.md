@@ -134,8 +134,7 @@ and send/receive data from the device. The `HardwareAccess` property is used to 
 on specified communication interface (e.g. if used for Bluetooth) and `RawHardwareAccess` is used to send and receive raw
 data from the device using `IRawDataCommunicationInterface` interface overloads.
 
-If device does not support RawHardwareAccess property then accessing it will throw <b>NotSupportedException</b>. To override this
-behavior you can check if HardwareAccess is not null and implements IRawDataCommunicationInterface using is operator.
+If device does not support RawHardwareAccess property then accessing it will return `null`.
 
 For more references you can see already implemented devices and their bases in sub-packages.
 

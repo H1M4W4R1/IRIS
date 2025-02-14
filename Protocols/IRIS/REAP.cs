@@ -46,17 +46,15 @@ namespace IRIS.Protocols.IRIS
             await SendData(communicationInterface, valueByte);
             
             // Receive response data
-            RequestTimeout timeout = new RequestTimeout(timeoutMs);
-            byte[] response = await ReceiveData(communicationInterface, timeout);
+            RequestTimeout timeout = new(timeoutMs);
+            byte[]? response = await ReceiveData(communicationInterface, timeout);
             
             // Check if timeout occurred
             // supports devices that don't respond to write operations
-            if (timeout.IsTimedOut)
-                return registerAddress;
+            if (timeout.IsTimedOut) return registerAddress;
             
             // Check if response is valid
-            if (response.Length != 8) 
-                throw new NotSupportedException("Response data is invalid");
+            if (response is not {Length: 8}) return registerAddress;
             
             // Parse response data
             uint responseValue = (uint) ((response[4] << 24) | (response[5] << 16) | (response[6] << 8) | response[7]);
@@ -72,7 +70,7 @@ namespace IRIS.Protocols.IRIS
         /// <returns>Value of register</returns>
         /// <exception cref="TimeoutException">Timeout occurred while waiting for response</exception>
         /// <exception cref="NotSupportedException">Response data is invalid</exception>
-        public static async ValueTask<uint> GetRegister(TInterface communicationInterface, uint registerAddress,
+        public static async ValueTask<uint?> GetRegister(TInterface communicationInterface, uint registerAddress,
             int timeoutMs = 100)
         {
             // Create address byte data
@@ -89,15 +87,13 @@ namespace IRIS.Protocols.IRIS
             
             // Receive response data
             RequestTimeout timeout = new RequestTimeout(timeoutMs);
-            byte[] response = await ReceiveData(communicationInterface, timeout);
+            byte[]? response = await ReceiveData(communicationInterface, timeout);
             
             // Check if timeout occurred
-            if (timeout.IsTimedOut)
-                throw new TimeoutException("Timeout occurred while waiting for response");
+            if (timeout.IsTimedOut) return null;
             
             // Check if response is valid
-            if (response.Length != 8)
-                throw new NotSupportedException("Response data is invalid");
+            if(response is not {Length: 8}) return null;
             
             // Parse response data
             uint responseValue = (uint) ((response[4] << 24) | (response[5] << 16) | (response[6] << 8) | response[7]);
@@ -109,7 +105,7 @@ namespace IRIS.Protocols.IRIS
             await communicationInterface.TransmitRawData(data);
         }
 
-        public static async ValueTask<byte[]> ReceiveData(TInterface communicationInterface, CancellationToken cancellationToken = default)
+        public static async ValueTask<byte[]?> ReceiveData(TInterface communicationInterface, CancellationToken cancellationToken = default)
         {
             return await communicationInterface.ReadRawData(8, cancellationToken);
         }

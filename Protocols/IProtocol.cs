@@ -13,7 +13,7 @@ namespace IRIS.Protocols
             TDataType data,
             CancellationToken cancellationToken = default);
 
-        protected static abstract ValueTask<TDataType> ReceiveData(TInterface communicationInterface,
+        protected static abstract ValueTask<TDataType?> ReceiveData(TInterface communicationInterface,
             CancellationToken cancellationToken = default);
     }
 }

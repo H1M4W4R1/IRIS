@@ -62,14 +62,11 @@ namespace IRIS.Communication
         /// <param name="length">Length of data to read</param>
         /// <param name="cancellationToken">Used to cancel read operation</param>
         /// <returns>Array of data</returns>
-        /// <exception cref="EndOfStreamException">If data is not long enough</exception>
-        /// <exception cref="CommunicationException">If device is not open</exception>
-        async ValueTask<byte[]> IRawDataCommunicationInterface.ReadRawData(int length, CancellationToken cancellationToken)
+        async ValueTask<byte[]?> IRawDataCommunicationInterface.ReadRawData(int length, CancellationToken cancellationToken)
         {
-            if (_dataReceived.Count < length)
-                throw new EndOfStreamException("Data is not long enough, please wait for it checking it's length");
+            if (_dataReceived.Count < length) return [];
 
-            if (!IsOpen) throw new CommunicationException("Device is not open!");
+            if (!IsOpen) return [];
 
             // Get data and remove old one
             byte[] data = _dataReceived.GetRange(0, length).ToArray();
@@ -85,12 +82,11 @@ namespace IRIS.Communication
         /// <param name="receivedByte">Byte to find</param>
         /// <param name="cancellationToken">Used to cancel read operation</param>
         /// <returns>Array of data, if byte is not found, empty array is returned</returns>
-        /// <exception cref="CommunicationException">If device is not open</exception>
-        async ValueTask<byte[]> IRawDataCommunicationInterface.ReadRawDataUntil(byte receivedByte,
+        async ValueTask<byte[]?> IRawDataCommunicationInterface.ReadRawDataUntil(byte receivedByte,
             CancellationToken cancellationToken)
         {
             // Check if device is open
-            if (!IsOpen) throw new CommunicationException("Device is not open!");
+            if (!IsOpen) return [];
 
             int dataIndex = _dataReceived.IndexOf(receivedByte);
             if (dataIndex < 0 || dataIndex > _dataReceived.Count)

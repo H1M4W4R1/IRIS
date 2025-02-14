@@ -41,14 +41,15 @@ namespace IRIS.Devices
         /// <summary>
         /// Represents communication interface between device and computer
         /// </summary>
-        protected IRawDataCommunicationInterface RawHardwareAccess
+        /// <exception cref="NotSupportedException">When communication interface does not support raw data access</exception>
+        protected IRawDataCommunicationInterface? RawHardwareAccess
         {
             get
             {
                 // Check if communication interface is raw data communication interface,
                 // if not throw exception to prevent misuse
                 if (HardwareAccess is IRawDataCommunicationInterface raw) return raw;
-                throw new NotSupportedException("Communication interface does not support raw data access");
+                return null;
             }
         }
 

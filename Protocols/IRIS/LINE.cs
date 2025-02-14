@@ -23,7 +23,7 @@ namespace IRIS.Protocols.IRIS
         /// <param name="communicationInterface">Communication interface to use.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>Message from the device.</returns>
-        public static async ValueTask<string> ReadMessage(TInterface communicationInterface,
+        public static async ValueTask<string?> ReadMessage(TInterface communicationInterface,
             CancellationToken cancellationToken = default)
             => await ReceiveData(communicationInterface, cancellationToken);
         
@@ -34,7 +34,7 @@ namespace IRIS.Protocols.IRIS
         /// <param name="message">Message to send.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>Response from the device.</returns>
-        public static async ValueTask<string> ExchangeMessages(TInterface communicationInterface,
+        public static async ValueTask<string?> ExchangeMessages(TInterface communicationInterface,
             string message,
             CancellationToken cancellationToken = default)
         {
@@ -46,9 +46,6 @@ namespace IRIS.Protocols.IRIS
             string data,
             CancellationToken cancellationToken = default)
         {
-            // Check if the communication interface is not null
-            if (communicationInterface == null) throw new ArgumentNullException(nameof(communicationInterface));
-            
             // Create new string with end of line character
             string processedData = $"{data}\r\n";
 
@@ -59,14 +56,14 @@ namespace IRIS.Protocols.IRIS
             await communicationInterface.TransmitRawData(dataBytes);
         }
 
-        public static async ValueTask<string> ReceiveData(TInterface communicationInterface,
+        public static async ValueTask<string?> ReceiveData(TInterface communicationInterface,
             CancellationToken cancellationToken = default)
         {
-            // Check if the communication interface is not null
-            if (communicationInterface == null) throw new ArgumentNullException(nameof(communicationInterface));
-            
             // Receive the data from the communication interface until the command end byte is received
-            byte[] receivedData = await communicationInterface.ReadRawDataUntil(0x0A, cancellationToken);
+            byte[]? receivedData = await communicationInterface.ReadRawDataUntil(0x0A, cancellationToken);
+            
+            // Check if the received data is null
+            if (receivedData == null) return null;
 
             // Decode the received data into a string
             string receivedString = Encoding.ASCII.GetString(receivedData);
