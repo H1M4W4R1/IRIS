@@ -52,7 +52,7 @@ To use already implemented device you need to instantiate it via constructor and
 
 ```cs
 // Create device
-BLE_HeartBand heartBand = new();
+BluetoothLowEnergyHeartBand heartBand = new();
 
 // Connect to device
 if(await heartBand.Connect())
@@ -94,7 +94,7 @@ a base device class it will most likely already set up the hardware access in it
 BLE devices from `IRIS.Bluetooth.Windows` automatically set-up hardware access in their constructors, so you don't 
 need to worry about it.
 ```csharp
- public sealed class MyExampleBLEDevice() :  BluetoothLEDevice(GattServiceUuids.HeartRate)
+ public sealed class MyExampleBLEDevice() :  BluetoothLowEnergyDevice(GattServiceUuids.HeartRate)
     {
         // Your code
     }
@@ -172,7 +172,7 @@ received event.
 
 Event related to Device should be always subscribed and unsubscribed in `Connect` and `Disconnect` methods. 
 Those methods sometimes are sealed thus you should use device-specific methods to handle attaching and
-detaching to/from events (e.g. for BluetoothLEDeviceBase you should use endpoints feature).
+detaching to/from events (e.g. for BluetoothLowEnergyDeviceBase you should use endpoints feature).
 
 Methods can be overriden for that exact purpose, when overriding `Connect` and `Disconnect` methods always 
 return true if device is already in desired state.
