@@ -1,5 +1,4 @@
-﻿using IRIS.Addressing;
-using IRIS.Addressing.Abstract;
+﻿using IRIS.Addressing.Abstract;
 
 namespace IRIS.Recognition
 {
@@ -58,7 +57,7 @@ namespace IRIS.Recognition
         /// <summary>
         /// Determines if the watcher is running
         /// </summary>
-        public bool IsRunning { get; protected set; } = false;
+        public bool IsRunning { get; protected set; }
 
         /// <summary>
         /// Converts hardware device address to software device

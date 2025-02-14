@@ -35,6 +35,7 @@ namespace IRIS.Devices
         /// <b>Beware: this is not initialized in constructor, as it is not known at this point
         /// You must have a constructor in derived class that initializes this property</b>
         /// </summary>
+        // ReSharper disable once NullableWarningSuppressionIsUsed
         protected TCommunicationInterface HardwareAccess { get; init; } = default!;
 
         /// <summary>
