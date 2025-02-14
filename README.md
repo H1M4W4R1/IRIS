@@ -11,9 +11,6 @@ It's designed to be able to easily implement new devices, protocols and communic
 Serial communication via COM ports
 * [IRIS.Bluetooth.Windows](https://github.com/H1M4W4R1/IRIS.Bluetooth.Windows) - Bluetooth 
 communication on Windows (using WinRT API)
-* [IRIS.Intiface](https://github.com/H1M4W4R1/IRIS.Intiface) -
-Communication with external devices via 
-[Intiface Engine](https://github.com/intiface/intiface-engine)
 
 # Generic concepts
 ## CommunicationInterface
