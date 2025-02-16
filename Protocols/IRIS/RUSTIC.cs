@@ -115,7 +115,7 @@ namespace IRIS.Protocols.IRIS
             if (timeout.IsTimedOut) return DataPromise.FromFailure<RUSTICDeviceProperty>();
             
             // Check if the response has data
-            if (!receivedData.IsSuccess) return DataPromise.FromFailure<RUSTICDeviceProperty>();
+            if (!receivedData.HasData) return DataPromise.FromFailure<RUSTICDeviceProperty>();
 
             // Check if the received data is null
             if (receivedData.Data == null) return DataPromise.FromFailure<RUSTICDeviceProperty>();

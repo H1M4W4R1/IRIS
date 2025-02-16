@@ -1,4 +1,6 @@
-﻿namespace IRIS.Data
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace IRIS.Data
 {
     /// <summary>
     /// Promise for data from device
@@ -19,9 +21,10 @@
         public TDataType? Data { get; } = data;
         
         /// <summary>
-        /// Check if promise has data
+        /// Check if promise has data and is successful
         /// </summary>
-        public bool HasData => Data is not null;
+        [MemberNotNullWhen(true, nameof(Data))]
+        public bool HasData => Data is not null && IsSuccess;
         
         public static DataPromise<TDataType> FromSuccess(TDataType? data) => new(true, data);
         public static DataPromise<TDataType> FromFailure(TDataType? data = default) => new(false, data);

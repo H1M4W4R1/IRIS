@@ -93,7 +93,7 @@ namespace IRIS.Protocols.IRIS
             DataPromise<byte[]> response = ReceiveData(communicationInterface, timeout);
 
             // Check if promise is successful
-            if (!response.IsSuccess) return DataPromise.FromFailure<uint>();
+            if (!response.HasData) return DataPromise.FromFailure<uint>();
 
             // Check if timeout occurred
             if (timeout.IsTimedOut) return DataPromise.FromFailure<uint>();
