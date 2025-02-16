@@ -1,6 +1,5 @@
 ﻿using IRIS.Addressing.Abstract;
 using IRIS.Communication;
-using IRIS.Communication.Types;
 
 namespace IRIS.Devices
 {
@@ -15,20 +14,21 @@ namespace IRIS.Devices
     {
     }
 
+    
     public abstract class DeviceBase<TCommunicationInterface>
         where TCommunicationInterface : ICommunicationInterface
     {
         /// <summary>
         /// Connect to device
         /// </summary>
-        public virtual ValueTask<bool> Connect(CancellationToken cancellationToken = default)
+        public virtual bool Connect(CancellationToken cancellationToken = default)
             => HardwareAccess.Connect(cancellationToken);
 
         /// <summary>
         /// Disconnect from device
         /// </summary>
-        public virtual ValueTask<bool> Disconnect(CancellationToken cancellationToken = default)
-            => HardwareAccess.Disconnect(cancellationToken);
+        public virtual bool Disconnect(CancellationToken cancellationToken = default)
+            => HardwareAccess.Disconnect();
 
         /// <summary>
         /// Communication interface between device and computer
@@ -37,21 +37,6 @@ namespace IRIS.Devices
         /// </summary>
         // ReSharper disable once NullableWarningSuppressionIsUsed
         protected TCommunicationInterface HardwareAccess { get; init; } = default!;
-
-        /// <summary>
-        /// Represents communication interface between device and computer
-        /// </summary>
-        /// <exception cref="NotSupportedException">When communication interface does not support raw data access</exception>
-        protected IRawDataCommunicationInterface? RawHardwareAccess
-        {
-            get
-            {
-                // Check if communication interface is raw data communication interface,
-                // if not throw exception to prevent misuse
-                if (HardwareAccess is IRawDataCommunicationInterface raw) return raw;
-                return null;
-            }
-        }
 
         /// <summary>
         /// Used to get communication interface, should be only implemented in transactions

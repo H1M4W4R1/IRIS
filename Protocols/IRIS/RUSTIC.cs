@@ -1,6 +1,9 @@
 ﻿using System.Text;
 using IRIS.Communication.Types;
-using IRIS.Utility;
+using IRIS.Data;
+using IRIS.Data.Implementations;
+using IRIS.Protocols.IRIS.Data;
+using RequestTimeout = IRIS.Utility.RequestTimeout;
 
 namespace IRIS.Protocols.IRIS
 {
@@ -31,7 +34,7 @@ namespace IRIS.Protocols.IRIS
         /// <returns>True if the property was set successfully, false otherwise.</returns>
         /// <exception cref="ArgumentNullException">Thrown when the property name or value is null.</exception>
         /// <exception cref="TimeoutException">Thrown when a response timeout occurs.</exception>
-        public static async ValueTask<bool> SetProperty<TPropertyValue>(string propertyName,
+        public static DataPromise<RUSTICDeviceProperty> SetProperty<TPropertyValue>(string propertyName,
             TPropertyValue propertyValue,
             TInterface communicationInterface,
             int responseTimeout = -1)
@@ -41,28 +44,29 @@ namespace IRIS.Protocols.IRIS
             byte[] data = Encoding.ASCII.GetBytes($"{propertyName}={propertyValue}\r\n");
 
             // Send the data to the communication interface
-            await SendData(communicationInterface, data);
+            if(!SendData(communicationInterface, data).IsOK) return DataPromise.FromFailure<RUSTICDeviceProperty>();
 
             // If no response is expected, return true
             // this is compliant with no-return option of the RUSTIC protocol
-            if (responseTimeout <= 0) return true;
+            if (responseTimeout <= 0)
+                return DataPromise.FromSuccess(new RUSTICDeviceProperty(propertyName, string.Empty));
 
             // Create a timeout for receiving a response
             RequestTimeout timeout = new(responseTimeout);
 
             // Receive the data from the communication interface (optional)
-            // if no data is received within a certain time, the method will return false
+            // if no data is received within a certain time, the method will return
             // as if the property was not set. This does not guarantee that the property was not set as
             // the device may have set the property but the response was not received because device is
             // not sending a response which is compliant with the RUSTIC protocol no-response option.
-            byte[] ?receivedData = await ReceiveData(communicationInterface, timeout);
-            if (timeout.IsTimedOut) return false;
+            DataPromise<byte[]> receivedData = ReceiveData(communicationInterface, timeout);
+            if (timeout.IsTimedOut) return DataPromise.FromSuccess(new RUSTICDeviceProperty(propertyName, RESPONSE_TIMEOUT));
             
             // Check if the received data is null
-            if (receivedData == null) return false;
+            if (receivedData.Data == null) return DataPromise.FromFailure<RUSTICDeviceProperty>();
 
             // Decode the received data into a string
-            string receivedString = Encoding.ASCII.GetString(receivedData);
+            string receivedString = Encoding.ASCII.GetString(receivedData.Data);
 
             // Split the received string into property name and value
             string[] propertyParts = receivedString.Trim('\r', '\n').Split('=');
@@ -74,14 +78,16 @@ namespace IRIS.Protocols.IRIS
             // also check if the received property value is OK or the same as the property value that was sent
             // if not, return false.
             // This is compliant with the RUSTIC protocol
-            if (receivedPropertyName != propertyName) return false; // Handles error responses
+            if (receivedPropertyName != propertyName) 
+                return DataPromise.FromFailure<RUSTICDeviceProperty>();
             
             // ReSharper disable once ConvertIfStatementToReturnStatement
             if (receivedPropertyValue == propertyValue.ToString() ||
-                receivedPropertyValue == RESPONSE_GOOD) return true;
+                receivedPropertyValue == RESPONSE_GOOD) 
+                return DataPromise.FromSuccess(new RUSTICDeviceProperty(receivedPropertyName, receivedPropertyValue));
 
             // Return false if the property was not set successfully
-            return false;
+            return DataPromise.FromFailure<RUSTICDeviceProperty>();
         }
 
         /// <summary>
@@ -90,10 +96,7 @@ namespace IRIS.Protocols.IRIS
         /// <param name="propertyName">Property name to get.</param>
         /// <param name="communicationInterface">Communication interface to use.</param>
         /// <param name="responseTimeout">Timeout for receiving a response (ms). If set to -1, will wait indefinitely.</param>
-        /// <returns>Property name and value as a tuple.</returns>
-        /// <exception cref="ArgumentNullException">Thrown when the property name is null.</exception>
-        /// <exception cref="TimeoutException">Thrown when a response timeout occurs.</exception>
-        public static async ValueTask<(string, string)> GetProperty(string propertyName,
+        public static DataPromise<RUSTICDeviceProperty> GetProperty(string propertyName,
             TInterface communicationInterface,
             int responseTimeout = -1)
         {
@@ -101,20 +104,24 @@ namespace IRIS.Protocols.IRIS
             byte[] data = Encoding.ASCII.GetBytes($"{propertyName}=?\r\n");
 
             // Send the data to the communication interface
-            await SendData(communicationInterface, data);
+            if(!SendData(communicationInterface, data).IsOK) 
+                return DataPromise.FromFailure<RUSTICDeviceProperty>();
 
             // Receive the data from the communication interface
             RequestTimeout timeout = new(responseTimeout);
-            byte[]? receivedData = await ReceiveData(communicationInterface, timeout);
+            DataPromise<byte[]> receivedData = ReceiveData(communicationInterface, timeout);
             
             // Check if the response is a timeout
-            if (timeout.IsTimedOut) return (propertyName, RESPONSE_TIMEOUT);
+            if (timeout.IsTimedOut) return DataPromise.FromFailure<RUSTICDeviceProperty>();
+            
+            // Check if the response has data
+            if (!receivedData.IsSuccess) return DataPromise.FromFailure<RUSTICDeviceProperty>();
 
             // Check if the received data is null
-            if (receivedData == null) return (propertyName, RESPONSE_ERROR);
+            if (receivedData.Data == null) return DataPromise.FromFailure<RUSTICDeviceProperty>();
             
             // Decode the received data into a string
-            string receivedString = Encoding.ASCII.GetString(receivedData);
+            string receivedString = Encoding.ASCII.GetString(receivedData.Data);
 
             // Split the received string into property name and value
             string[] propertyParts = receivedString.Trim('\r', '\n').Split('=');
@@ -123,23 +130,32 @@ namespace IRIS.Protocols.IRIS
             string propertyValue = propertyParts[1];
 
             // Return the received property name and value as a tuple
-            return (receivedPropertyName, propertyValue);
+            return DataPromise.FromSuccess(new RUSTICDeviceProperty(receivedPropertyName, propertyValue));
         }
 
-        public static async ValueTask SendData(TInterface communicationInterface,
+        public static DeviceResponseBase SendData(TInterface communicationInterface,
             byte[] data,
             CancellationToken cancellationToken = default)
         {
             // Send the data to the communication interface
-            await communicationInterface.TransmitRawData(data);
+            return communicationInterface.TransmitRawData(data);
         }
 
-        public static ValueTask<byte[]?> ReceiveData(TInterface communicationInterface,
+        public static DataPromise<byte[]> ReceiveData(TInterface communicationInterface,
             CancellationToken cancellationToken = default)
         {
             // Receive the data from the communication interface until the command end byte
             // is received
-            return communicationInterface.ReadRawDataUntil(COMMAND_END_BYTE, cancellationToken);
+            DeviceResponseBase responseBase = communicationInterface.ReadRawDataUntil(COMMAND_END_BYTE, cancellationToken);
+            
+            // Check if the response has data
+            if (!responseBase.HasData<byte[]>()) return DataPromise<byte[]>.FromFailure();
+            
+            // Get the received data
+            byte[]? receivedData = responseBase.GetData<byte[]>();
+            
+            // Return the received data
+            return DataPromise.FromSuccess(receivedData);
         }
     }
 }

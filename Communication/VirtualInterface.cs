@@ -1,4 +1,6 @@
 ﻿using IRIS.Communication.Types;
+using IRIS.Data;
+using IRIS.Data.Implementations;
 
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
 
@@ -29,7 +31,7 @@ namespace IRIS.Communication
         /// <summary>
         /// Opens communication with device
         /// </summary>
-        public async ValueTask<bool> Connect(CancellationToken cancellationToken)
+        public bool Connect(CancellationToken cancellationToken)
         {
             IsOpen = true;
             return true;
@@ -38,7 +40,7 @@ namespace IRIS.Communication
         /// <summary>
         /// Closes communication with device
         /// </summary>
-        public async ValueTask<bool> Disconnect(CancellationToken cancellationToken)
+        public bool Disconnect()
         {
             IsOpen = false;
             return true;
@@ -50,30 +52,26 @@ namespace IRIS.Communication
         /// Simulates transmitting data to device. See: <see cref="SimulateTransmittedData"/>.
         /// </summary>
         /// <param name="data">Data to transmit</param>
-        ValueTask IRawDataCommunicationInterface.TransmitRawData(byte[] data)
-        {
+        DeviceResponseBase IRawDataCommunicationInterface.TransmitRawData(byte[] data) =>
             SimulateTransmittedData(data);
-            return ValueTask.CompletedTask;
-        }
 
         /// <summary>
         /// Reads data from device. 
         /// </summary>
         /// <param name="length">Length of data to read</param>
         /// <param name="cancellationToken">Used to cancel read operation</param>
-        /// <returns>Array of data</returns>
-        async ValueTask<byte[]?> IRawDataCommunicationInterface.ReadRawData(int length, CancellationToken cancellationToken)
+        DeviceResponseBase IRawDataCommunicationInterface.ReadRawData(int length, CancellationToken cancellationToken)
         {
-            if (_dataReceived.Count < length) return [];
+            if (_dataReceived.Count < length) return NoResponse.Instance;
 
-            if (!IsOpen) return [];
+            if (!IsOpen) return NoResponse.Instance;
 
             // Get data and remove old one
             byte[] data = _dataReceived.GetRange(0, length).ToArray();
             _dataReceived.RemoveRange(0, length);
 
             // Get
-            return data;
+            return new RawDataResponse(data);
         }
 
         /// <summary>
@@ -81,23 +79,22 @@ namespace IRIS.Communication
         /// </summary>
         /// <param name="receivedByte">Byte to find</param>
         /// <param name="cancellationToken">Used to cancel read operation</param>
-        /// <returns>Array of data, if byte is not found, empty array is returned</returns>
-        async ValueTask<byte[]?> IRawDataCommunicationInterface.ReadRawDataUntil(byte receivedByte,
+        DeviceResponseBase IRawDataCommunicationInterface.ReadRawDataUntil(byte receivedByte,
             CancellationToken cancellationToken)
         {
             // Check if device is open
-            if (!IsOpen) return [];
+            if (!IsOpen) return NoResponse.Instance;
 
             int dataIndex = _dataReceived.IndexOf(receivedByte);
             if (dataIndex < 0 || dataIndex > _dataReceived.Count)
-                return [];
+                return NoResponse.Instance;
 
             // Get data and remove old one
             int length = dataIndex + 1;
             byte[] data = _dataReceived.GetRange(0, length).ToArray();
             _dataReceived.RemoveRange(0, length);
 
-            return data;
+            return new RawDataResponse(data);
         }
 
 #endregion
@@ -120,6 +117,6 @@ namespace IRIS.Communication
         /// data back, it should be added to received data, if device is designed to multiply data by 2, then this method should
         /// take data, multiply it by 2 and add to received data.
         /// </remarks>
-        public abstract void SimulateTransmittedData(byte[] data);
+        public abstract DeviceResponseBase SimulateTransmittedData(byte[] data);
     }
 }

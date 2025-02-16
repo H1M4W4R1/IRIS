@@ -1,5 +1,7 @@
 ﻿using System.Text;
 using IRIS.Communication.Types;
+using IRIS.Data;
+using IRIS.Data.Implementations;
 
 namespace IRIS.Protocols.IRIS
 {
@@ -12,10 +14,10 @@ namespace IRIS.Protocols.IRIS
         /// <param name="communicationInterface">Communication interface to use.</param>
         /// <param name="message">Message to send.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
-        public static async ValueTask SendMessage(TInterface communicationInterface,
+        public static DeviceResponseBase SendMessage(TInterface communicationInterface,
             string message,
             CancellationToken cancellationToken = default)
-            => await SendData(communicationInterface, message, cancellationToken);
+            => SendData(communicationInterface, message, cancellationToken);
         
         /// <summary>
         /// Read a message from the device.
@@ -23,9 +25,9 @@ namespace IRIS.Protocols.IRIS
         /// <param name="communicationInterface">Communication interface to use.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>Message from the device.</returns>
-        public static async ValueTask<string?> ReadMessage(TInterface communicationInterface,
+        public static DataPromise<string> ReadMessage(TInterface communicationInterface,
             CancellationToken cancellationToken = default)
-            => await ReceiveData(communicationInterface, cancellationToken);
+            => ReceiveData(communicationInterface, cancellationToken);
         
         /// <summary>
         /// Exchange messages with the device.
@@ -34,42 +36,63 @@ namespace IRIS.Protocols.IRIS
         /// <param name="message">Message to send.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>Response from the device.</returns>
-        public static async ValueTask<string?> ExchangeMessages(TInterface communicationInterface,
+        public static DataPromise<string> ExchangeMessages(TInterface communicationInterface,
             string message,
             CancellationToken cancellationToken = default)
         {
-            await SendMessage(communicationInterface, message, cancellationToken);
-            return await ReadMessage(communicationInterface, cancellationToken);
+            try
+            {
+                // Send the message to the device
+                // ReSharper disable once ConvertIfStatementToReturnStatement
+                if(!SendMessage(communicationInterface, message, cancellationToken).IsOK)
+                    return DataPromise.FromFailure(string.Empty);
+                
+                // Return the received message
+                return ReadMessage(communicationInterface, cancellationToken);
+            }
+            catch(TaskCanceledException)
+            {
+                return DataPromise.FromFailure(string.Empty);
+            }
         }
 
-        public static async ValueTask SendData(TInterface communicationInterface,
+        public static DeviceResponseBase SendData(TInterface communicationInterface,
             string data,
             CancellationToken cancellationToken = default)
         {
-            // Create new string with end of line character
-            string processedData = $"{data}\r\n";
+            try
+            {
+                // Create new string with end of line character
+                string processedData = $"{data}\r\n";
 
-            // Convert the string to a byte array
-            byte[] dataBytes = Encoding.ASCII.GetBytes(processedData);
+                // Convert the string to a byte array
+                byte[] dataBytes = Encoding.ASCII.GetBytes(processedData);
 
-            // Send the data to the communication interface
-            await communicationInterface.TransmitRawData(dataBytes);
+                // Send the data to the communication interface
+                return communicationInterface.TransmitRawData(dataBytes);
+            }
+            catch(TaskCanceledException)
+            {
+                return new RequestTimeout();
+            }
         }
 
-        public static async ValueTask<string?> ReceiveData(TInterface communicationInterface,
+        public static DataPromise<string> ReceiveData(TInterface communicationInterface,
             CancellationToken cancellationToken = default)
         {
             // Receive the data from the communication interface until the command end byte is received
-            byte[]? receivedData = await communicationInterface.ReadRawDataUntil(0x0A, cancellationToken);
+            DeviceResponseBase response  = communicationInterface.ReadRawDataUntil(0x0A, cancellationToken);
+            if(!response.HasData<byte[]>()) return DataPromise.FromFailure(string.Empty);
             
-            // Check if the received data is null
-            if (receivedData == null) return null;
-
+            // Get the received data
+            byte[]? receivedData = response.GetData<byte[]>();
+            if(receivedData == null) return DataPromise.FromFailure(string.Empty);
+            
             // Decode the received data into a string
             string receivedString = Encoding.ASCII.GetString(receivedData);
 
             // Return the received string
-            return receivedString;
+            return DataPromise.FromSuccess(receivedString);
         }
     }
 }

@@ -1,7 +1,9 @@
-﻿using IRIS.Communication.Types;
-
-namespace IRIS.Communication
+﻿namespace IRIS.Communication
 {
+    /// <summary>
+    /// Represents communication interface between device and computer
+    /// This can be for example serial port, ethernet, etc.
+    /// </summary>
     public interface ICommunicationInterface<out TAddressType> : ICommunicationInterface
     {
         /// <summary>
@@ -21,24 +23,18 @@ namespace IRIS.Communication
     }
     
     /// <summary>
-    /// Represents communication interface between device and computer
-    /// This can be for example serial port, ethernet, etc.
+    /// <see cref="ICommunicationInterface{TAddressType}"/>
     /// </summary>
     public interface ICommunicationInterface
     {
         /// <summary>
         /// Connect to physical device
         /// </summary>
-        ValueTask<bool> Connect(CancellationToken cancellationToken = default);
+        bool Connect(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Disconnect from physical device
         /// </summary>
-        ValueTask<bool> Disconnect(CancellationToken cancellationToken = default);
-
-        /// <summary>
-        /// Get raw data communication interface if available
-        /// </summary>
-        public IRawDataCommunicationInterface? Raw => this as IRawDataCommunicationInterface;
+        bool Disconnect();
     }
 }

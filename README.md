@@ -52,7 +52,7 @@ To use already implemented device you need to instantiate it via constructor and
 BluetoothLowEnergyHeartBand heartBand = new();
 
 // Connect to device
-if(await heartBand.Connect())
+if(heartBand.Connect())
     Console.WriteLine("Connected to device");
 else
     Console.WriteLine("Failed to connect to device");
@@ -61,7 +61,7 @@ else
 Console.WriteLine("Device is connected: " + heartBand.IsConnected);
 
 // Disconnect from device
-if(await heartBand.Disconnect())
+if(heartBand.Disconnect())
     Console.WriteLine("Disconnected from device");
 else
     Console.WriteLine("Failed to disconnect from device");
@@ -149,14 +149,14 @@ access hardware.
 
 ```cs
 // Sending data to device using custom protocol
-public async ValueTask SendMessage(string message) =>
-    await LINE<CachedSerialPortInterface>.SendMessage(HardwareAccess, message);
+public ResponsePromise<string> SendMessage(string message) =>
+    LINE<CachedSerialPortInterface>.SendMessage(HardwareAccess, message);
 ```
 
 ```cs
 // Sending data to device using (made-up) hardware access
-public async ValueTask WriteString(string message) =>
-    await HardwareAccess.WriteAsync(Encoding.ASCII.GetBytes(message));
+public DeviceResponseBase WriteString(string message) =>
+    HardwareAccess.WriteAsync(Encoding.ASCII.GetBytes(message));
 ```
 
 ### Device events

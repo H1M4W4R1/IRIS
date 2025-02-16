@@ -1,4 +1,6 @@
-﻿namespace IRIS.Communication.Types
+﻿using IRIS.Data;
+
+namespace IRIS.Communication.Types
 {
     /// <summary>
     /// Represents raw data communication interface, an interface that can
@@ -20,16 +22,16 @@
         /// <summary>
         /// Transmit data to device
         /// </summary>
-        public ValueTask TransmitRawData(byte[] data);
+        public DeviceResponseBase TransmitRawData(byte[] data);
 
         /// <summary>
         /// Read data from device
         /// </summary>
-        public ValueTask<byte[]?> ReadRawData(int length, CancellationToken cancellationToken);
+        public DeviceResponseBase ReadRawData(int length, CancellationToken cancellationToken);
 
         /// <summary>
         /// Read data from device until expected byte is found
         /// </summary>
-        public ValueTask<byte[]?> ReadRawDataUntil(byte expectedByte, CancellationToken cancellationToken);
+        public DeviceResponseBase ReadRawDataUntil(byte expectedByte, CancellationToken cancellationToken);
     }
 }
