@@ -21,5 +21,7 @@ namespace IRIS.Addressing.Web
         public static IPDeviceAddress Broadcast => new IPDeviceAddress(IPAddress.Broadcast);
         
         public static IPDeviceAddress Parse(string address) => new IPDeviceAddress(IPAddress.Parse(address));
+        
+        public override string ToString() => Address.ToString();
     }
 }

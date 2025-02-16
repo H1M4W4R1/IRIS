@@ -8,5 +8,7 @@ namespace IRIS.Addressing.Custom
     public readonly struct IndexAddress(uint index) : IDeviceAddress<uint>
     {
         public uint Address { get; } = index;
+
+        public override string ToString() => Address.ToString();
     }
 }
