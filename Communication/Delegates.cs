@@ -1,10 +1,10 @@
 ﻿namespace IRIS.Communication
 {
     // TODO: Attach events to interface to be required in all devices
-    public class Delegates
+    public static class Delegates
     {
-        public delegate void OnDeviceConnected<in TDeviceAddress>(TDeviceAddress address);
-        public delegate void OnDeviceDisconnected<in TDeviceAddress>(TDeviceAddress address);
-        public delegate void DeviceConnectionLost<in TDeviceAddress>(TDeviceAddress address);
+        public delegate void DeviceConnectedHandler<in TDeviceAddress>(TDeviceAddress address);
+        public delegate void DeviceDisconnectedHandler<in TDeviceAddress>(TDeviceAddress address);
+        public delegate void DeviceConnectionLostHandler<in TDeviceAddress>(TDeviceAddress address);
     }
 }

@@ -7,17 +7,17 @@ namespace IRIS.Communication
         /// <summary>
         /// Event that is triggered when device is connected
         /// </summary>
-        public event Delegates.OnDeviceConnected<TAddressType>? DeviceConnected;
+        public event Delegates.DeviceConnectedHandler<TAddressType>? DeviceConnected;
         
         /// <summary>
         /// Event that is triggered when device is disconnected
         /// </summary>
-        public event Delegates.OnDeviceDisconnected<TAddressType>? DeviceDisconnected;
+        public event Delegates.DeviceDisconnectedHandler<TAddressType>? DeviceDisconnected;
         
         /// <summary>
         /// Event that is triggered when device connection is lost
         /// </summary>
-        public event Delegates.DeviceConnectionLost<TAddressType>? DeviceConnectionLost;
+        public event Delegates.DeviceConnectionLostHandler<TAddressType>? DeviceConnectionLost;
     }
     
     /// <summary>
