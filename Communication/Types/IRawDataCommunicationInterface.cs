@@ -7,6 +7,14 @@
     /// easy implementation without the requirement to call any interface-based
     /// methods.
     /// </summary>
+    public interface IRawDataCommunicationInterface<out TAddressType> : ICommunicationInterface<TAddressType>, IRawDataCommunicationInterface
+    {
+        
+    }
+    
+    /// <summary>
+    /// <see cref="IRawDataCommunicationInterface{TAddressType}"/>
+    /// </summary>
     public interface IRawDataCommunicationInterface : ICommunicationInterface
     {
         /// <summary>

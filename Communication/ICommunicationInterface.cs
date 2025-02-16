@@ -2,6 +2,24 @@
 
 namespace IRIS.Communication
 {
+    public interface ICommunicationInterface<out TAddressType> : ICommunicationInterface
+    {
+        /// <summary>
+        /// Event that is triggered when device is connected
+        /// </summary>
+        public event Delegates.OnDeviceConnected<TAddressType>? DeviceConnected;
+        
+        /// <summary>
+        /// Event that is triggered when device is disconnected
+        /// </summary>
+        public event Delegates.OnDeviceDisconnected<TAddressType>? DeviceDisconnected;
+        
+        /// <summary>
+        /// Event that is triggered when device connection is lost
+        /// </summary>
+        public event Delegates.DeviceConnectionLost<TAddressType>? DeviceConnectionLost;
+    }
+    
     /// <summary>
     /// Represents communication interface between device and computer
     /// This can be for example serial port, ethernet, etc.
