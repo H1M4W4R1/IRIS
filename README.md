@@ -1,5 +1,5 @@
 # IRIS<sup>2</sup>: Intermediate Resource Integration System
-![LOGO](https://github.com/H1M4W4R1/IRIS/logo.png)
+![LOGO](https://github.com/H1M4W4R1/IRIS/blob/main/logo.png)
 
 IRIS is a framework to implement communication between PC and embedded peripherals.
 It's designed to be able to easily implement new devices, protocols and communication interfaces.
