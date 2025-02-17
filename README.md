@@ -84,19 +84,19 @@ Note: most devices will have very specific implementations. It is recommended to
 respective source files.
 
 ## Custom device - simple way
-To create a custom device you shall implement specific 
-DeviceBase (or create your own one) and implement its 
+To create a custom device you shall implement specific DeviceBase (or create your own one) and implement its 
 methods.
 
 It is required for **DeviceBase** abstraction to set up **HardwareAccess** in constructor, if you're implementing
-a base device class it will most likely already set up the hardware access in its constructor.
+a base device class it will most likely already set up the hardware access in its constructor. Beware that IDE will 
+not display an error if HardwareAccess is not set.
 
 BLE devices from `IRIS.Bluetooth.Windows` automatically set-up hardware access in their constructors, so you don't 
 need to worry about it.
 ```csharp
  public sealed class MyExampleBLEDevice() :  BluetoothLowEnergyDevice(GattServiceUuids.HeartRate)
     {
-        // Your code
+        // Your code, for BLE device reference see IRIS.Bluetooth.Windows package README.md
     }
 ```
 
@@ -124,7 +124,7 @@ public class MyDevice : DeviceBase<CachedSerialPortInterface, SerialPortDeviceAd
         // You must set-up hardware access in EACH device constructor (it's recomended at the beginning of constructor)
         HardwareAccess = hardwareAccess;
         
-        // Your code
+        // Your code - you need to implement communication interface proxy layers within your class.
     }
 }
 ```
@@ -162,6 +162,9 @@ public DeviceResponseBase WriteString(string message) =>
     HardwareAccess.WriteAsync(Encoding.ASCII.GetBytes(message));
 ```
 
+You can create custom `DeviceResponse` objects or use built-in ones like `NoResponse.Instance`, which can be 
+returned when device did not respond in expected timeframe (to avoid throwing error).
+
 ### Device events
 If you want to attach device to HardwareAccess events this should be done in `Connect` and `Disconnect` 
 methods or in constructor (depending on event type).
@@ -176,7 +179,6 @@ detaching to/from events (e.g. for BluetoothLowEnergyDeviceBase you should use e
 
 Methods can be overriden for that exact purpose, when overriding `Connect` and `Disconnect` methods always 
 return true if device is already in desired state.
-
 
 # Usage - interfaces
 ## VirtualInterface
