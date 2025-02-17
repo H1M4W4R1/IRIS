@@ -1,4 +1,6 @@
 # IRIS<sup>2</sup>: Intermediate Resource Integration System
+![LOGO](https://github.com/H1M4W4R1/IRIS)
+
 IRIS is a framework to implement communication between PC and embedded peripherals.
 It's designed to be able to easily implement new devices, protocols and communication interfaces.
 
@@ -46,6 +48,7 @@ You shall configure protocol with native interface data and add custom HAL comma
 # Usage - devices
 ## Using already implemented devices
 To use already implemented device you need to instantiate it via constructor and connect to it.
+Example below uses HeartBand implementation from IRIS.Bluetooth.Windows package.
 
 ```cs
 // Create device
