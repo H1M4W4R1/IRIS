@@ -11,7 +11,7 @@ IRIS is a framework to implement communication between PC and embedded periphera
 It's designed to be able to easily implement new devices, protocols and communication interfaces.
 
 ## Requirements
-* .NET 8.0+ (Windows 10.0.19041.0+)
+* .NET 8.0+
 * C# 12+
 
 ## Subpackages
