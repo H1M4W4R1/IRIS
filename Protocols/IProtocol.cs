@@ -1,5 +1,4 @@
 ﻿using IRIS.Communication;
-using IRIS.Data;
 
 namespace IRIS.Protocols
 {
@@ -10,11 +9,11 @@ namespace IRIS.Protocols
     public interface IProtocol<in TInterface, TDataType>
         where TInterface : ICommunicationInterface
     {
-        protected static abstract DeviceResponseBase SendData(TInterface communicationInterface,
+        protected static abstract ValueTask<bool> SendData(TInterface communicationInterface,
             TDataType data,
             CancellationToken cancellationToken = default);
 
-        protected static abstract DataPromise<TDataType> ReceiveData(TInterface communicationInterface,
+        protected static abstract ValueTask<TDataType> ReceiveData(TInterface communicationInterface,
             CancellationToken cancellationToken = default);
     }
 }

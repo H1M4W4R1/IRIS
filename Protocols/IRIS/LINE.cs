@@ -1,7 +1,5 @@
 ﻿using System.Text;
 using IRIS.Communication.Types;
-using IRIS.Data;
-using IRIS.Data.Implementations;
 
 namespace IRIS.Protocols.IRIS
 {
@@ -14,7 +12,7 @@ namespace IRIS.Protocols.IRIS
         /// <param name="communicationInterface">Communication interface to use.</param>
         /// <param name="message">Message to send.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
-        public static DeviceResponseBase SendMessage(TInterface communicationInterface,
+        public static ValueTask<bool> SendMessage(TInterface communicationInterface,
             string message,
             CancellationToken cancellationToken = default)
             => SendData(communicationInterface, message, cancellationToken);
@@ -25,7 +23,7 @@ namespace IRIS.Protocols.IRIS
         /// <param name="communicationInterface">Communication interface to use.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>Message from the device.</returns>
-        public static DataPromise<string> ReadMessage(TInterface communicationInterface,
+        public static ValueTask<string> ReadMessage(TInterface communicationInterface,
             CancellationToken cancellationToken = default)
             => ReceiveData(communicationInterface, cancellationToken);
         
@@ -36,7 +34,7 @@ namespace IRIS.Protocols.IRIS
         /// <param name="message">Message to send.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>Response from the device.</returns>
-        public static DataPromise<string> ExchangeMessages(TInterface communicationInterface,
+        public static async ValueTask<string> ExchangeMessages(TInterface communicationInterface,
             string message,
             CancellationToken cancellationToken = default)
         {
@@ -44,19 +42,19 @@ namespace IRIS.Protocols.IRIS
             {
                 // Send the message to the device
                 // ReSharper disable once ConvertIfStatementToReturnStatement
-                if(!SendMessage(communicationInterface, message, cancellationToken).IsOK)
-                    return DataPromise.FromFailure(string.Empty);
+                if(!await SendMessage(communicationInterface, message, cancellationToken))
+                    throw new CommunicationFailedException("Failed to send message.");
                 
                 // Return the received message
-                return ReadMessage(communicationInterface, cancellationToken);
+                return await ReadMessage(communicationInterface, cancellationToken);
             }
             catch(TaskCanceledException)
             {
-                return DataPromise.FromFailure(string.Empty);
+                throw new OperationCanceledException("Operation was canceled.");
             }
         }
 
-        public static DeviceResponseBase SendData(TInterface communicationInterface,
+        public static async ValueTask<bool> SendData(TInterface communicationInterface,
             string data,
             CancellationToken cancellationToken = default)
         {
@@ -69,30 +67,26 @@ namespace IRIS.Protocols.IRIS
                 byte[] dataBytes = Encoding.ASCII.GetBytes(processedData);
 
                 // Send the data to the communication interface
-                return communicationInterface.TransmitRawData(dataBytes);
+                return await communicationInterface.TransmitRawData(dataBytes);
             }
             catch(TaskCanceledException)
             {
-                return new RequestTimeout();
+                throw new OperationCanceledException("Operation was canceled.");
             }
         }
 
-        public static DataPromise<string> ReceiveData(TInterface communicationInterface,
+        public static async ValueTask<string> ReceiveData(TInterface communicationInterface,
             CancellationToken cancellationToken = default)
         {
             // Receive the data from the communication interface until the command end byte is received
-            DeviceResponseBase response  = communicationInterface.ReadRawDataUntil(0x0A, cancellationToken);
-            if(!response.HasData<byte[]>()) return DataPromise.FromFailure(string.Empty);
-            
-            // Get the received data
-            byte[]? receivedData = response.GetData<byte[]>();
-            if(receivedData == null) return DataPromise.FromFailure(string.Empty);
+            byte[] response = await communicationInterface.ReadRawDataUntil(0x0A, cancellationToken);
+            if (response.Length == 0) return string.Empty;
             
             // Decode the received data into a string
-            string receivedString = Encoding.ASCII.GetString(receivedData);
+            string receivedString = Encoding.ASCII.GetString(response);
 
             // Return the received string
-            return DataPromise.FromSuccess(receivedString);
+            return receivedString;
         }
     }
 }

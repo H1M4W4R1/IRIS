@@ -1,6 +1,4 @@
 ﻿using IRIS.Communication.Types;
-using IRIS.Data;
-using IRIS.Data.Implementations;
 using RequestTimeout = IRIS.Utility.RequestTimeout;
 
 namespace IRIS.Protocols.IRIS
@@ -18,7 +16,7 @@ namespace IRIS.Protocols.IRIS
         /// <param name="registerAddress">Address of register to write</param>
         /// <param name="registerValue">Value to write to register</param>
         /// <param name="timeoutMs">Timeout in milliseconds</param>
-        public static DataPromise<uint> SetRegister(
+        public static async ValueTask<uint> SetRegister(
             TInterface communicationInterface,
             uint registerAddress,
             uint registerValue,
@@ -41,28 +39,26 @@ namespace IRIS.Protocols.IRIS
             ];
 
             // Send request data
-            if (!SendData(communicationInterface, addressByte).IsOK)
-                return DataPromise<uint>.FromFailure(registerAddress);
-            if (!SendData(communicationInterface, valueByte).IsOK) 
-                return DataPromise<uint>.FromFailure(registerAddress);
+            if (!await SendData(communicationInterface, addressByte))
+                throw new CommunicationFailedException("Failed to send address data.");
+            if (!await SendData(communicationInterface, valueByte))
+                throw new CommunicationFailedException("Failed to send value data.");
+
 
             // Receive response data
             RequestTimeout timeout = new(timeoutMs);
-            DataPromise<byte[]> response = ReceiveData(communicationInterface, timeout);
+            byte[] response = await ReceiveData(communicationInterface, timeout);
 
             // Check if timeout occurred
             // supports devices that don't respond to write operations
-            if (timeout.IsTimedOut) return DataPromise<uint>.FromSuccess(registerValue);
-
-            // Check if response is valid
-            if (response.Data is not {Length: 8}) return DataPromise<uint>.FromFailure(registerAddress);
+            if (timeout.IsTimedOut) return registerValue;
 
             // Parse response data
             uint responseValue =
-                (uint) ((response.Data[4] << 24) | (response.Data[5] << 16) | (response.Data[6] << 8) | response.Data[7]);
-            
+                (uint) ((response[4] << 24) | (response[5] << 16) | (response[6] << 8) | response[7]);
+
             // Return response value
-            return DataPromise<uint>.FromSuccess(responseValue);
+            return responseValue;
         }
 
         /// <summary>
@@ -72,7 +68,7 @@ namespace IRIS.Protocols.IRIS
         /// <param name="registerAddress">Address of register to read</param>
         /// <param name="timeoutMs">Timeout in milliseconds</param>
         /// <returns>Value of register</returns>
-        public static DataPromise<uint> GetRegister(
+        public static async ValueTask<uint> GetRegister(
             TInterface communicationInterface,
             uint registerAddress,
             int timeoutMs = 100)
@@ -85,54 +81,34 @@ namespace IRIS.Protocols.IRIS
             ];
 
             // Send request data
-            if (SendData(communicationInterface, addressByte) is not OKResponse)
-                return DataPromise.FromFailure<uint>();
+            if (!await SendData(communicationInterface, addressByte))
+                throw new CommunicationFailedException("Failed to send address data.");
 
             // Receive response data
             RequestTimeout timeout = new(timeoutMs);
-            DataPromise<byte[]> response = ReceiveData(communicationInterface, timeout);
-
-            // Check if promise is successful
-            if (!response.HasData) return DataPromise.FromFailure<uint>();
+            byte[] response = await ReceiveData(communicationInterface, timeout);
 
             // Check if timeout occurred
-            if (timeout.IsTimedOut) return DataPromise.FromFailure<uint>();
+            if (timeout.IsTimedOut) throw new CommunicationFailedException("Failed to receive response data.");
 
-            // Check if response is valid
-            if (response.Data is not {Length: 8}) return DataPromise.FromFailure<uint>();
 
             // Parse response data
             uint responseValue =
-                (uint) ((response.Data[4] << 24) | (response.Data[5] << 16) | (response.Data[6] << 8) |
-                        response.Data[7]);
+                (uint) ((response[4] << 24) | (response[5] << 16) | (response[6] << 8) |
+                        response[7]);
 
             // Return response value
-            return DataPromise.FromSuccess(responseValue);
+            return responseValue;
         }
 
-        public static DeviceResponseBase SendData(
+        public static ValueTask<bool> SendData(
             TInterface communicationInterface,
             byte[] data,
-            CancellationToken cancellationToken = default)
-        {
-            return communicationInterface.TransmitRawData(data);
-        }
+            CancellationToken cancellationToken = default) => communicationInterface.TransmitRawData(data);
 
-        public static DataPromise<byte[]> ReceiveData(
+        public static async ValueTask<byte[]> ReceiveData(
             TInterface communicationInterface,
             CancellationToken cancellationToken = default)
-        {
-            DeviceResponseBase response = communicationInterface.ReadRawData(8, cancellationToken);
-
-            // Check if response is valid
-            if (!response.HasData<byte[]>()) return DataPromise<byte[]>.FromFailure();
-
-            // Get the received data
-            byte[]? receivedData = response.GetData<byte[]>();
-
-            return receivedData == null
-                ? DataPromise<byte[]>.FromFailure()
-                : DataPromise.FromSuccess(receivedData);
-        }
+            => await communicationInterface.ReadRawData(8, cancellationToken);
     }
 }
