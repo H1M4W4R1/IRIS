@@ -1,4 +1,5 @@
 ﻿using IRIS.Communication.Types;
+using IRIS.Exceptions;
 using RequestTimeout = IRIS.Utility.RequestTimeout;
 
 namespace IRIS.Protocols.IRIS
@@ -39,11 +40,8 @@ namespace IRIS.Protocols.IRIS
             ];
 
             // Send request data
-            if (!await SendData(communicationInterface, addressByte))
-                throw new CommunicationFailedException("Failed to send address data.");
-            if (!await SendData(communicationInterface, valueByte))
-                throw new CommunicationFailedException("Failed to send value data.");
-
+            if (!await SendData(communicationInterface, addressByte)) throw new DeviceTransmissionFailed();
+            if (!await SendData(communicationInterface, valueByte)) throw new DeviceTransmissionFailed();
 
             // Receive response data
             RequestTimeout timeout = new(timeoutMs);
@@ -81,15 +79,14 @@ namespace IRIS.Protocols.IRIS
             ];
 
             // Send request data
-            if (!await SendData(communicationInterface, addressByte))
-                throw new CommunicationFailedException("Failed to send address data.");
+            if (!await SendData(communicationInterface, addressByte)) throw new DeviceTransmissionFailed();
 
             // Receive response data
             RequestTimeout timeout = new(timeoutMs);
             byte[] response = await ReceiveData(communicationInterface, timeout);
 
             // Check if timeout occurred
-            if (timeout.IsTimedOut) throw new CommunicationFailedException("Failed to receive response data.");
+            if (timeout.IsTimedOut) throw new ResponseTimeoutException();
 
 
             // Parse response data

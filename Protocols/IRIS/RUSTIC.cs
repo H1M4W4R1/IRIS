@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using IRIS.Communication.Types;
+using IRIS.Exceptions;
 using IRIS.Protocols.IRIS.Data;
 using RequestTimeout = IRIS.Utility.RequestTimeout;
 
@@ -20,6 +21,7 @@ namespace IRIS.Protocols.IRIS
         private const string RESPONSE_ERROR = "ERROR";
         private const string RESPONSE_TIMEOUT = "TIMEOUT";
         private const byte COMMAND_END_BYTE = 0xA;
+        private const byte COMMAND_SPLIT_BYTE = 0x3D; // '='
 
         /// <summary>
         /// Set a property using the communication interface.
@@ -44,7 +46,7 @@ namespace IRIS.Protocols.IRIS
 
             // Send the data to the communication interface
             if (!await SendData(communicationInterface, data))
-                throw new CommunicationFailedException("Failed to send data.");
+                throw new DeviceTransmissionFailed();
 
             // If no response is expected, return true
             // this is compliant with no-return option of the RUSTIC protocol
@@ -66,9 +68,13 @@ namespace IRIS.Protocols.IRIS
             // Decode the received data into a string
             string receivedString = Encoding.ASCII.GetString(receivedData);
 
+            // Check if string is empty
+            if (string.IsNullOrEmpty(receivedString))
+                throw new InvalidDataDoesNotContainByte(COMMAND_SPLIT_BYTE);
+            
             // Split the received string into property name and value
-            string[] propertyParts = receivedString.Trim('\r', '\n').Split('=');
-
+            string[] propertyParts = receivedString.Trim('\r', '\n').Split((char) COMMAND_SPLIT_BYTE);
+            
             string receivedPropertyName = propertyParts[0];
             string receivedPropertyValue = propertyParts[1];
 
@@ -105,21 +111,24 @@ namespace IRIS.Protocols.IRIS
 
             // Send the data to the communication interface
             if (!await SendData(communicationInterface, data))
-                throw new CommunicationFailedException("Failed to send data.");
+                throw new DeviceTransmissionFailed();
 
             // Receive the data from the communication interface
             RequestTimeout timeout = new(responseTimeout);
             byte[] receivedData = await ReceiveData(communicationInterface, timeout);
 
             // Check if the response is a timeout
-            if (timeout.IsTimedOut) 
-                throw new TimeoutException("Timeout occurred while waiting for a response.");
+            if (timeout.IsTimedOut) throw new ResponseTimeoutException();
 
             // Decode the received data into a string
             string receivedString = Encoding.ASCII.GetString(receivedData);
+            
+            // Check if string is empty
+            if (string.IsNullOrEmpty(receivedString))
+                throw new InvalidDataDoesNotContainByte(COMMAND_SPLIT_BYTE);
 
             // Split the received string into property name and value
-            string[] propertyParts = receivedString.Trim('\r', '\n').Split('=');
+            string[] propertyParts = receivedString.Trim('\r', '\n').Split((char) COMMAND_SPLIT_BYTE);
 
             string receivedPropertyName = propertyParts[0];
             string propertyValue = propertyParts[1];

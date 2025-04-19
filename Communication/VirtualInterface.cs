@@ -1,4 +1,5 @@
 ﻿using IRIS.Communication.Types;
+using IRIS.Exceptions;
 
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
 
@@ -31,6 +32,10 @@ namespace IRIS.Communication
         /// </summary>
         public ValueTask<bool> Connect(CancellationToken cancellationToken)
         {
+            // Check if device is already connected
+            if(IsOpen) return new DeviceAlreadyConnectedException().ToValueTask<bool>();
+            
+            // Connect to device
             IsOpen = true;
             return ValueTask.FromResult(true);
         }
@@ -40,6 +45,10 @@ namespace IRIS.Communication
         /// </summary>
         public ValueTask<bool> Disconnect()
         {
+            // Check if device is already disconnected
+            if(!IsOpen) return new DeviceAlreadyDisconnectedException().ToValueTask<bool>();
+            
+            // Disconnect from device
             IsOpen = false;
             return ValueTask.FromResult(true);
         }
@@ -60,12 +69,13 @@ namespace IRIS.Communication
         /// <param name="cancellationToken">Used to cancel read operation</param>
         ValueTask<byte[]> IRawDataCommunicationInterface.ReadRawData(int length, CancellationToken cancellationToken)
         {
-            // Ensure that enough data is available
-            if (_dataReceived.Count < length)
-                return ValueTask.FromException<byte[]>(new NotEnoughDataException($"Not enough data available. Expected: {length}, Available: {_dataReceived.Count}"));
-
+            // Ensure that device is connected
             if (!IsOpen)
-                return ValueTask.FromException<byte[]>(new DeviceNotConnectedException("Device is not connected."));
+                return new DeviceNotConnectedException().ToValueTask<byte[]>();
+            
+            // Ensure that enough data is available
+            if (_dataReceived.Count < length) 
+                return new NotEnoughDataException(_dataReceived.Count, length).ToValueTask<byte[]>();
 
             // Get data and remove old one
             byte[] data = _dataReceived.GetRange(0, length).ToArray();
@@ -85,11 +95,11 @@ namespace IRIS.Communication
         {
             // Check if device is open
             if (!IsOpen) 
-                return ValueTask.FromException<byte[]>(new DeviceNotConnectedException("Device is not connected."));
+                return new DeviceNotConnectedException().ToValueTask<byte[]>();
 
             int dataIndex = _dataReceived.IndexOf(receivedByte);
             if (dataIndex < 0 || dataIndex > _dataReceived.Count)
-                return ValueTask.FromException<byte[]>(new ValidDataNotFoundException($"Data not found. Expected: {receivedByte:X2}, Available: {_dataReceived.Count}"));
+                return new InvalidDataDoesNotContainByte(receivedByte).ToValueTask<byte[]>();
 
             // Get data and remove old one
             int length = dataIndex + 1;
