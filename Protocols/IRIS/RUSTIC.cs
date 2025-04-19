@@ -34,7 +34,7 @@ namespace IRIS.Protocols.IRIS
         /// <returns>True if the property was set successfully, false otherwise.</returns>
         /// <exception cref="ArgumentNullException">Thrown when the property name or value is null.</exception>
         /// <exception cref="TimeoutException">Thrown when a response timeout occurs.</exception>
-        public static async ValueTask<RUSTICDeviceProperty> SetProperty<TPropertyValue>(
+        public static async ValueTask<RUSTICDeviceProperty> SetPropertyAsync<TPropertyValue>(
             string propertyName,
             TPropertyValue propertyValue,
             TInterface communicationInterface,
@@ -45,7 +45,7 @@ namespace IRIS.Protocols.IRIS
             byte[] data = Encoding.ASCII.GetBytes($"{propertyName}={propertyValue}\r\n");
 
             // Send the data to the communication interface
-            if (!await SendData(communicationInterface, data))
+            if (!await SendDataAsync(communicationInterface, data))
                 throw new DeviceTransmissionFailed();
 
             // If no response is expected, return true
@@ -61,7 +61,7 @@ namespace IRIS.Protocols.IRIS
             // as if the property was not set. This does not guarantee that the property was not set as
             // the device may have set the property but the response was not received because device is
             // not sending a response which is compliant with the RUSTIC protocol no-response option.
-            byte[] receivedData = await ReceiveData(communicationInterface, timeout);
+            byte[] receivedData = await ReceiveDataAsync(communicationInterface, timeout);
             if (timeout.IsTimedOut)
                 return new RUSTICDeviceProperty(propertyName, RESPONSE_TIMEOUT);
 
@@ -101,7 +101,7 @@ namespace IRIS.Protocols.IRIS
         /// <param name="propertyName">Property name to get.</param>
         /// <param name="communicationInterface">Communication interface to use.</param>
         /// <param name="responseTimeout">Timeout for receiving a response (ms). If set to -1, will wait indefinitely.</param>
-        public static async ValueTask<RUSTICDeviceProperty> GetProperty(
+        public static async ValueTask<RUSTICDeviceProperty> GetPropertyAsync(
             string propertyName,
             TInterface communicationInterface,
             int responseTimeout = -1)
@@ -110,12 +110,12 @@ namespace IRIS.Protocols.IRIS
             byte[] data = Encoding.ASCII.GetBytes($"{propertyName}=?\r\n");
 
             // Send the data to the communication interface
-            if (!await SendData(communicationInterface, data))
+            if (!await SendDataAsync(communicationInterface, data))
                 throw new DeviceTransmissionFailed();
 
             // Receive the data from the communication interface
             RequestTimeout timeout = new(responseTimeout);
-            byte[] receivedData = await ReceiveData(communicationInterface, timeout);
+            byte[] receivedData = await ReceiveDataAsync(communicationInterface, timeout);
 
             // Check if the response is a timeout
             if (timeout.IsTimedOut) throw new ResponseTimeoutException();
@@ -137,14 +137,14 @@ namespace IRIS.Protocols.IRIS
             return new RUSTICDeviceProperty(receivedPropertyName, propertyValue);
         }
 
-        public static ValueTask<bool> SendData(
+        public static ValueTask<bool> SendDataAsync(
             TInterface communicationInterface,
             byte[] data,
-            CancellationToken cancellationToken = default) => communicationInterface.TransmitRawData(data);
+            CancellationToken cancellationToken = default) => communicationInterface.TransmitRawDataAsync(data);
 
-        public static async ValueTask<byte[]> ReceiveData(
+        public static async ValueTask<byte[]> ReceiveDataAsync(
             TInterface communicationInterface,
             CancellationToken cancellationToken = default)
-            => await communicationInterface.ReadRawDataUntil(COMMAND_END_BYTE, cancellationToken);
+            => await communicationInterface.ReadRawDataUntilByteAsync(COMMAND_END_BYTE, cancellationToken);
     }
 }

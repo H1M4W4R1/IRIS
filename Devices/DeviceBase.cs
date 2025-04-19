@@ -19,16 +19,60 @@ namespace IRIS.Devices
         where TCommunicationInterface : ICommunicationInterface
     {
         /// <summary>
+        /// Connect to device (waits for the task to complete)
+        /// </summary>
+        public bool Connect(CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                // Get task to connect to device
+                ValueTask<bool> connectionTask = ConnectAsync(cancellationToken);
+
+                // Wait for the task to complete
+                while (!connectionTask.IsCompleted) ;
+
+                // Return the result of the task
+                return connectionTask.Result;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        
+        /// <summary>
+        /// Disconnect from device (waits for the task to complete)
+        /// </summary>
+        public bool Disconnect(CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                // Get task to disconnect from device
+                ValueTask<bool> disconnectionTask = DisconnectAsync(cancellationToken);
+
+                // Wait for the task to complete
+                while (!disconnectionTask.IsCompleted) ;
+
+                // Return the result of the task
+                return disconnectionTask.Result;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        
+        /// <summary>
         /// Connect to device
         /// </summary>
-        public virtual ValueTask<bool> Connect(CancellationToken cancellationToken = default)
-            => HardwareAccess.Connect(cancellationToken);
+        public virtual ValueTask<bool> ConnectAsync(CancellationToken cancellationToken = default)
+            => HardwareAccess.ConnectAsync(cancellationToken);
 
         /// <summary>
         /// Disconnect from device
         /// </summary>
-        public virtual ValueTask<bool> Disconnect(CancellationToken cancellationToken = default)
-            => HardwareAccess.Disconnect();
+        public virtual ValueTask<bool> DisconnectAsync(CancellationToken cancellationToken = default)
+            => HardwareAccess.DisconnectAsync();
 
         /// <summary>
         /// Communication interface between device and computer

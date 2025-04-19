@@ -17,7 +17,7 @@ namespace IRIS.Protocols.IRIS
         /// <param name="registerAddress">Address of register to write</param>
         /// <param name="registerValue">Value to write to register</param>
         /// <param name="timeoutMs">Timeout in milliseconds</param>
-        public static async ValueTask<uint> SetRegister(
+        public static async ValueTask<uint> SetRegisterAsync(
             TInterface communicationInterface,
             uint registerAddress,
             uint registerValue,
@@ -40,12 +40,12 @@ namespace IRIS.Protocols.IRIS
             ];
 
             // Send request data
-            if (!await SendData(communicationInterface, addressByte)) throw new DeviceTransmissionFailed();
-            if (!await SendData(communicationInterface, valueByte)) throw new DeviceTransmissionFailed();
+            if (!await SendDataAsync(communicationInterface, addressByte)) throw new DeviceTransmissionFailed();
+            if (!await SendDataAsync(communicationInterface, valueByte)) throw new DeviceTransmissionFailed();
 
             // Receive response data
             RequestTimeout timeout = new(timeoutMs);
-            byte[] response = await ReceiveData(communicationInterface, timeout);
+            byte[] response = await ReceiveDataAsync(communicationInterface, timeout);
 
             // Check if timeout occurred
             // supports devices that don't respond to write operations
@@ -66,7 +66,7 @@ namespace IRIS.Protocols.IRIS
         /// <param name="registerAddress">Address of register to read</param>
         /// <param name="timeoutMs">Timeout in milliseconds</param>
         /// <returns>Value of register</returns>
-        public static async ValueTask<uint> GetRegister(
+        public static async ValueTask<uint> GetRegisterAsync(
             TInterface communicationInterface,
             uint registerAddress,
             int timeoutMs = 100)
@@ -79,11 +79,11 @@ namespace IRIS.Protocols.IRIS
             ];
 
             // Send request data
-            if (!await SendData(communicationInterface, addressByte)) throw new DeviceTransmissionFailed();
+            if (!await SendDataAsync(communicationInterface, addressByte)) throw new DeviceTransmissionFailed();
 
             // Receive response data
             RequestTimeout timeout = new(timeoutMs);
-            byte[] response = await ReceiveData(communicationInterface, timeout);
+            byte[] response = await ReceiveDataAsync(communicationInterface, timeout);
 
             // Check if timeout occurred
             if (timeout.IsTimedOut) throw new ResponseTimeoutException();
@@ -98,14 +98,14 @@ namespace IRIS.Protocols.IRIS
             return responseValue;
         }
 
-        public static ValueTask<bool> SendData(
+        public static ValueTask<bool> SendDataAsync(
             TInterface communicationInterface,
             byte[] data,
-            CancellationToken cancellationToken = default) => communicationInterface.TransmitRawData(data);
+            CancellationToken cancellationToken = default) => communicationInterface.TransmitRawDataAsync(data);
 
-        public static async ValueTask<byte[]> ReceiveData(
+        public static async ValueTask<byte[]> ReceiveDataAsync(
             TInterface communicationInterface,
             CancellationToken cancellationToken = default)
-            => await communicationInterface.ReadRawData(8, cancellationToken);
+            => await communicationInterface.ReadRawDataAsync(8, cancellationToken);
     }
 }

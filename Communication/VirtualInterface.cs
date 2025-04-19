@@ -18,7 +18,7 @@ namespace IRIS.Communication
 
         /// <summary>
         /// True if device communication is available
-        /// <see cref="Connect"/> and <see cref="Disconnect"/>
+        /// <see cref="ConnectAsync"/> and <see cref="DisconnectAsync"/>
         /// </summary>
         public bool IsOpen { get; private set; }
 
@@ -30,7 +30,7 @@ namespace IRIS.Communication
         /// <summary>
         /// Opens communication with device
         /// </summary>
-        public ValueTask<bool> Connect(CancellationToken cancellationToken)
+        public ValueTask<bool> ConnectAsync(CancellationToken cancellationToken)
         {
             // Check if device is already connected
             if(IsOpen) return new DeviceAlreadyConnectedException().ToValueTask<bool>();
@@ -43,7 +43,7 @@ namespace IRIS.Communication
         /// <summary>
         /// Closes communication with device
         /// </summary>
-        public ValueTask<bool> Disconnect()
+        public ValueTask<bool> DisconnectAsync()
         {
             // Check if device is already disconnected
             if(!IsOpen) return new DeviceAlreadyDisconnectedException().ToValueTask<bool>();
@@ -56,18 +56,18 @@ namespace IRIS.Communication
 #region IRawDataCommunicationInterface
 
         /// <summary>
-        /// Simulates transmitting data to device. See: <see cref="SimulateTransmittedData"/>.
+        /// Simulates transmitting data to device. See: <see cref="SimulateTransmittedDataAsync"/>.
         /// </summary>
         /// <param name="data">Data to transmit</param>
-        ValueTask<bool> IRawDataCommunicationInterface.TransmitRawData(byte[] data) =>
-            SimulateTransmittedData(data);
+        ValueTask<bool> IRawDataCommunicationInterface.TransmitRawDataAsync(byte[] data) =>
+            SimulateTransmittedDataAsync(data);
 
         /// <summary>
         /// Reads data from device. 
         /// </summary>
         /// <param name="length">Length of data to read</param>
         /// <param name="cancellationToken">Used to cancel read operation</param>
-        ValueTask<byte[]> IRawDataCommunicationInterface.ReadRawData(int length, CancellationToken cancellationToken)
+        ValueTask<byte[]> IRawDataCommunicationInterface.ReadRawDataAsync(int length, CancellationToken cancellationToken)
         {
             // Ensure that device is connected
             if (!IsOpen)
@@ -90,7 +90,7 @@ namespace IRIS.Communication
         /// </summary>
         /// <param name="receivedByte">Byte to find</param>
         /// <param name="cancellationToken">Used to cancel read operation</param>
-        ValueTask<byte[]> IRawDataCommunicationInterface.ReadRawDataUntil(byte receivedByte,
+        ValueTask<byte[]> IRawDataCommunicationInterface.ReadRawDataUntilByteAsync(byte receivedByte,
             CancellationToken cancellationToken)
         {
             // Check if device is open
@@ -129,6 +129,6 @@ namespace IRIS.Communication
         /// data back, it should be added to received data, if device is designed to multiply data by 2, then this method should
         /// take data, multiply it by 2 and add to received data.
         /// </remarks>
-        public abstract ValueTask<bool> SimulateTransmittedData(byte[] data);
+        public abstract ValueTask<bool> SimulateTransmittedDataAsync(byte[] data);
     }
 }

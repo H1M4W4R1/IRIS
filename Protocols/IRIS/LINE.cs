@@ -13,11 +13,11 @@ namespace IRIS.Protocols.IRIS
         /// <param name="communicationInterface">Communication interface to use.</param>
         /// <param name="message">Message to send.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
-        public static ValueTask<bool> SendMessage(
+        public static ValueTask<bool> SendMessageAsync(
             TInterface communicationInterface,
             string message,
             CancellationToken cancellationToken = default)
-            => SendData(communicationInterface, message, cancellationToken);
+            => SendDataAsync(communicationInterface, message, cancellationToken);
 
         /// <summary>
         /// Read a message from the device.
@@ -25,10 +25,10 @@ namespace IRIS.Protocols.IRIS
         /// <param name="communicationInterface">Communication interface to use.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>Message from the device.</returns>
-        public static ValueTask<string> ReadMessage(
+        public static ValueTask<string> ReadMessageAsync(
             TInterface communicationInterface,
             CancellationToken cancellationToken = default)
-            => ReceiveData(communicationInterface, cancellationToken);
+            => ReceiveDataAsync(communicationInterface, cancellationToken);
 
         /// <summary>
         /// Exchange messages with the device.
@@ -37,21 +37,21 @@ namespace IRIS.Protocols.IRIS
         /// <param name="message">Message to send.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>Response from the device.</returns>
-        public static async ValueTask<string> ExchangeMessages(
+        public static async ValueTask<string> ExchangeMessagesAsync(
             TInterface communicationInterface,
             string message,
             CancellationToken cancellationToken = default)
         {
             // Send the message to the device
             // ReSharper disable once ConvertIfStatementToReturnStatement
-            if (!await SendMessage(communicationInterface, message, cancellationToken))
+            if (!await SendMessageAsync(communicationInterface, message, cancellationToken))
                 throw new DeviceTransmissionFailed();
 
             // Return the received message
-            return await ReadMessage(communicationInterface, cancellationToken);
+            return await ReadMessageAsync(communicationInterface, cancellationToken);
         }
 
-        public static async ValueTask<bool> SendData(
+        public static async ValueTask<bool> SendDataAsync(
             TInterface communicationInterface,
             string data,
             CancellationToken cancellationToken = default)
@@ -63,15 +63,15 @@ namespace IRIS.Protocols.IRIS
             byte[] dataBytes = Encoding.ASCII.GetBytes(processedData);
 
             // Send the data to the communication interface
-            return await communicationInterface.TransmitRawData(dataBytes);
+            return await communicationInterface.TransmitRawDataAsync(dataBytes);
         }
 
-        public static async ValueTask<string> ReceiveData(
+        public static async ValueTask<string> ReceiveDataAsync(
             TInterface communicationInterface,
             CancellationToken cancellationToken = default)
         {
             // Receive the data from the communication interface until the command end byte is received
-            byte[] response = await communicationInterface.ReadRawDataUntil(0x0A, cancellationToken);
+            byte[] response = await communicationInterface.ReadRawDataUntilByteAsync(0x0A, cancellationToken);
             if (response.Length == 0) return string.Empty;
 
             // Decode the received data into a string

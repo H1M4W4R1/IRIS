@@ -20,16 +20,16 @@
         /// <summary>
         /// Transmit data to device
         /// </summary>
-        public ValueTask<bool> TransmitRawData(byte[] data);
+        public ValueTask<bool> TransmitRawDataAsync(byte[] data);
 
         /// <summary>
         /// Read data from device
         /// </summary>
-        public ValueTask<byte[]> ReadRawData(int length, CancellationToken cancellationToken);
+        public ValueTask<byte[]> ReadRawDataAsync(int length, CancellationToken cancellationToken);
 
         /// <summary>
         /// Read data from device until expected byte is found
         /// </summary>
-        public ValueTask<byte[]> ReadRawDataUntil(byte expectedByte, CancellationToken cancellationToken);
+        public ValueTask<byte[]> ReadRawDataUntilByteAsync(byte expectedByte, CancellationToken cancellationToken);
     }
 }
