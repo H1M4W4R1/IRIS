@@ -1,6 +1,7 @@
 ﻿using System.Text;
-using IRIS.Communication.Types;
+using IRIS.Communication.Abstract;
 using IRIS.Exceptions;
+using IRIS.Utility;
 
 namespace IRIS.Protocols.IRIS
 {
@@ -8,7 +9,43 @@ namespace IRIS.Protocols.IRIS
         where TInterface : IRawDataCommunicationInterface
     {
         /// <summary>
-        /// Send a message to the device.
+        ///     Send a message to the device.
+        /// </summary>
+        /// <param name="communicationInterface">Communication interface to use.</param>
+        /// <param name="message">Message to send.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        public static bool SendMessage(
+            TInterface communicationInterface,
+            string message,
+            CancellationToken cancellationToken = default)
+            => SendMessageAsync(communicationInterface, message, cancellationToken).Wait(cancellationToken);
+        
+        /// <summary>
+        ///     Read a message from the device.
+        /// </summary>
+        /// <param name="communicationInterface">Communication interface to use.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Message from the device.</returns>
+        public static string ReadMessage(
+            TInterface communicationInterface,
+            CancellationToken cancellationToken = default)
+            => ReadMessageAsync(communicationInterface, cancellationToken).Wait(cancellationToken);
+        
+        /// <summary>
+        ///     Exchange messages with the device.
+        /// </summary>
+        /// <param name="communicationInterface">Communication interface to use.</param>
+        /// <param name="message">Message to send.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Response from the device.</returns>
+        public static string ExchangeMessages(
+            TInterface communicationInterface,
+            string message,
+            CancellationToken cancellationToken = default)
+            => ExchangeMessagesAsync(communicationInterface, message, cancellationToken).Wait(cancellationToken);
+        
+        /// <summary>
+        ///     Send a message to the device.
         /// </summary>
         /// <param name="communicationInterface">Communication interface to use.</param>
         /// <param name="message">Message to send.</param>
@@ -20,7 +57,7 @@ namespace IRIS.Protocols.IRIS
             => SendDataAsync(communicationInterface, message, cancellationToken);
 
         /// <summary>
-        /// Read a message from the device.
+        ///     Read a message from the device.
         /// </summary>
         /// <param name="communicationInterface">Communication interface to use.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
@@ -31,7 +68,7 @@ namespace IRIS.Protocols.IRIS
             => ReceiveDataAsync(communicationInterface, cancellationToken);
 
         /// <summary>
-        /// Exchange messages with the device.
+        ///     Exchange messages with the device.
         /// </summary>
         /// <param name="communicationInterface">Communication interface to use.</param>
         /// <param name="message">Message to send.</param>

@@ -1,17 +1,45 @@
-﻿using IRIS.Communication.Types;
+﻿using IRIS.Communication.Abstract;
 using IRIS.Exceptions;
+using IRIS.Utility;
 using RequestTimeout = IRIS.Utility.RequestTimeout;
 
 namespace IRIS.Protocols.IRIS
 {
     /// <summary>
-    /// Register Encoding Access Protocol
+    ///     Register Encoding Access Protocol
     /// </summary>
     public class REAP<TInterface> : IProtocol<TInterface, byte[]>
         where TInterface : IRawDataCommunicationInterface
     {
         /// <summary>
-        /// Sets device register value
+        ///     Sets device register value
+        /// </summary>
+        /// <param name="communicationInterface">Interface to communicate with device</param>
+        /// <param name="registerAddress">Address of register to write</param>
+        /// <param name="registerValue">Value to write to register</param>
+        /// <param name="timeoutMs">Timeout in milliseconds</param>
+        public static uint SetRegister(
+            TInterface communicationInterface,
+            uint registerAddress,
+            uint registerValue,
+            int timeoutMs = 100) =>
+            SetRegisterAsync(communicationInterface, registerAddress, registerValue, timeoutMs).Wait();
+        
+        /// <summary>
+        ///     Gets device register value
+        /// </summary>
+        /// <param name="communicationInterface">Interface to communicate with device</param>
+        /// <param name="registerAddress">Address of register to read</param>
+        /// <param name="timeoutMs">Timeout in milliseconds</param>
+        /// <returns>Value of register</returns>
+        public static uint GetRegister(
+            TInterface communicationInterface,
+            uint registerAddress,
+            int timeoutMs = 100) =>
+            GetRegisterAsync(communicationInterface, registerAddress, timeoutMs).Wait();
+        
+        /// <summary>
+        ///     Sets device register value
         /// </summary>
         /// <param name="communicationInterface">Interface to communicate with device</param>
         /// <param name="registerAddress">Address of register to write</param>
@@ -60,7 +88,7 @@ namespace IRIS.Protocols.IRIS
         }
 
         /// <summary>
-        /// Gets device register value
+        ///     Gets device register value
         /// </summary>
         /// <param name="communicationInterface">Interface to communicate with device</param>
         /// <param name="registerAddress">Address of register to read</param>

@@ -1,11 +1,11 @@
-﻿namespace IRIS.Communication.Types
+﻿namespace IRIS.Communication.Abstract
 {
     /// <summary>
-    /// Represents raw data communication interface, an interface that can
-    /// send or receive raw binary data. <br/><br/>
-    /// This interface overrides the default communication interface to allow
-    /// easy implementation without the requirement to call any interface-based
-    /// methods.
+    ///     Represents raw data communication interface, an interface that can
+    ///     send or receive raw binary data. <br/><br/>
+    ///     This interface overrides the default communication interface to allow
+    ///     easy implementation without the requirement to call any interface-based
+    ///     methods.
     /// </summary>
     public interface IRawDataCommunicationInterface<out TAddressType> : ICommunicationInterface<TAddressType>, IRawDataCommunicationInterface
     {
@@ -13,22 +13,22 @@
     }
     
     /// <summary>
-    /// <see cref="IRawDataCommunicationInterface{TAddressType}"/>
+    ///     <see cref="IRawDataCommunicationInterface{TAddressType}"/>
     /// </summary>
     public interface IRawDataCommunicationInterface : ICommunicationInterface
     {
         /// <summary>
-        /// Transmit data to device
+        ///     Transmit data to device
         /// </summary>
         public ValueTask<bool> TransmitRawDataAsync(byte[] data);
 
         /// <summary>
-        /// Read data from device
+        ///     Read data from device
         /// </summary>
         public ValueTask<byte[]> ReadRawDataAsync(int length, CancellationToken cancellationToken);
 
         /// <summary>
-        /// Read data from device until expected byte is found
+        ///     Read data from device until expected byte is found
         /// </summary>
         public ValueTask<byte[]> ReadRawDataUntilByteAsync(byte expectedByte, CancellationToken cancellationToken);
     }

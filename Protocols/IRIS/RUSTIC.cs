@@ -1,7 +1,8 @@
 ﻿using System.Text;
-using IRIS.Communication.Types;
+using IRIS.Communication.Abstract;
 using IRIS.Exceptions;
 using IRIS.Protocols.IRIS.Data;
+using IRIS.Utility;
 using RequestTimeout = IRIS.Utility.RequestTimeout;
 
 namespace IRIS.Protocols.IRIS
@@ -24,7 +25,38 @@ namespace IRIS.Protocols.IRIS
         private const byte COMMAND_SPLIT_BYTE = 0x3D; // '='
 
         /// <summary>
-        /// Set a property using the communication interface.
+        ///     Set a property using the communication interface.
+        /// </summary>
+        /// <param name="propertyName">Name of the property to set.</param>
+        /// <param name="propertyValue">Value of the property to set.</param>
+        /// <param name="communicationInterface">Communication interface to use.</param>
+        /// <param name="responseTimeout">Timeout for receiving a response (ms). If set to -1, no response is expected.</param>
+        /// <typeparam name="TPropertyValue">Type of the property value.</typeparam>
+        /// <returns>True if the property was set successfully, false otherwise.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when the property name or value is null.</exception>
+        /// <exception cref="TimeoutException">Thrown when a response timeout occurs.</exception>
+        public static RUSTICDeviceProperty SetProperty<TPropertyValue>(
+            string propertyName,
+            TPropertyValue propertyValue,
+            TInterface communicationInterface,
+            int responseTimeout = -1)
+            where TPropertyValue : notnull =>
+            SetPropertyAsync(propertyName, propertyValue, communicationInterface, responseTimeout).Wait();
+        
+        /// <summary>
+        ///     Get a property using the communication interface.
+        /// </summary>
+        /// <param name="propertyName">Property name to get.</param>
+        /// <param name="communicationInterface">Communication interface to use.</param>
+        /// <param name="responseTimeout">Timeout for receiving a response (ms). If set to -1, will wait indefinitely.</param>
+        public static RUSTICDeviceProperty GetProperty(
+            string propertyName,
+            TInterface communicationInterface,
+            int responseTimeout = -1) =>
+            GetPropertyAsync(propertyName, communicationInterface, responseTimeout).Wait();
+        
+        /// <summary>
+        ///     Set a property using the communication interface.
         /// </summary>
         /// <param name="propertyName">Name of the property to set.</param>
         /// <param name="propertyValue">Value of the property to set.</param>
@@ -96,7 +128,7 @@ namespace IRIS.Protocols.IRIS
         }
 
         /// <summary>
-        /// Get a property using the communication interface.
+        ///     Get a property using the communication interface.
         /// </summary>
         /// <param name="propertyName">Property name to get.</param>
         /// <param name="communicationInterface">Communication interface to use.</param>
