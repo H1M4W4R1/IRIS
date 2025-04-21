@@ -1,5 +1,4 @@
-﻿using IRIS.Communication;
-using IRIS.Communication.Abstract;
+﻿using IRIS.Communication.Abstract;
 
 namespace IRIS.Protocols
 {
