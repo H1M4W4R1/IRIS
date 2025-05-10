@@ -1,4 +1,6 @@
-﻿namespace IRIS.Utility
+﻿using System.Runtime.CompilerServices;
+
+namespace IRIS.Utility
 {
     /// <summary>
     /// Represents a timeout in milliseconds.
@@ -28,7 +30,15 @@
         /// <summary>
         /// Converts the timeout to a token.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator CancellationToken(RequestTimeout timeout) => timeout.Token;
         
+        /// <summary>
+        /// Converts the time in milliseconds to a timeout.
+        /// </summary>
+        /// <param name="milliseconds">Time in milliseconds.</param>
+        /// <returns>Converted timeout.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator RequestTimeout(int milliseconds) => new(milliseconds);
     }
 }
