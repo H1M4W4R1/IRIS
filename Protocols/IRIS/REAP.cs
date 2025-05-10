@@ -1,5 +1,6 @@
-﻿using System.Data;
-using IRIS.Communication.Types;
+﻿using IRIS.Communication.Types;
+using IRIS.Data;
+using IRIS.Data.Implementations;
 using RequestTimeout = IRIS.Utility.RequestTimeout;
 
 namespace IRIS.Protocols.IRIS
@@ -17,7 +18,7 @@ namespace IRIS.Protocols.IRIS
         /// <param name="registerAddress">Address of register to write</param>
         /// <param name="registerValue">Value to write to register</param>
         /// <param name="timeoutMs">Timeout in milliseconds</param>
-        public static async ValueTask<uint?> SetRegisterAsync(
+        public static uint? SetRegister(
             TInterface communicationInterface,
             uint registerAddress,
             uint registerValue,
@@ -40,12 +41,14 @@ namespace IRIS.Protocols.IRIS
             ];
 
             // Send request data
-            if (!await SendDataAsync(communicationInterface, addressByte)) return null;
-            if (!await SendDataAsync(communicationInterface, valueByte)) return null;
+            if (!SendData(communicationInterface, addressByte).IsOK)
+                return null;
+            if (!SendData(communicationInterface, valueByte).IsOK) 
+                return null;
 
             // Receive response data
             RequestTimeout timeout = new(timeoutMs);
-            byte[]? response = await ReceiveDataAsync(communicationInterface, timeout);
+            byte[]? response = ReceiveData(communicationInterface, timeout);
 
             // Check if timeout occurred
             // supports devices that don't respond to write operations
@@ -57,7 +60,7 @@ namespace IRIS.Protocols.IRIS
             // Parse response data
             uint responseValue =
                 (uint) ((response[4] << 24) | (response[5] << 16) | (response[6] << 8) | response[7]);
-
+            
             // Return response value
             return responseValue;
         }
@@ -69,7 +72,7 @@ namespace IRIS.Protocols.IRIS
         /// <param name="registerAddress">Address of register to read</param>
         /// <param name="timeoutMs">Timeout in milliseconds</param>
         /// <returns>Value of register</returns>
-        public static async ValueTask<uint?> GetRegisterAsync(
+        public static uint? GetRegister(
             TInterface communicationInterface,
             uint registerAddress,
             int timeoutMs = 100)
@@ -82,11 +85,12 @@ namespace IRIS.Protocols.IRIS
             ];
 
             // Send request data
-            if (!await SendDataAsync(communicationInterface, addressByte)) return null;
+            if (SendData(communicationInterface, addressByte) is not OKResponse)
+                return null;
 
             // Receive response data
             RequestTimeout timeout = new(timeoutMs);
-            byte[]? response = await ReceiveDataAsync(communicationInterface, timeout);
+            byte[]? response = ReceiveData(communicationInterface, timeout);
 
             // Check if response is valid
             if (response == null) return null;
@@ -106,7 +110,7 @@ namespace IRIS.Protocols.IRIS
             return responseValue;
         }
 
-        public static ValueTask<bool> SendDataAsync(
+        public static DeviceResponseBase SendData(
             TInterface communicationInterface,
             byte[] data,
             CancellationToken cancellationToken = default)
@@ -114,20 +118,17 @@ namespace IRIS.Protocols.IRIS
             return communicationInterface.TransmitRawData(data);
         }
 
-        public static async ValueTask<byte[]?> ReceiveDataAsync(
+        public static byte[]? ReceiveData(
             TInterface communicationInterface,
             CancellationToken cancellationToken = default)
         {
-            byte[] response = await communicationInterface.ReadRawData(8, cancellationToken);
+            DeviceResponseBase response = communicationInterface.ReadRawData(8, cancellationToken);
 
             // Check if response is valid
-            if (response.Length == 0) return null;
-            
-            // Check if response is valid
-            if (response.Length != 8) return null;
+            if (!response.HasData<byte[]>()) return null;
 
             // Get the received data
-            return response;
+            return response.GetData<byte[]>();
         }
     }
 }

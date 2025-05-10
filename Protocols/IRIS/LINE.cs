@@ -1,5 +1,7 @@
 ﻿using System.Text;
 using IRIS.Communication.Types;
+using IRIS.Data;
+using IRIS.Data.Implementations;
 
 namespace IRIS.Protocols.IRIS
 {
@@ -12,10 +14,10 @@ namespace IRIS.Protocols.IRIS
         /// <param name="communicationInterface">Communication interface to use.</param>
         /// <param name="message">Message to send.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
-        public static ValueTask<bool> SendMessageAsync(TInterface communicationInterface,
+        public static DeviceResponseBase SendMessage(TInterface communicationInterface,
             string message,
             CancellationToken cancellationToken = default)
-            => SendDataAsync(communicationInterface, message, cancellationToken);
+            => SendData(communicationInterface, message, cancellationToken);
         
         /// <summary>
         /// Read a message from the device.
@@ -23,9 +25,9 @@ namespace IRIS.Protocols.IRIS
         /// <param name="communicationInterface">Communication interface to use.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>Message from the device.</returns>
-        public static ValueTask<string?> ReadMessageAsync(TInterface communicationInterface,
+        public static string? ReadMessage(TInterface communicationInterface,
             CancellationToken cancellationToken = default)
-            => ReceiveDataAsync(communicationInterface, cancellationToken);
+            => ReceiveData(communicationInterface, cancellationToken);
         
         /// <summary>
         /// Exchange messages with the device.
@@ -34,18 +36,18 @@ namespace IRIS.Protocols.IRIS
         /// <param name="message">Message to send.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>Response from the device.</returns>
-        public static async ValueTask<string?> ExchangeMessages(TInterface communicationInterface,
+        public static string? ExchangeMessages(TInterface communicationInterface,
             string message,
             CancellationToken cancellationToken = default)
         {
             try
             {
                 // Send the message to the device
-                if(!await SendMessageAsync(communicationInterface, message, cancellationToken))
+                if(!SendMessage(communicationInterface, message, cancellationToken).IsOK)
                     return null;
                 
                 // Return the received message
-                return await ReadMessageAsync(communicationInterface, cancellationToken);
+                return ReadMessage(communicationInterface, cancellationToken);
             }
             catch(TaskCanceledException)
             {
@@ -53,8 +55,7 @@ namespace IRIS.Protocols.IRIS
             }
         }
 
-        public static ValueTask<bool> SendDataAsync(
-            TInterface communicationInterface,
+        public static DeviceResponseBase SendData(TInterface communicationInterface,
             string data,
             CancellationToken cancellationToken = default)
         {
@@ -71,20 +72,23 @@ namespace IRIS.Protocols.IRIS
             }
             catch(TaskCanceledException)
             {
-                return ValueTask.FromResult(false);
+                return new RequestTimeout();
             }
         }
 
-        public static async ValueTask<string?> ReceiveDataAsync(
-            TInterface communicationInterface,
+        public static string? ReceiveData(TInterface communicationInterface,
             CancellationToken cancellationToken = default)
         {
             // Receive the data from the communication interface until the command end byte is received
-            byte[] response = await communicationInterface.ReadRawDataUntil(0x0A, cancellationToken);
-            if(response.Length == 0) return null;
+            DeviceResponseBase response  = communicationInterface.ReadRawDataUntil(0x0A, cancellationToken);
+            if(!response.HasData<byte[]>()) return null;
+            
+            // Get the received data
+            byte[]? receivedData = response.GetData<byte[]>();
+            if(receivedData == null) return null;
             
             // Decode the received data into a string
-            return Encoding.ASCII.GetString(response);
+            return Encoding.ASCII.GetString(receivedData);
         }
     }
 }

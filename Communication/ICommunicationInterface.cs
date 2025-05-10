@@ -30,11 +30,11 @@
         /// <summary>
         /// Connect to physical device
         /// </summary>
-        ValueTask<bool> Connect(CancellationToken cancellationToken = default);
+        bool Connect(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Disconnect from physical device
         /// </summary>
-        ValueTask<bool> Disconnect();
+        bool Disconnect();
     }
 }
