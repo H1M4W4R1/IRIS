@@ -21,13 +21,13 @@ namespace IRIS.Devices
         /// <summary>
         /// Connect to device
         /// </summary>
-        public virtual bool Connect(CancellationToken cancellationToken = default)
+        public virtual ValueTask<bool> ConnectAsync(CancellationToken cancellationToken = default)
             => HardwareAccess.Connect(cancellationToken);
 
         /// <summary>
         /// Disconnect from device
         /// </summary>
-        public virtual bool Disconnect(CancellationToken cancellationToken = default)
+        public virtual ValueTask<bool> DisconnectAsync(CancellationToken cancellationToken = default)
             => HardwareAccess.Disconnect();
 
         /// <summary>
