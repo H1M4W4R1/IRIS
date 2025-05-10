@@ -25,7 +25,7 @@ namespace IRIS.Protocols.IRIS
         /// <param name="communicationInterface">Communication interface to use.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>Message from the device.</returns>
-        public static DataPromise<string> ReadMessage(TInterface communicationInterface,
+        public static string? ReadMessage(TInterface communicationInterface,
             CancellationToken cancellationToken = default)
             => ReceiveData(communicationInterface, cancellationToken);
         
@@ -36,23 +36,22 @@ namespace IRIS.Protocols.IRIS
         /// <param name="message">Message to send.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>Response from the device.</returns>
-        public static DataPromise<string> ExchangeMessages(TInterface communicationInterface,
+        public static string? ExchangeMessages(TInterface communicationInterface,
             string message,
             CancellationToken cancellationToken = default)
         {
             try
             {
                 // Send the message to the device
-                // ReSharper disable once ConvertIfStatementToReturnStatement
                 if(!SendMessage(communicationInterface, message, cancellationToken).IsOK)
-                    return DataPromise.FromFailure(string.Empty);
+                    return null;
                 
                 // Return the received message
                 return ReadMessage(communicationInterface, cancellationToken);
             }
             catch(TaskCanceledException)
             {
-                return DataPromise.FromFailure(string.Empty);
+                return null;
             }
         }
 
@@ -77,22 +76,19 @@ namespace IRIS.Protocols.IRIS
             }
         }
 
-        public static DataPromise<string> ReceiveData(TInterface communicationInterface,
+        public static string? ReceiveData(TInterface communicationInterface,
             CancellationToken cancellationToken = default)
         {
             // Receive the data from the communication interface until the command end byte is received
             DeviceResponseBase response  = communicationInterface.ReadRawDataUntil(0x0A, cancellationToken);
-            if(!response.HasData<byte[]>()) return DataPromise.FromFailure(string.Empty);
+            if(!response.HasData<byte[]>()) return null;
             
             // Get the received data
             byte[]? receivedData = response.GetData<byte[]>();
-            if(receivedData == null) return DataPromise.FromFailure(string.Empty);
+            if(receivedData == null) return null;
             
             // Decode the received data into a string
-            string receivedString = Encoding.ASCII.GetString(receivedData);
-
-            // Return the received string
-            return DataPromise.FromSuccess(receivedString);
+            return Encoding.ASCII.GetString(receivedData);
         }
     }
 }

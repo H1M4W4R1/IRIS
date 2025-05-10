@@ -14,7 +14,7 @@ namespace IRIS.Protocols
             TDataType data,
             CancellationToken cancellationToken = default);
 
-        protected static abstract DataPromise<TDataType> ReceiveData(TInterface communicationInterface,
+        protected static abstract TDataType? ReceiveData(TInterface communicationInterface,
             CancellationToken cancellationToken = default);
     }
 }
