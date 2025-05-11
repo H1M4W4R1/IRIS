@@ -1,7 +1,5 @@
 ﻿using System.Text;
 using IRIS.Communication.Types;
-using IRIS.Data;
-using IRIS.Data.Implementations;
 using IRIS.Protocols.IRIS.Data;
 using RequestTimeout = IRIS.Utility.RequestTimeout;
 
@@ -44,7 +42,7 @@ namespace IRIS.Protocols.IRIS
             byte[] data = Encoding.ASCII.GetBytes($"{propertyName}={propertyValue}\r\n");
 
             // Send the data to the communication interface
-            if(!SendData(communicationInterface, data).IsOK) return null;
+            if(!SendData(communicationInterface, data)) return null;
 
             // If no response is expected, return true
             // this is compliant with no-return option of the RUSTIC protocol
@@ -103,7 +101,7 @@ namespace IRIS.Protocols.IRIS
             byte[] data = Encoding.ASCII.GetBytes($"{propertyName}=?\r\n");
 
             // Send the data to the communication interface
-            if(!SendData(communicationInterface, data).IsOK) 
+            if(!SendData(communicationInterface, data)) 
                 return null;
 
             // Receive the data from the communication interface
@@ -129,7 +127,8 @@ namespace IRIS.Protocols.IRIS
             return new RUSTICDeviceProperty(receivedPropertyName, propertyValue);
         }
 
-        public static DeviceResponseBase SendData(TInterface communicationInterface,
+        public static bool SendData(
+            TInterface communicationInterface,
             byte[] data,
             CancellationToken cancellationToken = default)
         {
@@ -142,13 +141,14 @@ namespace IRIS.Protocols.IRIS
         {
             // Receive the data from the communication interface until the command end byte
             // is received
-            DeviceResponseBase responseBase = communicationInterface.ReadRawDataUntil(COMMAND_END_BYTE, cancellationToken);
+            byte[] data = communicationInterface.ReadRawDataUntil(COMMAND_END_BYTE, cancellationToken);
             
             // Check if the response has data
-            if (!responseBase.HasData<byte[]>()) return null;
+            if (data.Length == 0)
+                return null;
             
             // Get the received data
-            return responseBase.GetData<byte[]>();
+            return data;
         }
     }
 }

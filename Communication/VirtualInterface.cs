@@ -1,6 +1,4 @@
 ﻿using IRIS.Communication.Types;
-using IRIS.Data;
-using IRIS.Data.Implementations;
 
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
 
@@ -52,7 +50,7 @@ namespace IRIS.Communication
         /// Simulates transmitting data to device. See: <see cref="SimulateTransmittedData"/>.
         /// </summary>
         /// <param name="data">Data to transmit</param>
-        DeviceResponseBase IRawDataCommunicationInterface.TransmitRawData(byte[] data) =>
+        bool IRawDataCommunicationInterface.TransmitRawData(byte[] data) =>
             SimulateTransmittedData(data);
 
         /// <summary>
@@ -60,18 +58,17 @@ namespace IRIS.Communication
         /// </summary>
         /// <param name="length">Length of data to read</param>
         /// <param name="cancellationToken">Used to cancel read operation</param>
-        DeviceResponseBase IRawDataCommunicationInterface.ReadRawData(int length, CancellationToken cancellationToken)
+        byte[] IRawDataCommunicationInterface.ReadRawData(int length, CancellationToken cancellationToken)
         {
-            if (_dataReceived.Count < length) return NoResponse.Instance;
+            if (_dataReceived.Count < length) return [];
 
-            if (!IsOpen) return NoResponse.Instance;
+            if (!IsOpen) return [];
 
             // Get data and remove old one
             byte[] data = _dataReceived.GetRange(0, length).ToArray();
             _dataReceived.RemoveRange(0, length);
 
-            // Get
-            return new RawDataResponse(data);
+            return data;
         }
 
         /// <summary>
@@ -79,22 +76,23 @@ namespace IRIS.Communication
         /// </summary>
         /// <param name="receivedByte">Byte to find</param>
         /// <param name="cancellationToken">Used to cancel read operation</param>
-        DeviceResponseBase IRawDataCommunicationInterface.ReadRawDataUntil(byte receivedByte,
+        byte[] IRawDataCommunicationInterface.ReadRawDataUntil(
+            byte receivedByte,
             CancellationToken cancellationToken)
         {
             // Check if device is open
-            if (!IsOpen) return NoResponse.Instance;
+            if (!IsOpen) return [];
 
             int dataIndex = _dataReceived.IndexOf(receivedByte);
             if (dataIndex < 0 || dataIndex > _dataReceived.Count)
-                return NoResponse.Instance;
+                return [];
 
             // Get data and remove old one
             int length = dataIndex + 1;
             byte[] data = _dataReceived.GetRange(0, length).ToArray();
             _dataReceived.RemoveRange(0, length);
 
-            return new RawDataResponse(data);
+            return data;
         }
 
 #endregion
@@ -117,6 +115,6 @@ namespace IRIS.Communication
         /// data back, it should be added to received data, if device is designed to multiply data by 2, then this method should
         /// take data, multiply it by 2 and add to received data.
         /// </remarks>
-        public abstract DeviceResponseBase SimulateTransmittedData(byte[] data);
+        public abstract bool SimulateTransmittedData(byte[] data);
     }
 }

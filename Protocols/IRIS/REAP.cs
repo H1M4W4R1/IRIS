@@ -1,6 +1,4 @@
 ﻿using IRIS.Communication.Types;
-using IRIS.Data;
-using IRIS.Data.Implementations;
 using RequestTimeout = IRIS.Utility.RequestTimeout;
 
 namespace IRIS.Protocols.IRIS
@@ -41,9 +39,9 @@ namespace IRIS.Protocols.IRIS
             ];
 
             // Send request data
-            if (!SendData(communicationInterface, addressByte).IsOK)
+            if (!SendData(communicationInterface, addressByte))
                 return null;
-            if (!SendData(communicationInterface, valueByte).IsOK) 
+            if (!SendData(communicationInterface, valueByte)) 
                 return null;
 
             // Receive response data
@@ -85,7 +83,7 @@ namespace IRIS.Protocols.IRIS
             ];
 
             // Send request data
-            if (SendData(communicationInterface, addressByte) is not OKResponse)
+            if (!SendData(communicationInterface, addressByte))
                 return null;
 
             // Receive response data
@@ -110,7 +108,7 @@ namespace IRIS.Protocols.IRIS
             return responseValue;
         }
 
-        public static DeviceResponseBase SendData(
+        public static bool SendData(
             TInterface communicationInterface,
             byte[] data,
             CancellationToken cancellationToken = default)
@@ -122,13 +120,13 @@ namespace IRIS.Protocols.IRIS
             TInterface communicationInterface,
             CancellationToken cancellationToken = default)
         {
-            DeviceResponseBase response = communicationInterface.ReadRawData(8, cancellationToken);
+            byte[] data = communicationInterface.ReadRawData(8, cancellationToken);
 
             // Check if response is valid
-            if (!response.HasData<byte[]>()) return null;
+            if (data.Length == 0) return null;
 
             // Get the received data
-            return response.GetData<byte[]>();
+            return data;
         }
     }
 }

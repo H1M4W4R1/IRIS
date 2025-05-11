@@ -1,7 +1,5 @@
 ﻿using System.Text;
 using IRIS.Communication.Types;
-using IRIS.Data;
-using IRIS.Data.Implementations;
 
 namespace IRIS.Protocols.IRIS
 {
@@ -14,7 +12,7 @@ namespace IRIS.Protocols.IRIS
         /// <param name="communicationInterface">Communication interface to use.</param>
         /// <param name="message">Message to send.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
-        public static DeviceResponseBase SendMessage(TInterface communicationInterface,
+        public static bool SendMessage(TInterface communicationInterface,
             string message,
             CancellationToken cancellationToken = default)
             => SendData(communicationInterface, message, cancellationToken);
@@ -43,7 +41,7 @@ namespace IRIS.Protocols.IRIS
             try
             {
                 // Send the message to the device
-                if(!SendMessage(communicationInterface, message, cancellationToken).IsOK)
+                if(!SendMessage(communicationInterface, message, cancellationToken))
                     return null;
                 
                 // Return the received message
@@ -55,7 +53,8 @@ namespace IRIS.Protocols.IRIS
             }
         }
 
-        public static DeviceResponseBase SendData(TInterface communicationInterface,
+        public static bool SendData(
+            TInterface communicationInterface,
             string data,
             CancellationToken cancellationToken = default)
         {
@@ -72,7 +71,7 @@ namespace IRIS.Protocols.IRIS
             }
             catch(TaskCanceledException)
             {
-                return new RequestTimeout();
+                return false;
             }
         }
 
@@ -80,15 +79,11 @@ namespace IRIS.Protocols.IRIS
             CancellationToken cancellationToken = default)
         {
             // Receive the data from the communication interface until the command end byte is received
-            DeviceResponseBase response  = communicationInterface.ReadRawDataUntil(0x0A, cancellationToken);
-            if(!response.HasData<byte[]>()) return null;
-            
-            // Get the received data
-            byte[]? receivedData = response.GetData<byte[]>();
-            if(receivedData == null) return null;
+            byte[] data  = communicationInterface.ReadRawDataUntil(0x0A, cancellationToken);
+            if(data.Length == 0) return null;
             
             // Decode the received data into a string
-            return Encoding.ASCII.GetString(receivedData);
+            return Encoding.ASCII.GetString(data);
         }
     }
 }
