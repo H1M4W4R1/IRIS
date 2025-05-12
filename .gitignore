@@ -73,3 +73,6 @@ crashlytics-build.properties
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 /_Documentation/pdfSourceDOCS.html
 /Documentation/.idea/workspace.xml
+
+# Backup source files
+*.cs~
