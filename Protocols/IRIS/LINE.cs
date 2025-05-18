@@ -12,7 +12,7 @@ namespace IRIS.Protocols.IRIS
         /// <param name="communicationInterface">Communication interface to use.</param>
         /// <param name="message">Message to send.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
-        public static bool SendMessage(TInterface communicationInterface,
+        public static ValueTask<bool> SendMessage(TInterface communicationInterface,
             string message,
             CancellationToken cancellationToken = default)
             => SendData(communicationInterface, message, cancellationToken);
@@ -23,7 +23,7 @@ namespace IRIS.Protocols.IRIS
         /// <param name="communicationInterface">Communication interface to use.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>Message from the device.</returns>
-        public static string? ReadMessage(TInterface communicationInterface,
+        public static ValueTask<string?> ReadMessage(TInterface communicationInterface,
             CancellationToken cancellationToken = default)
             => ReceiveData(communicationInterface, cancellationToken);
         
@@ -34,18 +34,18 @@ namespace IRIS.Protocols.IRIS
         /// <param name="message">Message to send.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>Response from the device.</returns>
-        public static string? ExchangeMessages(TInterface communicationInterface,
+        public static async ValueTask<string?> ExchangeMessages(TInterface communicationInterface,
             string message,
             CancellationToken cancellationToken = default)
         {
             try
             {
                 // Send the message to the device
-                if(!SendMessage(communicationInterface, message, cancellationToken))
+                if(!await SendMessage(communicationInterface, message, cancellationToken))
                     return null;
                 
                 // Return the received message
-                return ReadMessage(communicationInterface, cancellationToken);
+                return await ReadMessage(communicationInterface, cancellationToken);
             }
             catch(TaskCanceledException)
             {
@@ -53,7 +53,7 @@ namespace IRIS.Protocols.IRIS
             }
         }
 
-        public static bool SendData(
+        public static ValueTask<bool> SendData(
             TInterface communicationInterface,
             string data,
             CancellationToken cancellationToken = default)
@@ -71,15 +71,16 @@ namespace IRIS.Protocols.IRIS
             }
             catch(TaskCanceledException)
             {
-                return false;
+                return ValueTask.FromResult(false);
             }
         }
 
-        public static string? ReceiveData(TInterface communicationInterface,
+        public static async ValueTask<string?> ReceiveData(
+            TInterface communicationInterface,
             CancellationToken cancellationToken = default)
         {
             // Receive the data from the communication interface until the command end byte is received
-            byte[] data  = communicationInterface.ReadRawDataUntil(0x0A, cancellationToken);
+            byte[] data  = await communicationInterface.ReadRawDataUntil(0x0A, cancellationToken);
             if(data.Length == 0) return null;
             
             // Decode the received data into a string

@@ -29,19 +29,19 @@ namespace IRIS.Communication
         /// <summary>
         /// Opens communication with device
         /// </summary>
-        public bool Connect(CancellationToken cancellationToken)
+        public ValueTask<bool> Connect(CancellationToken cancellationToken)
         {
             IsOpen = true;
-            return true;
+            return ValueTask.FromResult(true);
         }
 
         /// <summary>
         /// Closes communication with device
         /// </summary>
-        public bool Disconnect()
+        public ValueTask<bool> Disconnect()
         {
             IsOpen = false;
-            return true;
+            return ValueTask.FromResult(true);
         }
 
 #region IRawDataCommunicationInterface
@@ -50,7 +50,7 @@ namespace IRIS.Communication
         /// Simulates transmitting data to device. See: <see cref="SimulateTransmittedData"/>.
         /// </summary>
         /// <param name="data">Data to transmit</param>
-        bool IRawDataCommunicationInterface.TransmitRawData(byte[] data) =>
+        ValueTask<bool> IRawDataCommunicationInterface.TransmitRawData(byte[] data) =>
             SimulateTransmittedData(data);
 
         /// <summary>
@@ -58,17 +58,19 @@ namespace IRIS.Communication
         /// </summary>
         /// <param name="length">Length of data to read</param>
         /// <param name="cancellationToken">Used to cancel read operation</param>
-        byte[] IRawDataCommunicationInterface.ReadRawData(int length, CancellationToken cancellationToken)
+        ValueTask<byte[]> IRawDataCommunicationInterface.ReadRawData(
+            int length,
+            CancellationToken cancellationToken)
         {
-            if (_dataReceived.Count < length) return [];
+            if (_dataReceived.Count < length) return ValueTask.FromResult(Array.Empty<byte>());
 
-            if (!IsOpen) return [];
+            if (!IsOpen) return ValueTask.FromResult(Array.Empty<byte>());
 
             // Get data and remove old one
             byte[] data = _dataReceived.GetRange(0, length).ToArray();
             _dataReceived.RemoveRange(0, length);
 
-            return data;
+            return ValueTask.FromResult(data);
         }
 
         /// <summary>
@@ -76,23 +78,22 @@ namespace IRIS.Communication
         /// </summary>
         /// <param name="receivedByte">Byte to find</param>
         /// <param name="cancellationToken">Used to cancel read operation</param>
-        byte[] IRawDataCommunicationInterface.ReadRawDataUntil(
+        ValueTask<byte[]> IRawDataCommunicationInterface.ReadRawDataUntil(
             byte receivedByte,
             CancellationToken cancellationToken)
         {
             // Check if device is open
-            if (!IsOpen) return [];
+            if (!IsOpen) return ValueTask.FromResult(Array.Empty<byte>());
 
             int dataIndex = _dataReceived.IndexOf(receivedByte);
-            if (dataIndex < 0 || dataIndex > _dataReceived.Count)
-                return [];
+            if (dataIndex < 0 || dataIndex > _dataReceived.Count) return ValueTask.FromResult(Array.Empty<byte>());
 
             // Get data and remove old one
             int length = dataIndex + 1;
             byte[] data = _dataReceived.GetRange(0, length).ToArray();
             _dataReceived.RemoveRange(0, length);
 
-            return data;
+            return ValueTask.FromResult(data);
         }
 
 #endregion
@@ -115,6 +116,6 @@ namespace IRIS.Communication
         /// data back, it should be added to received data, if device is designed to multiply data by 2, then this method should
         /// take data, multiply it by 2 and add to received data.
         /// </remarks>
-        public abstract bool SimulateTransmittedData(byte[] data);
+        public abstract ValueTask<bool> SimulateTransmittedData(byte[] data);
     }
 }

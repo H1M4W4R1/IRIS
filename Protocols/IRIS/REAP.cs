@@ -16,7 +16,7 @@ namespace IRIS.Protocols.IRIS
         /// <param name="registerAddress">Address of register to write</param>
         /// <param name="registerValue">Value to write to register</param>
         /// <param name="timeoutMs">Timeout in milliseconds</param>
-        public static uint? SetRegister(
+        public static async ValueTask<uint?> SetRegister(
             TInterface communicationInterface,
             uint registerAddress,
             uint registerValue,
@@ -39,14 +39,14 @@ namespace IRIS.Protocols.IRIS
             ];
 
             // Send request data
-            if (!SendData(communicationInterface, addressByte))
+            if (!await SendData(communicationInterface, addressByte))
                 return null;
-            if (!SendData(communicationInterface, valueByte)) 
+            if (!await SendData(communicationInterface, valueByte)) 
                 return null;
 
             // Receive response data
             RequestTimeout timeout = new(timeoutMs);
-            byte[]? response = ReceiveData(communicationInterface, timeout);
+            byte[]? response = await ReceiveData(communicationInterface, timeout);
 
             // Check if timeout occurred
             // supports devices that don't respond to write operations
@@ -70,7 +70,7 @@ namespace IRIS.Protocols.IRIS
         /// <param name="registerAddress">Address of register to read</param>
         /// <param name="timeoutMs">Timeout in milliseconds</param>
         /// <returns>Value of register</returns>
-        public static uint? GetRegister(
+        public static async ValueTask<uint?> GetRegister(
             TInterface communicationInterface,
             uint registerAddress,
             int timeoutMs = 100)
@@ -83,12 +83,12 @@ namespace IRIS.Protocols.IRIS
             ];
 
             // Send request data
-            if (!SendData(communicationInterface, addressByte))
+            if (!await SendData(communicationInterface, addressByte))
                 return null;
 
             // Receive response data
             RequestTimeout timeout = new(timeoutMs);
-            byte[]? response = ReceiveData(communicationInterface, timeout);
+            byte[]? response = await ReceiveData(communicationInterface, timeout);
 
             // Check if response is valid
             if (response == null) return null;
@@ -108,7 +108,7 @@ namespace IRIS.Protocols.IRIS
             return responseValue;
         }
 
-        public static bool SendData(
+        public static ValueTask<bool> SendData(
             TInterface communicationInterface,
             byte[] data,
             CancellationToken cancellationToken = default)
@@ -116,11 +116,11 @@ namespace IRIS.Protocols.IRIS
             return communicationInterface.TransmitRawData(data);
         }
 
-        public static byte[]? ReceiveData(
+        public static async ValueTask<byte[]?> ReceiveData(
             TInterface communicationInterface,
             CancellationToken cancellationToken = default)
         {
-            byte[] data = communicationInterface.ReadRawData(8, cancellationToken);
+            byte[] data = await communicationInterface.ReadRawData(8, cancellationToken);
 
             // Check if response is valid
             if (data.Length == 0) return null;
