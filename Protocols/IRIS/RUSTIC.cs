@@ -6,32 +6,56 @@ using RequestTimeout = IRIS.Utility.RequestTimeout;
 namespace IRIS.Protocols.IRIS
 {
     /// <summary>
-    /// The RUSTIC protocol is used to exchange data between two systems in simple command-response format.
+    /// Implements the RUSTIC (Remote Universal System for Transmitting Information and Commands) protocol.
+    /// This protocol provides a simple command-response format for exchanging data between systems.
     /// </summary>
     /// <remarks>
-    /// Example get command: "PROPERTY=?" <br/>
-    /// Example response: "PROPERTY=VALUE" <br/>
-    /// Example set command: "PROPERTY=VALUE" <br/>
+    /// The protocol follows these conventions:
+    /// <list type="bullet">
+    /// <item><description>Get command format: "PROPERTY=?"</description></item>
+    /// <item><description>Response format: "PROPERTY=VALUE"</description></item>
+    /// <item><description>Set command format: "PROPERTY=VALUE"</description></item>
+    /// </list>
+    /// All messages are terminated with a carriage return and line feed sequence.
     /// </remarks>
+    /// <typeparam name="TInterface">The type of communication interface used for device interaction.</typeparam>
     public abstract class RUSTIC<TInterface> : IProtocol<TInterface, byte[]>
         where TInterface : IRawDataCommunicationInterface
     {
+        /// <summary>
+        /// Standard response indicating successful operation.
+        /// </summary>
         private const string RESPONSE_GOOD = "OK";
+        
+        /// <summary>
+        /// Standard response indicating operation failure.
+        /// </summary>
         private const string RESPONSE_ERROR = "ERROR";
+        
+        /// <summary>
+        /// Standard response indicating operation timeout.
+        /// </summary>
         private const string RESPONSE_TIMEOUT = "TIMEOUT";
+        
+        /// <summary>
+        /// Byte value that marks the end of a command in the protocol.
+        /// </summary>
         private const byte COMMAND_END_BYTE = 0xA;
 
         /// <summary>
-        /// Set a property using the communication interface.
+        /// Sets a property value on the device using the RUSTIC protocol.
         /// </summary>
-        /// <param name="propertyName">Name of the property to set.</param>
-        /// <param name="propertyValue">Value of the property to set.</param>
-        /// <param name="communicationInterface">Communication interface to use.</param>
-        /// <param name="responseTimeout">Timeout for receiving a response (ms). If set to -1, no response is expected.</param>
-        /// <typeparam name="TPropertyValue">Type of the property value.</typeparam>
-        /// <returns>True if the property was set successfully, false otherwise.</returns>
-        /// <exception cref="ArgumentNullException">Thrown when the property name or value is null.</exception>
-        /// <exception cref="TimeoutException">Thrown when a response timeout occurs.</exception>
+        /// <param name="propertyName">The name of the property to set.</param>
+        /// <param name="propertyValue">The value to set for the property.</param>
+        /// <param name="communicationInterface">The communication interface to use for device interaction.</param>
+        /// <param name="responseTimeout">The maximum time to wait for a response in milliseconds. Set to -1 for no response expected.</param>
+        /// <typeparam name="TPropertyValue">The type of the property value. Must be non-null.</typeparam>
+        /// <returns>
+        /// A ValueTask containing a RUSTICDeviceProperty if the operation was successful,
+        /// or null if the operation failed. The returned property contains the confirmed property name and value.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">Thrown when propertyName or propertyValue is null.</exception>
+        /// <exception cref="TimeoutException">Thrown when the operation times out waiting for a response.</exception>
         public static async ValueTask<RUSTICDeviceProperty?> SetProperty<TPropertyValue>(string propertyName,
             TPropertyValue propertyValue,
             TInterface communicationInterface,
@@ -88,11 +112,15 @@ namespace IRIS.Protocols.IRIS
         }
 
         /// <summary>
-        /// Get a property using the communication interface.
+        /// Retrieves a property value from the device using the RUSTIC protocol.
         /// </summary>
-        /// <param name="propertyName">Property name to get.</param>
-        /// <param name="communicationInterface">Communication interface to use.</param>
-        /// <param name="responseTimeout">Timeout for receiving a response (ms). If set to -1, will wait indefinitely.</param>
+        /// <param name="propertyName">The name of the property to retrieve.</param>
+        /// <param name="communicationInterface">The communication interface to use for device interaction.</param>
+        /// <param name="responseTimeout">The maximum time to wait for a response in milliseconds. Set to -1 to wait indefinitely.</param>
+        /// <returns>
+        /// A ValueTask containing a RUSTICDeviceProperty with the property name and value if successful,
+        /// or null if the operation failed or timed out.
+        /// </returns>
         public static async ValueTask<RUSTICDeviceProperty?> GetProperty(string propertyName,
             TInterface communicationInterface,
             int responseTimeout = -1)
@@ -127,6 +155,13 @@ namespace IRIS.Protocols.IRIS
             return new RUSTICDeviceProperty(receivedPropertyName, propertyValue);
         }
 
+        /// <summary>
+        /// Sends raw data to the device using the specified communication interface.
+        /// </summary>
+        /// <param name="communicationInterface">The communication interface to use for sending data.</param>
+        /// <param name="data">The byte array containing the data to send.</param>
+        /// <param name="cancellationToken">A token that can be used to cancel the send operation.</param>
+        /// <returns>A ValueTask containing a boolean indicating whether the data was sent successfully.</returns>
         public static ValueTask<bool> SendData(
             TInterface communicationInterface,
             byte[] data,
@@ -136,6 +171,16 @@ namespace IRIS.Protocols.IRIS
             return communicationInterface.TransmitRawData(data);
         }
 
+        /// <summary>
+        /// Receives raw data from the device using the specified communication interface.
+        /// The method reads data until it encounters the command end byte.
+        /// </summary>
+        /// <param name="communicationInterface">The communication interface to use for receiving data.</param>
+        /// <param name="cancellationToken">A token that can be used to cancel the receive operation.</param>
+        /// <returns>
+        /// A ValueTask containing the received byte array if successful,
+        /// or null if no data was received or the operation failed.
+        /// </returns>
         public static async ValueTask<byte[]?> ReceiveData(
             TInterface communicationInterface,
             CancellationToken cancellationToken = default)

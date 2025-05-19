@@ -4,43 +4,61 @@ using IRIS.Communication;
 namespace IRIS.Devices
 {
     /// <summary>
-    /// Represents device connected to computer
+    /// Base class for devices that are connected to a computer system.
+    /// This abstract class provides the foundation for device communication and management.
     /// </summary>
-    /// <typeparam name="TCommunicationInterface">Communication interface between device and computer</typeparam>
-    /// <typeparam name="TAddressType">Type of device address</typeparam>
+    /// <typeparam name="TCommunicationInterface">The type of communication interface used to interact with the device.</typeparam>
+    /// <typeparam name="TAddressType">The type of address used to identify the device on the network.</typeparam>
     public abstract class DeviceBase<TCommunicationInterface, TAddressType> : DeviceBase<TCommunicationInterface>
         where TCommunicationInterface : ICommunicationInterface
         where TAddressType : struct, IDeviceAddress
     {
     }
 
-    
+    /// <summary>
+    /// Base class that provides core functionality for device communication and management.
+    /// This abstract class implements the fundamental operations for connecting to and
+    /// interacting with physical devices through a communication interface.
+    /// </summary>
+    /// <typeparam name="TCommunicationInterface">The type of communication interface used to interact with the device.</typeparam>
     public abstract class DeviceBase<TCommunicationInterface>
         where TCommunicationInterface : ICommunicationInterface
     {
         /// <summary>
-        /// Connect to device
+        /// Establishes a connection to the physical device using the configured communication interface.
         /// </summary>
+        /// <param name="cancellationToken">A token that can be used to cancel the connection attempt.</param>
+        /// <returns>A ValueTask containing a boolean indicating whether the connection was successful.</returns>
         public virtual ValueTask<bool> Connect(CancellationToken cancellationToken = default)
             => HardwareAccess.Connect(cancellationToken);
 
         /// <summary>
-        /// Disconnect from device
+        /// Terminates the connection to the physical device using the configured communication interface.
         /// </summary>
+        /// <param name="cancellationToken">A token that can be used to cancel the disconnection attempt.</param>
+        /// <returns>A ValueTask containing a boolean indicating whether the disconnection was successful.</returns>
         public virtual ValueTask<bool> Disconnect(CancellationToken cancellationToken = default)
             => HardwareAccess.Disconnect();
 
         /// <summary>
-        /// Communication interface between device and computer
-        /// <b>Beware: this is not initialized in constructor, as it is not known at this point
-        /// You must have a constructor in derived class that initializes this property</b>
+        /// Gets the communication interface used to interact with the physical device.
+        /// This property must be initialized in the constructor of derived classes as it is not
+        /// initialized in the base class constructor.
         /// </summary>
+        /// <remarks>
+        /// This property is not initialized in the base constructor as the specific communication
+        /// interface implementation is not known at that point. Derived classes must provide
+        /// initialization through their constructors.
+        /// </remarks>
         // ReSharper disable once NullableWarningSuppressionIsUsed
         protected TCommunicationInterface HardwareAccess { get; init; } = default!;
 
         /// <summary>
-        /// Used to get communication interface, should be only implemented in transactions
+        /// Provides access to the hardware communication interface.
+        /// This method should only be used within transaction contexts to ensure proper
+        /// synchronization and resource management.
         /// </summary>
+        /// <returns>The communication interface instance used to interact with the device.</returns>
         public TCommunicationInterface AccessHardwareInterface() => HardwareAccess;
     }
 }

@@ -3,37 +3,44 @@ using IRIS.Communication.Types;
 
 namespace IRIS.Protocols.IRIS
 {
+    /// <summary>
+    /// Represents a LINE protocol implementation for device communication.
+    /// This abstract class provides methods for sending and receiving messages using a line-based protocol
+    /// where messages are terminated with a carriage return and line feed sequence.
+    /// </summary>
+    /// <typeparam name="TInterface">The type of communication interface used for device interaction.</typeparam>
     public abstract class LINE<TInterface> : IProtocol<TInterface, string>
         where TInterface : IRawDataCommunicationInterface
     {
         /// <summary>
-        /// Send a message to the device.
+        /// Sends a message to the device using the specified communication interface.
         /// </summary>
-        /// <param name="communicationInterface">Communication interface to use.</param>
-        /// <param name="message">Message to send.</param>
-        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <param name="communicationInterface">The communication interface to use for sending the message.</param>
+        /// <param name="message">The message to send to the device.</param>
+        /// <param name="cancellationToken">A token that can be used to cancel the send operation.</param>
+        /// <returns>A ValueTask containing a boolean indicating whether the message was sent successfully.</returns>
         public static ValueTask<bool> SendMessage(TInterface communicationInterface,
             string message,
             CancellationToken cancellationToken = default)
             => SendData(communicationInterface, message, cancellationToken);
         
         /// <summary>
-        /// Read a message from the device.
+        /// Reads a message from the device using the specified communication interface.
         /// </summary>
-        /// <param name="communicationInterface">Communication interface to use.</param>
-        /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>Message from the device.</returns>
+        /// <param name="communicationInterface">The communication interface to use for reading the message.</param>
+        /// <param name="cancellationToken">A token that can be used to cancel the read operation.</param>
+        /// <returns>A ValueTask containing the received message, or null if no message was received.</returns>
         public static ValueTask<string?> ReadMessage(TInterface communicationInterface,
             CancellationToken cancellationToken = default)
             => ReceiveData(communicationInterface, cancellationToken);
         
         /// <summary>
-        /// Exchange messages with the device.
+        /// Exchanges messages with the device by sending a message and waiting for a response.
         /// </summary>
-        /// <param name="communicationInterface">Communication interface to use.</param>
-        /// <param name="message">Message to send.</param>
-        /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>Response from the device.</returns>
+        /// <param name="communicationInterface">The communication interface to use for the exchange.</param>
+        /// <param name="message">The message to send to the device.</param>
+        /// <param name="cancellationToken">A token that can be used to cancel the exchange operation.</param>
+        /// <returns>A ValueTask containing the response message from the device, or null if the exchange failed.</returns>
         public static async ValueTask<string?> ExchangeMessages(TInterface communicationInterface,
             string message,
             CancellationToken cancellationToken = default)
@@ -53,6 +60,14 @@ namespace IRIS.Protocols.IRIS
             }
         }
 
+        /// <summary>
+        /// Sends raw data to the device using the specified communication interface.
+        /// The data is automatically terminated with a carriage return and line feed sequence.
+        /// </summary>
+        /// <param name="communicationInterface">The communication interface to use for sending the data.</param>
+        /// <param name="data">The data to send to the device.</param>
+        /// <param name="cancellationToken">A token that can be used to cancel the send operation.</param>
+        /// <returns>A ValueTask containing a boolean indicating whether the data was sent successfully.</returns>
         public static ValueTask<bool> SendData(
             TInterface communicationInterface,
             string data,
@@ -75,6 +90,13 @@ namespace IRIS.Protocols.IRIS
             }
         }
 
+        /// <summary>
+        /// Receives raw data from the device using the specified communication interface.
+        /// The method reads data until a line feed character (0x0A) is encountered.
+        /// </summary>
+        /// <param name="communicationInterface">The communication interface to use for receiving the data.</param>
+        /// <param name="cancellationToken">A token that can be used to cancel the receive operation.</param>
+        /// <returns>A ValueTask containing the received data as a string, or null if no data was received.</returns>
         public static async ValueTask<string?> ReceiveData(
             TInterface communicationInterface,
             CancellationToken cancellationToken = default)

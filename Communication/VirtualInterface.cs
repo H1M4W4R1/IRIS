@@ -5,30 +5,35 @@
 namespace IRIS.Communication
 {
     /// <summary>
-    /// Represents virtual communication interface.
-    /// Can be used for testing purposes.
+    /// Represents a virtual communication interface that simulates device communication for testing purposes.
+    /// This abstract class provides a framework for implementing mock device behaviors and testing communication
+    /// protocols without requiring physical hardware.
     /// </summary>
     public abstract class VirtualInterface : IRawDataCommunicationInterface
     {
         /// <summary>
-        /// Storage of all data received
+        /// Internal buffer that stores all data received from the simulated device.
+        /// This buffer is used to simulate the reception of data that would normally come from a physical device.
         /// </summary>
         private readonly List<byte> _dataReceived = new List<byte>();
 
         /// <summary>
-        /// True if device communication is available
-        /// <see cref="Connect"/> and <see cref="Disconnect"/>
+        /// Indicates whether the virtual communication interface is currently active and ready for data exchange.
+        /// This property is managed by the <see cref="Connect"/> and <see cref="Disconnect"/> methods.
         /// </summary>
         public bool IsOpen { get; private set; }
 
         /// <summary>
-        /// Length of data received
+        /// Gets the total number of bytes currently stored in the receive buffer.
+        /// This represents the amount of unread data available from the simulated device.
         /// </summary>
         public int DataLength => _dataReceived.Count;
 
         /// <summary>
-        /// Opens communication with device
+        /// Simulates establishing a connection with the virtual device.
         /// </summary>
+        /// <param name="cancellationToken">A token that can be used to cancel the connection attempt.</param>
+        /// <returns>A ValueTask containing a boolean indicating whether the connection was successfully established.</returns>
         public ValueTask<bool> Connect(CancellationToken cancellationToken)
         {
             IsOpen = true;
@@ -36,8 +41,9 @@ namespace IRIS.Communication
         }
 
         /// <summary>
-        /// Closes communication with device
+        /// Simulates terminating the connection with the virtual device.
         /// </summary>
+        /// <returns>A ValueTask containing a boolean indicating whether the disconnection was successful.</returns>
         public ValueTask<bool> Disconnect()
         {
             IsOpen = false;
@@ -47,17 +53,24 @@ namespace IRIS.Communication
 #region IRawDataCommunicationInterface
 
         /// <summary>
-        /// Simulates transmitting data to device. See: <see cref="SimulateTransmittedData"/>.
+        /// Simulates transmitting data to the virtual device by delegating to the <see cref="SimulateTransmittedData"/> method.
+        /// This method implements the <see cref="IRawDataCommunicationInterface.TransmitRawData"/> interface method.
         /// </summary>
-        /// <param name="data">Data to transmit</param>
+        /// <param name="data">The byte array containing the data to transmit to the virtual device.</param>
+        /// <returns>A ValueTask containing a boolean indicating whether the transmission was successful.</returns>
         ValueTask<bool> IRawDataCommunicationInterface.TransmitRawData(byte[] data) =>
             SimulateTransmittedData(data);
 
         /// <summary>
-        /// Reads data from device. 
+        /// Simulates reading a specified amount of data from the virtual device's receive buffer.
+        /// This method implements the <see cref="IRawDataCommunicationInterface.ReadRawData"/> interface method.
         /// </summary>
-        /// <param name="length">Length of data to read</param>
-        /// <param name="cancellationToken">Used to cancel read operation</param>
+        /// <param name="length">The number of bytes to read from the receive buffer.</param>
+        /// <param name="cancellationToken">A token that can be used to cancel the read operation.</param>
+        /// <returns>
+        /// A ValueTask containing a byte array with the read data. Returns an empty array if the requested
+        /// amount of data is not available or if the interface is not open.
+        /// </returns>
         ValueTask<byte[]> IRawDataCommunicationInterface.ReadRawData(
             int length,
             CancellationToken cancellationToken)
@@ -74,10 +87,15 @@ namespace IRIS.Communication
         }
 
         /// <summary>
-        /// Reads data until specified byte is found
+        /// Simulates reading data from the virtual device until a specific byte is encountered.
+        /// This method implements the <see cref="IRawDataCommunicationInterface.ReadRawDataUntil"/> interface method.
         /// </summary>
-        /// <param name="receivedByte">Byte to find</param>
-        /// <param name="cancellationToken">Used to cancel read operation</param>
+        /// <param name="receivedByte">The byte value that signals the end of the read operation.</param>
+        /// <param name="cancellationToken">A token that can be used to cancel the read operation.</param>
+        /// <returns>
+        /// A ValueTask containing a byte array with all data read up to and including the specified byte.
+        /// Returns an empty array if the specified byte is not found or if the interface is not open.
+        /// </returns>
         ValueTask<byte[]> IRawDataCommunicationInterface.ReadRawDataUntil(
             byte receivedByte,
             CancellationToken cancellationToken)
@@ -99,23 +117,27 @@ namespace IRIS.Communication
 #endregion
 
         /// <summary>
-        /// Simulates receiving data from device. 
+        /// Simulates receiving data from the virtual device by adding it to the internal receive buffer.
+        /// This method is used to inject test data into the virtual interface's receive buffer.
         /// </summary>
-        /// <param name="data">Data to receive</param>
+        /// <param name="data">The byte array containing the data to add to the receive buffer.</param>
         public void SimulateReceivedData(byte[] data)
         {
             _dataReceived.AddRange(data);
         }
 
         /// <summary>
-        /// Simulates transmitting data to device. <br/>
-        /// This is simply a mockup of device behavior, so it should be implemented in a way that simulates device behavior.
+        /// Simulates the processing of transmitted data by the virtual device.
+        /// This abstract method must be implemented by derived classes to define specific device behaviors.
         /// </summary>
         /// <remarks>
-        /// Should simulate data being processed by device and device responses - for example if device is designed to echo
-        /// data back, it should be added to received data, if device is designed to multiply data by 2, then this method should
-        /// take data, multiply it by 2 and add to received data.
+        /// Implementations should simulate the device's response to received data. For example:
+        /// - For an echo device: Add the received data back to the receive buffer
+        /// - For a processing device: Transform the data (e.g., multiply by 2) and add the result to the receive buffer
+        /// - For a protocol device: Generate appropriate protocol responses based on the received data
         /// </remarks>
+        /// <param name="data">The byte array containing the data to be processed by the virtual device.</param>
+        /// <returns>A ValueTask containing a boolean indicating whether the data was successfully processed.</returns>
         public abstract ValueTask<bool> SimulateTransmittedData(byte[] data);
     }
 }
