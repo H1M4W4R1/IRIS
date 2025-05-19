@@ -30,6 +30,7 @@ namespace IRIS.Protocols.IRIS
         /// <summary>
         /// Standard response indicating operation failure.
         /// </summary>
+        // ReSharper disable once UnusedMember.Local
         private const string RESPONSE_ERROR = "ERROR";
         
         /// <summary>
