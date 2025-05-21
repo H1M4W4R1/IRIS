@@ -17,6 +17,5 @@ It's designed to be able to easily implement new devices, protocols and communic
 ## Subpackages
 * [IRIS.Serial](https://github.com/H1M4W4R1/IRIS.Serial) - 
 Serial communication via COM ports
-* [IRIS.Bluetooth.Windows](https://github.com/H1M4W4R1/IRIS.Bluetooth.Windows) - Bluetooth 
-communication on Windows (using WinRT API)
+* [IRIS.Bluetooth](https://github.com/H1M4W4R1/IRIS.Bluetooth) - BluetoothLE Communication 
 
