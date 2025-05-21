@@ -3,9 +3,9 @@
 namespace IRIS.Operations.Data
 {
     /// <summary>
-    ///     Result indicating that data was not successfully received.
+    ///     Result indicating that not enough data was available to perform the operation.
     /// </summary>
-    public readonly struct DeviceDataReadFailedResult : IDeviceOperationResult
+    public readonly struct DeviceHasNotEnoughDataAvailableResult : IDeviceOperationResult
     {
         /// <summary>
         ///     Gets a value indicating whether the operation was successful.
@@ -16,6 +16,6 @@ namespace IRIS.Operations.Data
         ///     Implicitly converts the result to a boolean indicating success.
         /// </summary>
         /// <param name="result">The result to convert.</param>
-        public static implicit operator bool(DeviceDataReadFailedResult result) => result.IsSuccess; 
+        public static implicit operator bool(DeviceHasNotEnoughDataAvailableResult result) => result.IsSuccess; 
     }
 }

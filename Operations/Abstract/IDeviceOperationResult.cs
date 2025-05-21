@@ -8,11 +8,12 @@ namespace IRIS.Operations.Abstract
     /// </summary>
     /// <typeparam name="TDataType">Type of data included in the result.</typeparam>
     public interface IDeviceOperationResult<out TDataType> : IDeviceOperationResult
+        where TDataType : notnull
     {
         /// <summary>
         ///     Data included in the result.
         /// </summary>
-        TDataType? Data { get; }
+        TDataType Data { get; }
 
         /// <summary>
         ///     Gets a value indicating whether the operation was successful.

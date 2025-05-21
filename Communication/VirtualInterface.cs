@@ -89,13 +89,13 @@ namespace IRIS.Communication
             if (cancellationToken.IsCancellationRequested) return DeviceOperation.Result<DeviceTimeoutResult>();
  
             // Check total length
-            if (totalLength < length) return DeviceOperation.Result<DeviceDataReadFailedResult>();
+            if (totalLength < length) return DeviceOperation.Result<DeviceReadFailedResult>();
             
             // Get data and remove old one
             byte[] data = _dataReceived.GetRange(0, length).ToArray();
             _dataReceived.RemoveRange(0, length);
 
-            return new DataReceivedSuccessfullyResult<byte[]>(data);
+            return new DeviceDataReadSuccessfulResult<byte[]>(data);
         }
 
         /// <summary>
@@ -119,14 +119,14 @@ namespace IRIS.Communication
 
             int dataIndex = _dataReceived.IndexOf(receivedByte);
             if (dataIndex < 0 || dataIndex > _dataReceived.Count) 
-                return DeviceOperation.Result<DeviceDataReadFailedResult>();
+                return DeviceOperation.Result<DeviceReadFailedResult>();
 
             // Get data and remove old one
             int length = dataIndex + 1;
             byte[] data = _dataReceived.GetRange(0, length).ToArray();
             _dataReceived.RemoveRange(0, length);
 
-            return new DataReceivedSuccessfullyResult<byte[]>(data);
+            return new DeviceDataReadSuccessfulResult<byte[]>(data);
         }
 
 #endregion
