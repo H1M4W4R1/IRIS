@@ -1,5 +1,7 @@
 ﻿using IRIS.Addressing.Abstract;
 using IRIS.Communication;
+using IRIS.Operations.Abstract;
+using IRIS.Operations.Generic;
 
 namespace IRIS.Devices
 {
@@ -28,16 +30,14 @@ namespace IRIS.Devices
         /// Establishes a connection to the physical device using the configured communication interface.
         /// </summary>
         /// <param name="cancellationToken">A token that can be used to cancel the connection attempt.</param>
-        /// <returns>A ValueTask containing a boolean indicating whether the connection was successful.</returns>
-        public virtual ValueTask<bool> Connect(CancellationToken cancellationToken = default)
+        public virtual ValueTask<IDeviceOperationResult> Connect(CancellationToken cancellationToken = default)
             => HardwareAccess.Connect(cancellationToken);
 
         /// <summary>
         /// Terminates the connection to the physical device using the configured communication interface.
         /// </summary>
         /// <param name="cancellationToken">A token that can be used to cancel the disconnection attempt.</param>
-        /// <returns>A ValueTask containing a boolean indicating whether the disconnection was successful.</returns>
-        public virtual ValueTask<bool> Disconnect(CancellationToken cancellationToken = default)
+        public virtual ValueTask<IDeviceOperationResult> Disconnect(CancellationToken cancellationToken = default)
             => HardwareAccess.Disconnect();
 
         /// <summary>

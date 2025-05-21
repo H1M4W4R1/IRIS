@@ -1,4 +1,7 @@
-﻿namespace IRIS.Communication
+﻿using IRIS.Operations.Abstract;
+using IRIS.Operations.Generic;
+
+namespace IRIS.Communication
 {
     /// <summary>
     /// Represents a communication interface between a device and computer system.
@@ -41,7 +44,7 @@
         /// <returns>
         /// A ValueTask containing a boolean indicating whether the connection was successful.
         /// </returns>
-        ValueTask<bool> Connect(CancellationToken cancellationToken = default);
+        ValueTask<IDeviceOperationResult> Connect(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Terminates the connection to the physical device.
@@ -49,6 +52,6 @@
         /// <returns>
         /// A ValueTask containing a boolean indicating whether the disconnection was successful.
         /// </returns>
-        ValueTask<bool> Disconnect();
+        ValueTask<IDeviceOperationResult> Disconnect();
     }
 }

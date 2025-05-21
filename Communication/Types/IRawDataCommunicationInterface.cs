@@ -1,4 +1,6 @@
-﻿namespace IRIS.Communication.Types
+﻿using IRIS.Operations.Abstract;
+
+namespace IRIS.Communication.Types
 {
     /// <summary>
     /// Represents a raw data communication interface that enables sending and receiving raw binary data.
@@ -26,7 +28,7 @@
         /// <returns>
         /// A ValueTask containing a boolean indicating whether the transmission was successful.
         /// </returns>
-        public ValueTask<bool> TransmitRawData(byte[] data);
+        public ValueTask<IDeviceOperationResult> TransmitRawData(byte[] data);
 
         /// <summary>
         /// Reads a specified amount of raw binary data from the connected device.
@@ -36,7 +38,7 @@
         /// <returns>
         /// A ValueTask containing a byte array with the read data.
         /// </returns>
-        public ValueTask<byte[]> ReadRawData(int length, CancellationToken cancellationToken);
+        public ValueTask<IDeviceOperationResult> ReadRawData(int length, CancellationToken cancellationToken);
 
         /// <summary>
         /// Reads raw binary data from the connected device until a specific byte is encountered.
@@ -46,6 +48,6 @@
         /// <returns>
         /// A ValueTask containing a byte array with all data read up to and including the expected byte.
         /// </returns>
-        public ValueTask<byte[]> ReadRawDataUntil(byte expectedByte, CancellationToken cancellationToken);
+        public ValueTask<IDeviceOperationResult> ReadRawDataUntil(byte expectedByte, CancellationToken cancellationToken);
     }
 }

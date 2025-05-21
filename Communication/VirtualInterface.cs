@@ -1,4 +1,10 @@
 ﻿using IRIS.Communication.Types;
+using IRIS.Operations;
+using IRIS.Operations.Abstract;
+using IRIS.Operations.Connection;
+using IRIS.Operations.Data;
+using IRIS.Operations.Generic;
+using IRIS.Utility.Awaitable;
 
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
 
@@ -33,21 +39,23 @@ namespace IRIS.Communication
         /// Simulates establishing a connection with the virtual device.
         /// </summary>
         /// <param name="cancellationToken">A token that can be used to cancel the connection attempt.</param>
-        /// <returns>A ValueTask containing a boolean indicating whether the connection was successfully established.</returns>
-        public ValueTask<bool> Connect(CancellationToken cancellationToken)
+        public ValueTask<IDeviceOperationResult> Connect(CancellationToken cancellationToken)
         {
+            if (IsOpen) return DeviceOperation.VResult<DeviceConnectedSuccessfullyResult>();
+            
             IsOpen = true;
-            return ValueTask.FromResult(true);
+            return DeviceOperation.VResult<DeviceConnectedSuccessfullyResult>();
         }
 
         /// <summary>
         /// Simulates terminating the connection with the virtual device.
         /// </summary>
-        /// <returns>A ValueTask containing a boolean indicating whether the disconnection was successful.</returns>
-        public ValueTask<bool> Disconnect()
+        public ValueTask<IDeviceOperationResult> Disconnect()
         {
+            if (!IsOpen) return DeviceOperation.VResult<DeviceDisconnectedSuccessfullyResult>();
+            
             IsOpen = false;
-            return ValueTask.FromResult(true);
+            return DeviceOperation.VResult<DeviceDisconnectedSuccessfullyResult>();
         }
 
 #region IRawDataCommunicationInterface
@@ -58,7 +66,7 @@ namespace IRIS.Communication
         /// </summary>
         /// <param name="data">The byte array containing the data to transmit to the virtual device.</param>
         /// <returns>A ValueTask containing a boolean indicating whether the transmission was successful.</returns>
-        ValueTask<bool> IRawDataCommunicationInterface.TransmitRawData(byte[] data) =>
+        ValueTask<IDeviceOperationResult> IRawDataCommunicationInterface.TransmitRawData(byte[] data) =>
             SimulateTransmittedData(data);
 
         /// <summary>
@@ -67,23 +75,27 @@ namespace IRIS.Communication
         /// </summary>
         /// <param name="length">The number of bytes to read from the receive buffer.</param>
         /// <param name="cancellationToken">A token that can be used to cancel the read operation.</param>
-        /// <returns>
-        /// A ValueTask containing a byte array with the read data. Returns an empty array if the requested
-        /// amount of data is not available or if the interface is not open.
-        /// </returns>
-        ValueTask<byte[]> IRawDataCommunicationInterface.ReadRawData(
+        async ValueTask<IDeviceOperationResult> IRawDataCommunicationInterface.ReadRawData(
             int length,
             CancellationToken cancellationToken)
         {
-            if (_dataReceived.Count < length) return ValueTask.FromResult(Array.Empty<byte>());
-
-            if (!IsOpen) return ValueTask.FromResult(Array.Empty<byte>());
-
+            // Check if device is open
+            if (!IsOpen) return DeviceOperation.Result<DeviceNotConnectedResult>();
+            
+            // Wait until data was read
+            int totalLength = await new WaitUntilCollectionExceeds<byte>(_dataReceived, length);
+            
+            // Check cancellation
+            if (cancellationToken.IsCancellationRequested) return DeviceOperation.Result<DeviceTimeoutResult>();
+ 
+            // Check total length
+            if (totalLength < length) return DeviceOperation.Result<DeviceDataReadFailedResult>();
+            
             // Get data and remove old one
             byte[] data = _dataReceived.GetRange(0, length).ToArray();
             _dataReceived.RemoveRange(0, length);
 
-            return ValueTask.FromResult(data);
+            return new DataReceivedSuccessfullyResult<byte[]>(data);
         }
 
         /// <summary>
@@ -92,26 +104,29 @@ namespace IRIS.Communication
         /// </summary>
         /// <param name="receivedByte">The byte value that signals the end of the read operation.</param>
         /// <param name="cancellationToken">A token that can be used to cancel the read operation.</param>
-        /// <returns>
-        /// A ValueTask containing a byte array with all data read up to and including the specified byte.
-        /// Returns an empty array if the specified byte is not found or if the interface is not open.
-        /// </returns>
-        ValueTask<byte[]> IRawDataCommunicationInterface.ReadRawDataUntil(
+        async ValueTask<IDeviceOperationResult> IRawDataCommunicationInterface.ReadRawDataUntil(
             byte receivedByte,
             CancellationToken cancellationToken)
         {
             // Check if device is open
-            if (!IsOpen) return ValueTask.FromResult(Array.Empty<byte>());
+            if (!IsOpen) return DeviceOperation.Result<DeviceNotConnectedResult>();
+            
+            // Wait until data was read
+            await new WaitUntilCollectionContains<byte>(_dataReceived, receivedByte);
+            
+            // Check cancellation
+            if (cancellationToken.IsCancellationRequested) return DeviceOperation.Result<DeviceTimeoutResult>();
 
             int dataIndex = _dataReceived.IndexOf(receivedByte);
-            if (dataIndex < 0 || dataIndex > _dataReceived.Count) return ValueTask.FromResult(Array.Empty<byte>());
+            if (dataIndex < 0 || dataIndex > _dataReceived.Count) 
+                return DeviceOperation.Result<DeviceDataReadFailedResult>();
 
             // Get data and remove old one
             int length = dataIndex + 1;
             byte[] data = _dataReceived.GetRange(0, length).ToArray();
             _dataReceived.RemoveRange(0, length);
 
-            return ValueTask.FromResult(data);
+            return new DataReceivedSuccessfullyResult<byte[]>(data);
         }
 
 #endregion
@@ -137,7 +152,6 @@ namespace IRIS.Communication
         /// - For a protocol device: Generate appropriate protocol responses based on the received data
         /// </remarks>
         /// <param name="data">The byte array containing the data to be processed by the virtual device.</param>
-        /// <returns>A ValueTask containing a boolean indicating whether the data was successfully processed.</returns>
-        public abstract ValueTask<bool> SimulateTransmittedData(byte[] data);
+        public abstract ValueTask<IDeviceOperationResult> SimulateTransmittedData(byte[] data);
     }
 }
