@@ -19,12 +19,12 @@ namespace IRIS.Utility.Awaitable
         private Action _continuation = () => { };
 
         /// <summary>
-        /// Checks if awaiter was completed
+        ///     Checks if awaiter was completed
         /// </summary>
         public bool IsCompleted => _isCompleted;
-        
+
         /// <summary>
-        /// Gets the result
+        ///     Gets the result
         /// </summary>
         /// <returns>True if array contains desired object</returns>
         public bool GetResult() => _Contains(); 

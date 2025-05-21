@@ -1,25 +1,24 @@
 ﻿using IRIS.Operations.Abstract;
-using IRIS.Operations.Generic;
 
 namespace IRIS.Operations
 {
     /// <summary>
-    /// Provides utility methods for device operation results.
+    ///     Provides utility methods for device operation results.
     /// </summary>
     public static class DeviceOperation
     {
         /// <summary>
-        /// Determines if the operation result indicates success.
+        ///     Determines if the operation result indicates success.
         /// </summary>
         public static bool IsSuccess(IDeviceOperationResult result) => result.IsSuccess;
 
         /// <summary>
-        /// Determines if the operation result indicates failure.
+        ///     Determines if the operation result indicates failure.
         /// </summary>
         public static bool IsFailure(IDeviceOperationResult result) => !result.IsSuccess;
 
         /// <summary>
-        /// Determines if the operation result indicates success and provides a proxy.
+        ///     Determines if the operation result indicates success and provides a proxy.
         /// </summary>
         public static bool IsSuccess(IDeviceOperationResult result, out IDeviceOperationResult proxy)
         {
@@ -28,7 +27,7 @@ namespace IRIS.Operations
         }
 
         /// <summary>
-        /// Determines if the operation result indicates failure and provides a proxy.
+        ///     Determines if the operation result indicates failure and provides a proxy.
         /// </summary>
         public static bool IsFailure(IDeviceOperationResult result, out IDeviceOperationResult proxy)
         {
@@ -37,14 +36,14 @@ namespace IRIS.Operations
         }
 
         /// <summary>
-        /// Returns a value task with the operation result.
+        ///     Returns a value task with the operation result.
         /// </summary>
         public static ValueTask<IDeviceOperationResult> VResult<TOperationResult>()
             where TOperationResult : struct, IDeviceOperationResult =>
             ValueTask.FromResult(Result<TOperationResult>());
 
         /// <summary>
-        /// Returns a new instance of the operation result.
+        ///     Returns a new instance of the operation result.
         /// </summary>
         public static IDeviceOperationResult Result<TOperationResult>()
             where TOperationResult : struct, IDeviceOperationResult => new TOperationResult();

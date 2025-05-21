@@ -3,16 +3,16 @@
 namespace IRIS.Recognition
 {
     /// <summary>
-    /// Represents a device watcher that watches for devices - it can be used to automatically connect to
-    /// devices or to check if device is supported by the system while connecting to it. <br/>
+    ///     Represents a device watcher that watches for devices - it can be used to automatically connect to
+    ///     devices or to check if device is supported by the system while connecting to it. <br />
     /// </summary>
     /// <typeparam name="THardwareAddress">Hardware address of the device, useful for USB CDC</typeparam>
     /// <typeparam name="TSoftwareAddress">Software address of the device</typeparam>
     /// <typeparam name="TSelf">Reference to the derived class type</typeparam>
     /// <remarks>
-    /// This version of interface should be used when hardware and software addresses are different e.g.
-    /// for USB CDC implementation where hardware address is the USB address (VID and PID) and software address
-    /// is the COM port.
+    ///     This version of interface should be used when hardware and software addresses are different e.g.
+    ///     for USB CDC implementation where hardware address is the USB address (VID and PID) and software address
+    ///     is the COM port.
     /// </remarks>
     public abstract class DeviceWatcherBase<TSelf, THardwareAddress, TSoftwareAddress> : IDisposable
         where TSelf : DeviceWatcherBase<TSelf, THardwareAddress, TSoftwareAddress>
@@ -20,47 +20,47 @@ namespace IRIS.Recognition
         where THardwareAddress : struct, IDeviceAddress
     {
         /// <summary>
-        /// Local cancellation token source
+        ///     Local cancellation token source
         /// </summary>
         private readonly CancellationTokenSource _cancellationTokenSource = new();
 
         /// <summary>
-        /// Current cancellation token
+        ///     Current cancellation token
         /// </summary>
         private CancellationToken _currentCancellationToken = CancellationToken.None;
 
         /// <summary>
-        /// List of all software devices
+        ///     List of all software devices
         /// </summary>
         public List<TSoftwareAddress> AllSoftwareDevices { get; } = [];
 
         /// <summary>
-        /// List of all hardware devices
+        ///     List of all hardware devices
         /// </summary>
         public List<THardwareAddress> AllHardwareDevices { get; } = [];
 
         /// <summary>
-        /// Scan interval in milliseconds
+        ///     Scan interval in milliseconds
         /// </summary>
         public int ScanInterval { get; set; } = 500;
 
         /// <summary>
-        /// Event that is raised when a device is added to the system.
+        ///     Event that is raised when a device is added to the system.
         /// </summary>
         public event DeviceAddedEventHandler<THardwareAddress, TSoftwareAddress> OnDeviceAdded = delegate { };
 
         /// <summary>
-        /// Event that is raised when a device is removed from the system.
+        ///     Event that is raised when a device is removed from the system.
         /// </summary>
         public event DeviceRemovedEventHandler<THardwareAddress, TSoftwareAddress> OnDeviceRemoved = delegate { };
 
         /// <summary>
-        /// Determines if the watcher is running
+        ///     Determines if the watcher is running
         /// </summary>
         public bool IsRunning { get; protected set; }
 
         /// <summary>
-        /// Converts hardware device address to software device
+        ///     Converts hardware device address to software device
         /// </summary>
         public TSoftwareAddress TryToGetSoftwareAddress(THardwareAddress hardwareDevice)
         {
@@ -80,7 +80,7 @@ namespace IRIS.Recognition
         }
 
         /// <summary>
-        /// Converts software device address to hardware device
+        ///     Converts software device address to hardware device
         /// </summary>
         /// <returns></returns>
         public THardwareAddress TryToGetHardwareDevice(TSoftwareAddress softwareDevice)
@@ -101,7 +101,7 @@ namespace IRIS.Recognition
         }
 
         /// <summary>
-        /// Start the device watcher.
+        ///     Start the device watcher.
         /// </summary>
         public void Start()
         {
@@ -144,7 +144,7 @@ namespace IRIS.Recognition
         }
 
         /// <summary>
-        /// Stop the device watcher.
+        ///     Stop the device watcher.
         /// </summary>
         public void Stop()
         {
@@ -157,8 +157,8 @@ namespace IRIS.Recognition
         }
 
         /// <summary>
-        /// Scan and update the list of devices. Also, should raise events for devices that were added or removed.
-        /// For example, if a device was added, the event <see cref="OnDeviceAdded"/> should be raised.
+        ///     Scan and update the list of devices. Also, should raise events for devices that were added or removed.
+        ///     For example, if a device was added, the event <see cref="OnDeviceAdded" /> should be raised.
         /// </summary>
         protected async ValueTask ScanForDeviceUpdatesAsync(CancellationToken cancellationToken)
         {
@@ -213,13 +213,13 @@ namespace IRIS.Recognition
         }
 
         /// <summary>
-        /// Scan for currently connected devices.
+        ///     Scan for currently connected devices.
         /// </summary>
         protected abstract ValueTask<(List<THardwareAddress>, List<TSoftwareAddress>)> ScanForDevicesAsync(
             CancellationToken cancellationToken);
 
         /// <summary>
-        /// Dispose the device watcher.
+        ///     Dispose the device watcher.
         /// </summary>
         public void Dispose()
         {
@@ -230,11 +230,11 @@ namespace IRIS.Recognition
     }
 
     /// <summary>
-    /// Represents a device watcher that uses the same address for hardware and software.
+    ///     Represents a device watcher that uses the same address for hardware and software.
     /// </summary>
     /// <remarks>
-    /// This version of interface should be used when hardware and software addresses are the same e.g.
-    /// TCP/IP devices where the address is the IP address.
+    ///     This version of interface should be used when hardware and software addresses are the same e.g.
+    ///     TCP/IP devices where the address is the IP address.
     /// </remarks>
     public abstract class
         DeviceWatcherBase<TSelf, TDeviceAddress> : DeviceWatcherBase<TSelf, TDeviceAddress, TDeviceAddress>
