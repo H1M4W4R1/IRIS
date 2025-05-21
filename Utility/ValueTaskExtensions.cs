@@ -16,6 +16,27 @@ namespace IRIS.Utility
         ///     This method executes the ValueTask and handles any exceptions by logging them.
         ///     Exceptions are logged using Debug.WriteLine to avoid losing error information.
         /// </remarks>
+        public static async void Forget<T>(this ValueTask<T> valueTask)
+        {
+            try
+            {
+                await valueTask;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Unhandled exception in Forget: {ex}");
+            }
+        }
+        
+        /// <summary>
+        ///     Executes a ValueTask asynchronously without awaiting its result.
+        ///     This method is useful for fire-and-forget scenarios where the task's result is not needed.
+        /// </summary>
+        /// <param name="valueTask">The ValueTask to execute.</param>
+        /// <remarks>
+        ///     This method executes the ValueTask and handles any exceptions by logging them.
+        ///     Exceptions are logged using Debug.WriteLine to avoid losing error information.
+        /// </remarks>
         public static async void Forget(this ValueTask valueTask)
         {
             try

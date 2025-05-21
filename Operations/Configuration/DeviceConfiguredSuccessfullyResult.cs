@@ -1,21 +1,21 @@
 using IRIS.Operations.Abstract;
 
-namespace IRIS.Operations.Generic
+namespace IRIS.Operations.Configuration
 {
     /// <summary>
-    ///     Represents a result when a device is not properly configured for operations.
+    ///     Represents a result when a device has been successfully configured.
     /// </summary>
-    public readonly struct DeviceNotConfiguredResult : IDeviceOperationResult
+    public readonly struct DeviceConfiguredSuccessfullyResult : IDeviceOperationResult
     {
         /// <summary>
         ///     Gets a value indicating whether the operation was successful.
         /// </summary>
-        public bool IsSuccess => false;
+        public bool IsSuccess => true;
 
         /// <summary>
         ///     Implicitly converts the result to a boolean indicating success.
         /// </summary>
         /// <param name="result">The result to convert.</param>
-        public static implicit operator bool(DeviceNotConfiguredResult result) => result.IsSuccess;
+        public static implicit operator bool(DeviceConfiguredSuccessfullyResult result) => result.IsSuccess;
     }
 }
