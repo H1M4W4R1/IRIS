@@ -1,6 +1,7 @@
 ﻿using IRIS.Communication.Types;
 using IRIS.Operations;
 using IRIS.Operations.Abstract;
+using IRIS.Operations.Attributes;
 using IRIS.Operations.Connection;
 using IRIS.Operations.Data;
 using IRIS.Operations.Generic;
@@ -75,6 +76,7 @@ namespace IRIS.Communication
         /// </summary>
         /// <param name="length">The number of bytes to read from the receive buffer.</param>
         /// <param name="cancellationToken">A token that can be used to cancel the read operation.</param>
+        [OperationReadType(typeof(byte[]))]
         async ValueTask<IDeviceOperationResult> IRawDataCommunicationInterface.ReadRawData(
             int length,
             CancellationToken cancellationToken)
@@ -104,6 +106,7 @@ namespace IRIS.Communication
         /// </summary>
         /// <param name="receivedByte">The byte value that signals the end of the read operation.</param>
         /// <param name="cancellationToken">A token that can be used to cancel the read operation.</param>
+        [OperationReadType(typeof(byte[]))]
         async ValueTask<IDeviceOperationResult> IRawDataCommunicationInterface.ReadRawDataUntil(
             byte receivedByte,
             CancellationToken cancellationToken)
