@@ -95,7 +95,7 @@ namespace IRIS.Communication
             byte[] data = _dataReceived.GetRange(0, length).ToArray();
             _dataReceived.RemoveRange(0, length);
 
-            return new DeviceDataReadSuccessfulResult<byte[]>(data);
+            return new DeviceReadSuccessful<byte[]>(data);
         }
 
         /// <summary>
@@ -126,7 +126,7 @@ namespace IRIS.Communication
             byte[] data = _dataReceived.GetRange(0, length).ToArray();
             _dataReceived.RemoveRange(0, length);
 
-            return new DeviceDataReadSuccessfulResult<byte[]>(data);
+            return new DeviceReadSuccessful<byte[]>(data);
         }
 
 #endregion

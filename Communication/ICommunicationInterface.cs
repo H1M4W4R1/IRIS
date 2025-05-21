@@ -40,17 +40,11 @@ namespace IRIS.Communication
         ///     Establishes a connection to the physical device.
         /// </summary>
         /// <param name="cancellationToken">A token that can be used to cancel the connection attempt.</param>
-        /// <returns>
-        ///     A ValueTask containing a boolean indicating whether the connection was successful.
-        /// </returns>
         ValueTask<IDeviceOperationResult> Connect(CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Terminates the connection to the physical device.
         /// </summary>
-        /// <returns>
-        ///     A ValueTask containing a boolean indicating whether the disconnection was successful.
-        /// </returns>
         ValueTask<IDeviceOperationResult> Disconnect();
     }
 }

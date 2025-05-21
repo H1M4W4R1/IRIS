@@ -25,9 +25,6 @@ namespace IRIS.Communication.Types
         ///     Transmits raw binary data to the connected device.
         /// </summary>
         /// <param name="data">The byte array containing the data to transmit.</param>
-        /// <returns>
-        ///     A ValueTask containing a boolean indicating whether the transmission was successful.
-        /// </returns>
         public ValueTask<IDeviceOperationResult> TransmitRawData(byte[] data);
 
         /// <summary>
@@ -35,9 +32,6 @@ namespace IRIS.Communication.Types
         /// </summary>
         /// <param name="length">The number of bytes to read from the device.</param>
         /// <param name="cancellationToken">A token that can be used to cancel the read operation.</param>
-        /// <returns>
-        ///     A ValueTask containing a byte array with the read data.
-        /// </returns>
         public ValueTask<IDeviceOperationResult> ReadRawData(int length, CancellationToken cancellationToken);
 
         /// <summary>
@@ -45,9 +39,6 @@ namespace IRIS.Communication.Types
         /// </summary>
         /// <param name="expectedByte">The byte value that signals the end of the read operation.</param>
         /// <param name="cancellationToken">A token that can be used to cancel the read operation.</param>
-        /// <returns>
-        ///     A ValueTask containing a byte array with all data read up to and including the expected byte.
-        /// </returns>
         public ValueTask<IDeviceOperationResult> ReadRawDataUntil(byte expectedByte, CancellationToken cancellationToken);
     }
 }

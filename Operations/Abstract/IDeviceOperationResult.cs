@@ -22,9 +22,8 @@ namespace IRIS.Operations.Abstract
         ///     This aggressively overrides and reverse-proxies the <see cref="IDeviceOperationResult.IsSuccess" />
         ///     property to allow usage of MemberNotNullWhen attribute for better syntax suggestions.
         /// </remarks>
-        [MemberNotNullWhen(true, nameof(Data))]
-        public new bool IsSuccess { get; }
-        
+        [MemberNotNullWhen(true, nameof(Data))] public new bool IsSuccess { get; }
+
         bool IDeviceOperationResult.IsSuccess => IsSuccess;
     }
 
@@ -45,7 +44,29 @@ namespace IRIS.Operations.Abstract
         ///     If you provide different data type than operation was performed with
         ///     this method will return false.
         /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public bool HasData<TDataType>()
+            where TDataType : notnull
+            => this is IDeviceOperationResult<TDataType>;
+
+        /// <summary>
+        ///     Check if the result is operation with data of the specified type.
+        /// </summary>
+        /// <remarks>
+        ///     If you provide different data type than operation was performed with
+        ///     this method will return false.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool HasData<TDataType>() => this is IDeviceOperationResult<TDataType>;
+        public bool TryGetData<TDataType>(out TDataType data)
+            where TDataType : notnull
+        {
+            if (this is IDeviceOperationResult<TDataType> result)
+            {
+                data = result.Data;
+                return true;
+            }
+
+            data = default!;
+            return false;
+        }
     }
 }
