@@ -67,7 +67,9 @@ namespace IRIS.Communication
         ///     This method implements the <see cref="IRawDataCommunicationInterface.TransmitRawData" /> interface method.
         /// </summary>
         /// <param name="data">The byte array containing the data to transmit to the virtual device.</param>
-        ValueTask<IDeviceOperationResult> IRawDataCommunicationInterface.TransmitRawData(byte[] data) =>
+        /// <param name="cancellationToken">A token that can be used to cancel the transmission operation.</param>
+        ValueTask<IDeviceOperationResult> IRawDataCommunicationInterface.TransmitRawData(byte[] data,
+            CancellationToken cancellationToken) =>
             SimulateTransmittedData(data);
 
         /// <summary>
@@ -155,6 +157,7 @@ namespace IRIS.Communication
         ///     - For a protocol device: Generate appropriate protocol responses based on the received data
         /// </remarks>
         /// <param name="data">The byte array containing the data to be processed by the virtual device.</param>
-        public abstract ValueTask<IDeviceOperationResult> SimulateTransmittedData(byte[] data);
+        /// <param name="cancellationToken">A token that can be used to cancel the processing operation.</param>
+        public abstract ValueTask<IDeviceOperationResult> SimulateTransmittedData(byte[] data, CancellationToken cancellationToken = default);
     }
 }
