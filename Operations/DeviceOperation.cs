@@ -47,5 +47,25 @@ namespace IRIS.Operations
         /// </summary>
         public static IDeviceOperationResult Result<TOperationResult>()
             where TOperationResult : struct, IDeviceOperationResult => new TOperationResult();
+
+        /// <summary>
+        ///     Returns the data included in the operation result.
+        /// </summary>
+        /// <param name="result">Device operation result.</param>
+        /// <typeparam name="TData">Type of data included in the result.</typeparam>
+        /// <returns>Data included in the operation result or null if the operation result is not of the expected type.</returns>
+        /// <exception cref="InvalidOperationException">Thrown if the operation result is not of the expected type.</exception>
+        public static TData GetData<TData>(IDeviceOperationResult result)
+            where TData : notnull
+        {
+            // Check if operation is of valid type
+            if (result is IDeviceOperationResult<TData> operationResult) return operationResult.Data;
+
+#if DEBUG
+            throw new InvalidOperationException("Operation result is not of the expected type.");
+#else
+            return default!;
+#endif
+        }
     }
 }
